@@ -1,6 +1,6 @@
 {
-  "latest": 3.31,
-  "updateurl": "https://raw.githubusercontent.com/WhackerH/kirya/master/fbitools.lua",
+  "latest": 3.32,
+  "updateurl": "https://raw.githubusercontent.com/L-Barton/Medichelper/master/fbitools%20(1).lua",
   "updlist": "— Код скрипта был частично переписан и оптимизирован. 
 — Был обновлен биндер, исправлены старые ключи. 
 — Адаптация под новые фракции. (Выбор будет доступен после обновления. Фракцию можно будет поменять по курсу игры) 
