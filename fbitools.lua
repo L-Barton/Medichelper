@@ -25,7 +25,7 @@ encoding.default            = 'CP1251'
 u8 = encoding.UTF8
 
 local groupNames = {
-    u8'ÏÄ/ÔÁÐ', u8'Àâòîøêîëà', u8'Ìåäèêè', u8'Ìýðèÿ'
+    u8'ПД/ФБР', u8'Инструкторы', u8'Медики', u8'Мэрия
 }
 
 local cfg =
