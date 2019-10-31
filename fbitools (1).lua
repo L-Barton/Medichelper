@@ -1,6 +1,6 @@
 script_name("FBI Tools")
 script_authors("Thomas Lawson, Sesh Jefferson")
-script_version(3.31)
+script_version(3.32)
 
 require 'lib.moonloader'
 require 'lib.sampfuncs'
@@ -25,7 +25,7 @@ encoding.default            = 'CP1251'
 u8 = encoding.UTF8
 
 local groupNames = {
-    u8'ПД/ФБР', u8'Автошкола', u8'Медики', u8'Мэрия'
+    u8'ГЏГ„/Г”ГЃГђ', u8'ГЂГўГІГ®ГёГЄГ®Г«Г ', u8'ГЊГҐГ¤ГЁГЄГЁ', u8'ГЊГЅГ°ГЁГї'
 }
 
 local cfg =
@@ -37,8 +37,8 @@ local cfg =
         male = true,
         clear = false,
         hud = false,
-        tar = 'тэг',
-        parol = 'пароль',
+        tar = 'ГІГЅГЈ',
+        parol = 'ГЇГ Г°Г®Г«Гј',
         parolb = false,
         tarb = false,
         clistb = false,
@@ -172,232 +172,232 @@ local commands = {}
 local fthelp = {
     {
         cmd = '/ft',
-        desc = 'Открыть меню скрипта',
+        desc = 'ГЋГІГЄГ°Г»ГІГј Г¬ГҐГ­Гѕ Г±ГЄГ°ГЁГЇГІГ ',
         use = '/ft'
     },
     {
         cmd = '/st',
-        desc = 'Попросить игрока заглушить свое Т/С через мегафон [/m]',
+        desc = 'ГЏГ®ГЇГ°Г®Г±ГЁГІГј ГЁГЈГ°Г®ГЄГ  Г§Г ГЈГ«ГіГёГЁГІГј Г±ГўГ®ГҐ Г’/Г‘ Г·ГҐГ°ГҐГ§ Г¬ГҐГЈГ ГґГ®Г­ [/m]',
         use = '/st [id]'
     },
     {
         cmd = '/oop',
-        desc = 'Написать в волну департамента об ООП',
+        desc = 'ГЌГ ГЇГЁГ±Г ГІГј Гў ГўГ®Г«Г­Гі Г¤ГҐГЇГ Г°ГІГ Г¬ГҐГ­ГІГ  Г®ГЎ ГЋГЋГЏ',
         use = '/oop [id]'
     },
     {
         cmd = '/warn',
-        desc = 'Предупредить игрока в волну департамента о нарушении подачи в розыск',
+        desc = 'ГЏГ°ГҐГ¤ГіГЇГ°ГҐГ¤ГЁГІГј ГЁГЈГ°Г®ГЄГ  Гў ГўГ®Г«Г­Гі Г¤ГҐГЇГ Г°ГІГ Г¬ГҐГ­ГІГ  Г® Г­Г Г°ГіГёГҐГ­ГЁГЁ ГЇГ®Г¤Г Г·ГЁ Гў Г°Г®Г§Г»Г±ГЄ',
         use = '/warn [id]'
     },
     {
         cmd = '/su',
-        desc = 'Выдать розыск через диалог',
+        desc = 'Г‚Г»Г¤Г ГІГј Г°Г®Г§Г»Г±ГЄ Г·ГҐГ°ГҐГ§ Г¤ГЁГ Г«Г®ГЈ',
         use = '/su [id]'
     },
     {
         cmd = '/ssu',
-        desc = 'Выдать розыск через серверную команду',
-        use = '/ssu [id] [кол-во звезд] [причина]'
+        desc = 'Г‚Г»Г¤Г ГІГј Г°Г®Г§Г»Г±ГЄ Г·ГҐГ°ГҐГ§ Г±ГҐГ°ГўГҐГ°Г­ГіГѕ ГЄГ®Г¬Г Г­Г¤Гі',
+        use = '/ssu [id] [ГЄГ®Г«-ГўГ® Г§ГўГҐГ§Г¤] [ГЇГ°ГЁГ·ГЁГ­Г ]'
     },
     {
         cmd = '/cput',
-        desc = 'РП отыгровка посадки преступника в автомобиль/мото',
-        use = '/cput [id] [сиденье(не обязательно)]'
+        desc = 'ГђГЏ Г®ГІГ»ГЈГ°Г®ГўГЄГ  ГЇГ®Г±Г Г¤ГЄГЁ ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Гў Г ГўГІГ®Г¬Г®ГЎГЁГ«Гј/Г¬Г®ГІГ®',
+        use = '/cput [id] [Г±ГЁГ¤ГҐГ­ГјГҐ(Г­ГҐ Г®ГЎГїГ§Г ГІГҐГ«ГјГ­Г®)]'
     },
     {
         cmd = '/ceject',
-        desc = 'РП отыгровка высадки преступника из автомобиля/мото',
+        desc = 'ГђГЏ Г®ГІГ»ГЈГ°Г®ГўГЄГ  ГўГ»Г±Г Г¤ГЄГЁ ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  ГЁГ§ Г ГўГІГ®Г¬Г®ГЎГЁГ«Гї/Г¬Г®ГІГ®',
         use = '/ceject [id]'
     },
     {
         cmd = '/deject',
-        desc = 'РП отыгровка вытаскивания преступника из автомобиля/мото',
+        desc = 'ГђГЏ Г®ГІГ»ГЈГ°Г®ГўГЄГ  ГўГ»ГІГ Г±ГЄГЁГўГ Г­ГЁГї ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  ГЁГ§ Г ГўГІГ®Г¬Г®ГЎГЁГ«Гї/Г¬Г®ГІГ®',
         use = '/deject [id]'
     },
     {
         cmd = '/ms',
-        desc = 'РП отыгровка взятия маскировки',
-        use = '/ms [тип]'
+        desc = 'ГђГЏ Г®ГІГ»ГЈГ°Г®ГўГЄГ  ГўГ§ГїГІГЁГї Г¬Г Г±ГЄГЁГ°Г®ГўГЄГЁ',
+        use = '/ms [ГІГЁГЇ]'
     },
     {
         cmd = '/keys',
-        desc = "РП отыгровка сравнения ключей от КПЗ",
+        desc = "ГђГЏ Г®ГІГ»ГЈГ°Г®ГўГЄГ  Г±Г°Г ГўГ­ГҐГ­ГЁГї ГЄГ«ГѕГ·ГҐГ© Г®ГІ ГЉГЏГ‡",
         use = '/keys'
     },
     {
         cmd = '/rh',
-        desc = "Запросить патрульный экипаж в текущий квадрат",
-        use = "/rh [департамент(1 - LSPD, 2 - SFPD, 3 - LVPD)]"
+        desc = "Г‡Г ГЇГ°Г®Г±ГЁГІГј ГЇГ ГІГ°ГіГ«ГјГ­Г»Г© ГЅГЄГЁГЇГ Г¦ Гў ГІГҐГЄГіГ№ГЁГ© ГЄГўГ Г¤Г°Г ГІ",
+        use = "/rh [Г¤ГҐГЇГ Г°ГІГ Г¬ГҐГ­ГІ(1 - LSPD, 2 - SFPD, 3 - LVPD)]"
     },
     {
         cmd = '/tazer',
-        desc = "РП тазер",
+        desc = "ГђГЏ ГІГ Г§ГҐГ°",
         use = '/tazer'
     },
     {
         cmd = "/gr",
-        desc = "Написать в волну департамента о пересечении юрисдикции",
-        use = "/gr [департамент(1 - LSPD, 2 - SFPD, 3 - LVPD)] [причина]"
+        desc = "ГЌГ ГЇГЁГ±Г ГІГј Гў ГўГ®Г«Г­Гі Г¤ГҐГЇГ Г°ГІГ Г¬ГҐГ­ГІГ  Г® ГЇГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГЁ ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГЁ",
+        use = "/gr [Г¤ГҐГЇГ Г°ГІГ Г¬ГҐГ­ГІ(1 - LSPD, 2 - SFPD, 3 - LVPD)] [ГЇГ°ГЁГ·ГЁГ­Г ]"
     },
     {
         cmd = '/df',
-        desc = "Открыть диалог с разминированием бомб",
+        desc = "ГЋГІГЄГ°Г»ГІГј Г¤ГЁГ Г«Г®ГЈ Г± Г°Г Г§Г¬ГЁГ­ГЁГ°Г®ГўГ Г­ГЁГҐГ¬ ГЎГ®Г¬ГЎ",
         use = '/df'
     },
     {
         cmd = '/dmb',
-        desc = 'Открыть /members в диалоге',
+        desc = 'ГЋГІГЄГ°Г»ГІГј /members Гў Г¤ГЁГ Г«Г®ГЈГҐ',
         use = '/dmb'
     },
     {
         cmd = '/ar',
-        desc = 'Попросить разрешение на въезд на военную территорию в волну департамента',
-        use = '/ar [армия(1 - LVA, 2 - SFA)]'
+        desc = 'ГЏГ®ГЇГ°Г®Г±ГЁГІГј Г°Г Г§Г°ГҐГёГҐГ­ГЁГҐ Г­Г  ГўГєГҐГ§Г¤ Г­Г  ГўГ®ГҐГ­Г­ГіГѕ ГІГҐГ°Г°ГЁГІГ®Г°ГЁГѕ Гў ГўГ®Г«Г­Гі Г¤ГҐГЇГ Г°ГІГ Г¬ГҐГ­ГІГ ',
+        use = '/ar [Г Г°Г¬ГЁГї(1 - LVA, 2 - SFA)]'
     },
     {
         cmd = '/pr',
-        desc = 'Правила миранды',
+        desc = 'ГЏГ°Г ГўГЁГ«Г  Г¬ГЁГ°Г Г­Г¤Г»',
         use = '/pr'
     },
     {
         cmd = '/kmdc',
-        desc = 'По РП пробить игрока в КПК',
+        desc = 'ГЏГ® ГђГЏ ГЇГ°Г®ГЎГЁГІГј ГЁГЈГ°Г®ГЄГ  Гў ГЉГЏГЉ',
         use = '/kmdc [id]'
     },
     {
         cmd = '/ftazer',
-        desc = 'РП отыгровка /ftazer',
-        use = '/ftazer [тип]'
+        desc = 'ГђГЏ Г®ГІГ»ГЈГ°Г®ГўГЄГ  /ftazer',
+        use = '/ftazer [ГІГЁГЇ]'
     },
     {
         cmd = '/fvz',
-        desc = 'Вызвать игрока в офис ФБР со старшими',
+        desc = 'Г‚Г»Г§ГўГ ГІГј ГЁГЈГ°Г®ГЄГ  Гў Г®ГґГЁГ± Г”ГЃГђ Г±Г® Г±ГІГ Г°ГёГЁГ¬ГЁ',
         use = '/fvz [id]'
     },
     {
         cmd = '/fbd',
-        desc = 'Запросить причину изменения БД по волне департамента',
+        desc = 'Г‡Г ГЇГ°Г®Г±ГЁГІГј ГЇГ°ГЁГ·ГЁГ­Гі ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГї ГЃГ„ ГЇГ® ГўГ®Г«Г­ГҐ Г¤ГҐГЇГ Г°ГІГ Г¬ГҐГ­ГІГ ',
         use = '/fbd [id]'
     },
     {
         cmd = '/blg',
-        desc = 'Выразить благодарность по волне департамента',
-        use = "/blg [id] [фракция] [причина]"
+        desc = 'Г‚Г»Г°Г Г§ГЁГІГј ГЎГ«Г ГЈГ®Г¤Г Г°Г­Г®Г±ГІГј ГЇГ® ГўГ®Г«Г­ГҐ Г¤ГҐГЇГ Г°ГІГ Г¬ГҐГ­ГІГ ',
+        use = "/blg [id] [ГґГ°Г ГЄГ¶ГЁГї] [ГЇГ°ГЁГ·ГЁГ­Г ]"
     },
     {
         cmd = '/yk',
-        desc = "Открыть шпору УК (Текст шпоры можно изменить в файле moonloader/fbitools/yk.txt)",
+        desc = "ГЋГІГЄГ°Г»ГІГј ГёГЇГ®Г°Гі Г“ГЉ (Г’ГҐГЄГ±ГІ ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® ГЁГ§Г¬ГҐГ­ГЁГІГј Гў ГґГ Г©Г«ГҐ moonloader/fbitools/yk.txt)",
         use = "/yk"
     },
     {
         cmd = '/ak',
-        desc = "Открыть шпору АК (Текст шпоры можно изменить в файле moonloader/fbitools/ak.txt)",
+        desc = "ГЋГІГЄГ°Г»ГІГј ГёГЇГ®Г°Гі ГЂГЉ (Г’ГҐГЄГ±ГІ ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® ГЁГ§Г¬ГҐГ­ГЁГІГј Гў ГґГ Г©Г«ГҐ moonloader/fbitools/ak.txt)",
         use = "/ak"
     },
     {
         cmd = '/fp',
-        desc = "Открыть шпору ФП (Текст шпоры можно изменить в файле moonloader/fbitools/fp.txt)",
+        desc = "ГЋГІГЄГ°Г»ГІГј ГёГЇГ®Г°Гі Г”ГЏ (Г’ГҐГЄГ±ГІ ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® ГЁГ§Г¬ГҐГ­ГЁГІГј Гў ГґГ Г©Г«ГҐ moonloader/fbitools/fp.txt)",
         use = "/fp"
     },
     {
         cmd = '/shp',
-        desc = "Открыть шпору (Текст шпоры можно изменить в файле moonloader/fbitools/shp.txt)",
+        desc = "ГЋГІГЄГ°Г»ГІГј ГёГЇГ®Г°Гі (Г’ГҐГЄГ±ГІ ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® ГЁГ§Г¬ГҐГ­ГЁГІГј Гў ГґГ Г©Г«ГҐ moonloader/fbitools/shp.txt)",
         use = "/shp"
     },
     {
         cmd = '/fyk',
-        desc = 'Поиск по шпоре УК',
-        use = '/fyk [текст]'
+        desc = 'ГЏГ®ГЁГ±ГЄ ГЇГ® ГёГЇГ®Г°ГҐ Г“ГЉ',
+        use = '/fyk [ГІГҐГЄГ±ГІ]'
     },
     {
         cmd = '/fak',
-        desc = 'Поиск по шпоре АК',
-        use = '/fak [текст]'
+        desc = 'ГЏГ®ГЁГ±ГЄ ГЇГ® ГёГЇГ®Г°ГҐ ГЂГЉ',
+        use = '/fak [ГІГҐГЄГ±ГІ]'
     },
     {
         cmd = '/ffp',
-        desc = 'Поиск по шпоре ФП',
-        use = '/ffp [текст]'
+        desc = 'ГЏГ®ГЁГ±ГЄ ГЇГ® ГёГЇГ®Г°ГҐ Г”ГЏ',
+        use = '/ffp [ГІГҐГЄГ±ГІ]'
     },
     {
         cmd = '/fshp',
-        desc = 'Поиск по шпоре',
-        use = '/fshp [текст]'
+        desc = 'ГЏГ®ГЁГ±ГЄ ГЇГ® ГёГЇГ®Г°ГҐ',
+        use = '/fshp [ГІГҐГЄГ±ГІ]'
     },
     {
         cmd = '/fst',
-        desc = 'Изменить время',
-        use = '/fst [время]'
+        desc = 'Г€Г§Г¬ГҐГ­ГЁГІГј ГўГ°ГҐГ¬Гї',
+        use = '/fst [ГўГ°ГҐГ¬Гї]'
     },
     {
         cmd = '/fsw',
-        desc = 'Изменить погоду',
-        use = '/fsw [погода]'
+        desc = 'Г€Г§Г¬ГҐГ­ГЁГІГј ГЇГ®ГЈГ®Г¤Гі',
+        use = '/fsw [ГЇГ®ГЈГ®Г¤Г ]'
     },
     {
         cmd = '/cc',
-        desc = 'Очистить чат',
+        desc = 'ГЋГ·ГЁГ±ГІГЁГІГј Г·Г ГІ',
         use = '/cc'
     },
     {
         cmd = '/dkld',
-        desc = 'Сделать доклад',
+        desc = 'Г‘Г¤ГҐГ«Г ГІГј Г¤Г®ГЄГ«Г Г¤',
         use = '/dkld'
     },
     {
         cmd = '/mcheck',
-        desc = 'Пробить по /mdc всех на расстоянии 200 метров',
+        desc = 'ГЏГ°Г®ГЎГЁГІГј ГЇГ® /mdc ГўГ±ГҐГµ Г­Г  Г°Г Г±Г±ГІГ®ГїГ­ГЁГЁ 200 Г¬ГҐГІГ°Г®Гў',
         use = '/mcheck'
     },
     {
         cmd = '/megaf',
-        desc = 'Мегафон с автоотпределением авто',
+        desc = 'ГЊГҐГЈГ ГґГ®Г­ Г± Г ГўГІГ®Г®ГІГЇГ°ГҐГ¤ГҐГ«ГҐГ­ГЁГҐГ¬ Г ГўГІГ®',
         use = '/megaf'
     },
     {
         cmd = '/rlog',
-        desc = 'Открыть лог 25 последних сообщений в рацию',
+        desc = 'ГЋГІГЄГ°Г»ГІГј Г«Г®ГЈ 25 ГЇГ®Г±Г«ГҐГ¤Г­ГЁГµ Г±Г®Г®ГЎГ№ГҐГ­ГЁГ© Гў Г°Г Г¶ГЁГѕ',
         use = '/rlog'
     },
     {
         cmd = '/dlog',
-        desc = 'Открыть лог 25 последних сообщений в департамент',
+        desc = 'ГЋГІГЄГ°Г»ГІГј Г«Г®ГЈ 25 ГЇГ®Г±Г«ГҐГ¤Г­ГЁГµ Г±Г®Г®ГЎГ№ГҐГ­ГЁГ© Гў Г¤ГҐГЇГ Г°ГІГ Г¬ГҐГ­ГІ',
         use = '/dlog'
     },
     {
         cmd = '/sulog',
-        desc = 'Открыть лог 25 последних выдачи розыска',
+        desc = 'ГЋГІГЄГ°Г»ГІГј Г«Г®ГЈ 25 ГЇГ®Г±Г«ГҐГ¤Г­ГЁГµ ГўГ»Г¤Г Г·ГЁ Г°Г®Г§Г»Г±ГЄГ ',
         use = '/sulog'
     },
     {
         cmd = '/smslog',
-        desc = 'Открыть лог 25 последних SMS',
+        desc = 'ГЋГІГЄГ°Г»ГІГј Г«Г®ГЈ 25 ГЇГ®Г±Г«ГҐГ¤Г­ГЁГµ SMS',
         use = '/smslog'
     },
     {
         cmd = '/z',
-        desc = 'Выдать розыск по заготовленым статьям',
-        use = '/z [id] [параметр(не обязательно)]'
+        desc = 'Г‚Г»Г¤Г ГІГј Г°Г®Г§Г»Г±ГЄ ГЇГ® Г§Г ГЈГ®ГІГ®ГўГ«ГҐГ­Г»Г¬ Г±ГІГ ГІГјГїГ¬',
+        use = '/z [id] [ГЇГ Г°Г Г¬ГҐГІГ°(Г­ГҐ Г®ГЎГїГ§Г ГІГҐГ«ГјГ­Г®)]'
     },
     {
         cmd = '/rt',
-        desc = 'Сообщение в рацию без тэга',
-        use = '/rt [текст]'
+        desc = 'Г‘Г®Г®ГЎГ№ГҐГ­ГЁГҐ Гў Г°Г Г¶ГЁГѕ ГЎГҐГ§ ГІГЅГЈГ ',
+        use = '/rt [ГІГҐГЄГ±ГІ]'
     },
     {
         cmd = '/ooplist',
-        desc = 'Список ООП',
-        use = '/ooplist [id(не обязательно)]'
+        desc = 'Г‘ГЇГЁГ±Г®ГЄ ГЋГЋГЏ',
+        use = '/ooplist [id(Г­ГҐ Г®ГЎГїГ§Г ГІГҐГ«ГјГ­Г®)]'
     },
     {
         cmd = '/fkv',
-        desc = 'Поставить метку на квадрат на карте',
-        use = '/fkv [квадрат]'
+        desc = 'ГЏГ®Г±ГІГ ГўГЁГІГј Г¬ГҐГІГЄГі Г­Г  ГЄГўГ Г¤Г°Г ГІ Г­Г  ГЄГ Г°ГІГҐ',
+        use = '/fkv [ГЄГўГ Г¤Г°Г ГІ]'
     },
     {
         cmd = '/fnr',
-        desc = 'Созвать сотрудников на работу',
+        desc = 'Г‘Г®Г§ГўГ ГІГј Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ®Гў Г­Г  Г°Г ГЎГ®ГІГі',
         use = '/fnr'
     }
 }
@@ -406,66 +406,66 @@ local tEditData = {
 	inputActive = false
 }
 local quitReason = {
-    [1] = 'Выход',
-    [2] = 'Кик/Бан',
-    [0] = 'Краш/Вылет'
+    [1] = 'Г‚Г»ГµГ®Г¤',
+    [2] = 'ГЉГЁГЄ/ГЃГ Г­',
+    [0] = 'ГЉГ°Г Гё/Г‚Г»Г«ГҐГІ'
 }
 local sut = [[
-Нанесение телесных повреждений - 2 года
-Вооруженное нападение на гражданских - 3 года
-Вооруженное нападение на гос - 6 лет, запрет на адвоката
-Хулиганство - 1 год
-Неадекватное поведение - 1 год
-Попрошайничество - 1 год
-Оскорбление - 2 года
-Угон транспортного средства - 2 года
-Неподчинение сотрудникам ПО - 1 год
-Уход от сотрудников ПО - 2 года
-Побег с места заключения - 6 лет
-Ношение оружия без лицензии - 1 год и штраф в размере 2000$.
-Изготовление нелегального оружия - 3 года и изъятие
-Приобретение нелегального оружия - 3 года и изъятие
-Продажа нелегального оружия - 3 года и изъятие
-Хранение наркотиков - 3 года и изъятие
-Хранение материалов - 3 года и изъятие
-Употребление наркотиков - 3 года и изъятие
-Порча чужого имущества - 1 год и штраф в размере 5000$
-Уничтожение чужого имущества - 4 года и штраф в размере 15000$
-Проникновение на охр. территорию - 2 года
-Проникновение на част. территорию - 1 год
-Вымогательство - 2 года
-Угрозы - 1 год
-Провокации - 2 года
-Мошенничество - 2 года
-Предложение интимных услуг - 1 год
-Изнасилование гражданина - 3 год
-Укрывательство преступлений - 2 года
-Использование фальшивых документов - 1 год
-Клевета на гос. лицо - 1 год
-Клевета на гос. организации - 2 года
-Ношение военной формы - 2 года, форма подлежит изъятию.
-Покупка ключей от камеры - 6 лет
-Предложение взятки - 2 года
-Совершение теракта - 6 лет, лишение всех лицензий
-Неуплата штрафа - 2 года
-Игнорирование спец. сирен - 1 год
-Превышение полномочий адвоката - 3 года
-Похищение гос. сотрудника - 4 года
-Чистосердечное признание - 1 год
-Наезд на пешехода - 2 года
-Уход с места ДТП - 3 года
-Ограбление - 3 года
-ООП - 6 лет
-Уход - 6 лет
+ГЌГ Г­ГҐГ±ГҐГ­ГЁГҐ ГІГҐГ«ГҐГ±Г­Г»Гµ ГЇГ®ГўГ°ГҐГ¦Г¤ГҐГ­ГЁГ© - 2 ГЈГ®Г¤Г 
+Г‚Г®Г®Г°ГіГ¦ГҐГ­Г­Г®ГҐ Г­Г ГЇГ Г¤ГҐГ­ГЁГҐ Г­Г  ГЈГ°Г Г¦Г¤Г Г­Г±ГЄГЁГµ - 3 ГЈГ®Г¤Г 
+Г‚Г®Г®Г°ГіГ¦ГҐГ­Г­Г®ГҐ Г­Г ГЇГ Г¤ГҐГ­ГЁГҐ Г­Г  ГЈГ®Г± - 6 Г«ГҐГІ, Г§Г ГЇГ°ГҐГІ Г­Г  Г Г¤ГўГ®ГЄГ ГІГ 
+Г•ГіГ«ГЁГЈГ Г­Г±ГІГўГ® - 1 ГЈГ®Г¤
+ГЌГҐГ Г¤ГҐГЄГўГ ГІГ­Г®ГҐ ГЇГ®ГўГҐГ¤ГҐГ­ГЁГҐ - 1 ГЈГ®Г¤
+ГЏГ®ГЇГ°Г®ГёГ Г©Г­ГЁГ·ГҐГ±ГІГўГ® - 1 ГЈГ®Г¤
+ГЋГ±ГЄГ®Г°ГЎГ«ГҐГ­ГЁГҐ - 2 ГЈГ®Г¤Г 
+Г“ГЈГ®Г­ ГІГ°Г Г­Г±ГЇГ®Г°ГІГ­Г®ГЈГ® Г±Г°ГҐГ¤Г±ГІГўГ  - 2 ГЈГ®Г¤Г 
+ГЌГҐГЇГ®Г¤Г·ГЁГ­ГҐГ­ГЁГҐ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ Г¬ ГЏГЋ - 1 ГЈГ®Г¤
+Г“ГµГ®Г¤ Г®ГІ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ®Гў ГЏГЋ - 2 ГЈГ®Г¤Г 
+ГЏГ®ГЎГҐГЈ Г± Г¬ГҐГ±ГІГ  Г§Г ГЄГ«ГѕГ·ГҐГ­ГЁГї - 6 Г«ГҐГІ
+ГЌГ®ГёГҐГ­ГЁГҐ Г®Г°ГіГ¦ГЁГї ГЎГҐГ§ Г«ГЁГ¶ГҐГ­Г§ГЁГЁ - 1 ГЈГ®Г¤ ГЁ ГёГІГ°Г Гґ Гў Г°Г Г§Г¬ГҐГ°ГҐ 2000$.
+Г€Г§ГЈГ®ГІГ®ГўГ«ГҐГ­ГЁГҐ Г­ГҐГ«ГҐГЈГ Г«ГјГ­Г®ГЈГ® Г®Г°ГіГ¦ГЁГї - 3 ГЈГ®Г¤Г  ГЁ ГЁГ§ГєГїГІГЁГҐ
+ГЏГ°ГЁГ®ГЎГ°ГҐГІГҐГ­ГЁГҐ Г­ГҐГ«ГҐГЈГ Г«ГјГ­Г®ГЈГ® Г®Г°ГіГ¦ГЁГї - 3 ГЈГ®Г¤Г  ГЁ ГЁГ§ГєГїГІГЁГҐ
+ГЏГ°Г®Г¤Г Г¦Г  Г­ГҐГ«ГҐГЈГ Г«ГјГ­Г®ГЈГ® Г®Г°ГіГ¦ГЁГї - 3 ГЈГ®Г¤Г  ГЁ ГЁГ§ГєГїГІГЁГҐ
+Г•Г°Г Г­ГҐГ­ГЁГҐ Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў - 3 ГЈГ®Г¤Г  ГЁ ГЁГ§ГєГїГІГЁГҐ
+Г•Г°Г Г­ГҐГ­ГЁГҐ Г¬Г ГІГҐГ°ГЁГ Г«Г®Гў - 3 ГЈГ®Г¤Г  ГЁ ГЁГ§ГєГїГІГЁГҐ
+Г“ГЇГ®ГІГ°ГҐГЎГ«ГҐГ­ГЁГҐ Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў - 3 ГЈГ®Г¤Г  ГЁ ГЁГ§ГєГїГІГЁГҐ
+ГЏГ®Г°Г·Г  Г·ГіГ¦Г®ГЈГ® ГЁГ¬ГіГ№ГҐГ±ГІГўГ  - 1 ГЈГ®Г¤ ГЁ ГёГІГ°Г Гґ Гў Г°Г Г§Г¬ГҐГ°ГҐ 5000$
+Г“Г­ГЁГ·ГІГ®Г¦ГҐГ­ГЁГҐ Г·ГіГ¦Г®ГЈГ® ГЁГ¬ГіГ№ГҐГ±ГІГўГ  - 4 ГЈГ®Г¤Г  ГЁ ГёГІГ°Г Гґ Гў Г°Г Г§Г¬ГҐГ°ГҐ 15000$
+ГЏГ°Г®Г­ГЁГЄГ­Г®ГўГҐГ­ГЁГҐ Г­Г  Г®ГµГ°. ГІГҐГ°Г°ГЁГІГ®Г°ГЁГѕ - 2 ГЈГ®Г¤Г 
+ГЏГ°Г®Г­ГЁГЄГ­Г®ГўГҐГ­ГЁГҐ Г­Г  Г·Г Г±ГІ. ГІГҐГ°Г°ГЁГІГ®Г°ГЁГѕ - 1 ГЈГ®Г¤
+Г‚Г»Г¬Г®ГЈГ ГІГҐГ«ГјГ±ГІГўГ® - 2 ГЈГ®Г¤Г 
+Г“ГЈГ°Г®Г§Г» - 1 ГЈГ®Г¤
+ГЏГ°Г®ГўГ®ГЄГ Г¶ГЁГЁ - 2 ГЈГ®Г¤Г 
+ГЊГ®ГёГҐГ­Г­ГЁГ·ГҐГ±ГІГўГ® - 2 ГЈГ®Г¤Г 
+ГЏГ°ГҐГ¤Г«Г®Г¦ГҐГ­ГЁГҐ ГЁГ­ГІГЁГ¬Г­Г»Гµ ГіГ±Г«ГіГЈ - 1 ГЈГ®Г¤
+Г€Г§Г­Г Г±ГЁГ«Г®ГўГ Г­ГЁГҐ ГЈГ°Г Г¦Г¤Г Г­ГЁГ­Г  - 3 ГЈГ®Г¤
+Г“ГЄГ°Г»ГўГ ГІГҐГ«ГјГ±ГІГўГ® ГЇГ°ГҐГ±ГІГіГЇГ«ГҐГ­ГЁГ© - 2 ГЈГ®Г¤Г 
+Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ Г­ГЁГҐ ГґГ Г«ГјГёГЁГўГ»Гµ Г¤Г®ГЄГіГ¬ГҐГ­ГІГ®Гў - 1 ГЈГ®Г¤
+ГЉГ«ГҐГўГҐГІГ  Г­Г  ГЈГ®Г±. Г«ГЁГ¶Г® - 1 ГЈГ®Г¤
+ГЉГ«ГҐГўГҐГІГ  Г­Г  ГЈГ®Г±. Г®Г°ГЈГ Г­ГЁГ§Г Г¶ГЁГЁ - 2 ГЈГ®Г¤Г 
+ГЌГ®ГёГҐГ­ГЁГҐ ГўГ®ГҐГ­Г­Г®Г© ГґГ®Г°Г¬Г» - 2 ГЈГ®Г¤Г , ГґГ®Г°Г¬Г  ГЇГ®Г¤Г«ГҐГ¦ГЁГІ ГЁГ§ГєГїГІГЁГѕ.
+ГЏГ®ГЄГіГЇГЄГ  ГЄГ«ГѕГ·ГҐГ© Г®ГІ ГЄГ Г¬ГҐГ°Г» - 6 Г«ГҐГІ
+ГЏГ°ГҐГ¤Г«Г®Г¦ГҐГ­ГЁГҐ ГўГ§ГїГІГЄГЁ - 2 ГЈГ®Г¤Г 
+Г‘Г®ГўГҐГ°ГёГҐГ­ГЁГҐ ГІГҐГ°Г ГЄГІГ  - 6 Г«ГҐГІ, Г«ГЁГёГҐГ­ГЁГҐ ГўГ±ГҐГµ Г«ГЁГ¶ГҐГ­Г§ГЁГ©
+ГЌГҐГіГЇГ«Г ГІГ  ГёГІГ°Г ГґГ  - 2 ГЈГ®Г¤Г 
+Г€ГЈГ­Г®Г°ГЁГ°Г®ГўГ Г­ГЁГҐ Г±ГЇГҐГ¶. Г±ГЁГ°ГҐГ­ - 1 ГЈГ®Г¤
+ГЏГ°ГҐГўГ»ГёГҐГ­ГЁГҐ ГЇГ®Г«Г­Г®Г¬Г®Г·ГЁГ© Г Г¤ГўГ®ГЄГ ГІГ  - 3 ГЈГ®Г¤Г 
+ГЏГ®ГµГЁГ№ГҐГ­ГЁГҐ ГЈГ®Г±. Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  - 4 ГЈГ®Г¤Г 
+Г—ГЁГ±ГІГ®Г±ГҐГ°Г¤ГҐГ·Г­Г®ГҐ ГЇГ°ГЁГ§Г­Г Г­ГЁГҐ - 1 ГЈГ®Г¤
+ГЌГ ГҐГ§Г¤ Г­Г  ГЇГҐГёГҐГµГ®Г¤Г  - 2 ГЈГ®Г¤Г 
+Г“ГµГ®Г¤ Г± Г¬ГҐГ±ГІГ  Г„Г’ГЏ - 3 ГЈГ®Г¤Г 
+ГЋГЈГ°Г ГЎГ«ГҐГ­ГЁГҐ - 3 ГЈГ®Г¤Г 
+ГЋГЋГЏ - 6 Г«ГҐГІ
+Г“ГµГ®Г¤ - 6 Г«ГҐГІ
 ]]
 
 local shpt = [[
-Пока что вы не настроили шпору.
-Что бы вставить сюда свой текст вам нужно выполнить ряд дейтсвий:
-1. Открыть папку fbitools которая находится в папке moonloader
-2. Открыть файл shp.txt любым блокнотом
-3. Изменить текст в нем на какой вам нужен
-4. Сохранить файл
+ГЏГ®ГЄГ  Г·ГІГ® ГўГ» Г­ГҐ Г­Г Г±ГІГ°Г®ГЁГ«ГЁ ГёГЇГ®Г°Гі.
+Г—ГІГ® ГЎГ» ГўГ±ГІГ ГўГЁГІГј Г±ГѕГ¤Г  Г±ГўГ®Г© ГІГҐГЄГ±ГІ ГўГ Г¬ Г­ГіГ¦Г­Г® ГўГ»ГЇГ®Г«Г­ГЁГІГј Г°ГїГ¤ Г¤ГҐГ©ГІГ±ГўГЁГ©:
+1. ГЋГІГЄГ°Г»ГІГј ГЇГ ГЇГЄГі fbitools ГЄГ®ГІГ®Г°Г Гї Г­Г ГµГ®Г¤ГЁГІГ±Гї Гў ГЇГ ГЇГЄГҐ moonloader
+2. ГЋГІГЄГ°Г»ГІГј ГґГ Г©Г« shp.txt Г«ГѕГЎГ»Г¬ ГЎГ«Г®ГЄГ­Г®ГІГ®Г¬
+3. Г€Г§Г¬ГҐГ­ГЁГІГј ГІГҐГЄГ±ГІ Гў Г­ГҐГ¬ Г­Г  ГЄГ ГЄГ®Г© ГўГ Г¬ Г­ГіГ¦ГҐГ­
+4. Г‘Г®ГµГ°Г Г­ГЁГІГј ГґГ Г©Г«
 ]]
 
 function sampGetStreamedPlayers()
@@ -484,7 +484,7 @@ function sampGetStreamedPlayers()
 end
 
 function sirenk()
-    if cfg.main.group == 'ПД/ФБР' then 
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then 
         if isCharInAnyCar(PLAYER_PED) then
             local car = storeCarCharIsInNoSave(PLAYER_PED)
             switchCarSiren(car, not isCarSirenOn(car))
@@ -501,7 +501,7 @@ function getClosestPlayerId()
         if streamed then
             local xi, yi, zi = getCharCoordinates(pedID)
             local dist = math.sqrt( (xi - x) ^ 2 + (yi - y) ^ 2 + (zi - z) ^ 2 )
-            if dist < minDist and sampGetFraktionBySkin(i) ~= 'Полиция' and sampGetFraktionBySkin(i) ~= 'FBI' then
+            if dist < minDist and sampGetFraktionBySkin(i) ~= 'ГЏГ®Г«ГЁГ¶ГЁГї' and sampGetFraktionBySkin(i) ~= 'FBI' then
                 minDist = dist
                 closestId = i
             end
@@ -519,7 +519,7 @@ function getClosestPlayerIDinCar()
         if streamed then
             local xi, yi, zi = getCharCoordinates(pedID)
             local dist = math.sqrt( (xi - x) ^ 2 + (yi - y) ^ 2 + (zi - z) ^ 2 )
-            if dist < minDist and sampGetFraktionBySkin(i) ~= 'Полиция' and sampGetFraktionBySkin(i) ~= 'FBI' and isCharInAnyCar(pedID) then
+            if dist < minDist and sampGetFraktionBySkin(i) ~= 'ГЏГ®Г«ГЁГ¶ГЁГї' and sampGetFraktionBySkin(i) ~= 'FBI' and isCharInAnyCar(pedID) then
                 if storeCarCharIsInNoSave(pedID) == veh then
                     minDist = dist
                     closestId = i
@@ -539,7 +539,7 @@ function getClosestPlayerIDinCarD()
         if streamed then
             local xi, yi, zi = getCharCoordinates(pedID)
             local dist = math.sqrt( (xi - x) ^ 2 + (yi - y) ^ 2 + (zi - z) ^ 2 )
-            if dist < minDist and sampGetFraktionBySkin(i) ~= 'Полиция' and sampGetFraktionBySkin(i) ~= 'FBI' and isCharInAnyCar(pedID) then
+            if dist < minDist and sampGetFraktionBySkin(i) ~= 'ГЏГ®Г«ГЁГ¶ГЁГї' and sampGetFraktionBySkin(i) ~= 'FBI' and isCharInAnyCar(pedID) then
                 minDist = dist
                 closestId = i
             end
@@ -549,13 +549,13 @@ function getClosestPlayerIDinCarD()
 end
 
 function cuffk()
-    if cfg.main.group == 'ПД/ФБР' then 
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then 
         local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
         if valid then
             result, targetid = sampGetPlayerIdByCharHandle(ped)
             if result then
                 lua_thread.create(function()
-                    sampSendChat(string.format('/me %s руки преступника и %s наручники', cfg.main.male and 'заломал' or 'заломала', cfg.main.male and 'достал' or 'достала'))
+                    sampSendChat(string.format('/me %s Г°ГіГЄГЁ ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  ГЁ %s Г­Г Г°ГіГ·Г­ГЁГЄГЁ', cfg.main.male and 'Г§Г Г«Г®Г¬Г Г«' or 'Г§Г Г«Г®Г¬Г Г«Г ', cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
                     wait(1400)
                     sampSendChat('/cuff '..targetid)
                     gmegafhandle = ped
@@ -570,7 +570,7 @@ function cuffk()
                 local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
                 if doesCharExist(closehandle) then
                     lua_thread.create(function()
-                        sampSendChat(string.format('/me %s руки преступника и %s наручники', cfg.main.male and 'заломал' or 'заломала', cfg.main.male and 'достал' or 'достала'))
+                        sampSendChat(string.format('/me %s Г°ГіГЄГЁ ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  ГЁ %s Г­Г Г°ГіГ·Г­ГЁГЄГЁ', cfg.main.male and 'Г§Г Г«Г®Г¬Г Г«' or 'Г§Г Г«Г®Г¬Г Г«Г ', cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
                         wait(1400)
                         sampSendChat('/cuff '..closeid)
                         gmegafhandle = closehandle
@@ -585,13 +585,13 @@ function cuffk()
 end
 
 function uncuffk()
-    if cfg.main.group == 'ПД/ФБР' then 
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then 
         local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
         if valid then
             local result, targetid = sampGetPlayerIdByCharHandle(ped)
             if result then
                 lua_thread.create(function()
-                    sampSendChat(string.format('/me %s наручники с преступника', cfg.main.male and 'снял' or 'сняла'))
+                    sampSendChat(string.format('/me %s Г­Г Г°ГіГ·Г­ГЁГЄГЁ Г± ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ ', cfg.main.male and 'Г±Г­ГїГ«' or 'Г±Г­ГїГ«Г '))
                     wait(1400)
                     sampSendChat('/uncuff '..targetid)
                     gmegafhandle = nil
@@ -607,7 +607,7 @@ function uncuffk()
                     local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
                     if doesCharExist(closehandle) then
                         lua_thread.create(function()
-                            sampSendChat(string.format('/me %s наручники с преступника', cfg.main.male and 'снял' or 'сняла'))
+                            sampSendChat(string.format('/me %s Г­Г Г°ГіГ·Г­ГЁГЄГЁ Г± ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ ', cfg.main.male and 'Г±Г­ГїГ«' or 'Г±Г­ГїГ«Г '))
                             wait(1400)
                             sampSendChat('/uncuff '..closeid)
                             gmegafhandle = nil
@@ -623,13 +623,13 @@ function uncuffk()
 end
 
 function followk()
-    if cfg.main.group == 'ПД/ФБР' then 
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then 
         local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
         if valid then
             result, targetid = sampGetPlayerIdByCharHandle(ped)
             if result then
                 lua_thread.create(function()
-                    sampSendChat(string.format('/me %s один из концов наручников к себе, после чего %s за собой преступника', cfg.main.male and 'пристегнул' or 'пристегнула', cfg.main.male and 'повел' or 'повела'))
+                    sampSendChat(string.format('/me %s Г®Г¤ГЁГ­ ГЁГ§ ГЄГ®Г­Г¶Г®Гў Г­Г Г°ГіГ·Г­ГЁГЄГ®Гў ГЄ Г±ГҐГЎГҐ, ГЇГ®Г±Г«ГҐ Г·ГҐГЈГ® %s Г§Г  Г±Г®ГЎГ®Г© ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ ', cfg.main.male and 'ГЇГ°ГЁГ±ГІГҐГЈГ­ГіГ«' or 'ГЇГ°ГЁГ±ГІГҐГЈГ­ГіГ«Г ', cfg.main.male and 'ГЇГ®ГўГҐГ«' or 'ГЇГ®ГўГҐГ«Г '))
                     wait(1400)
                     sampSendChat('/follow '..targetid)
                     gmegafhandle = ped
@@ -644,7 +644,7 @@ function followk()
                 local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
                 if doesCharExist(closehandle) then
                     lua_thread.create(function()
-                        sampSendChat(string.format('/me %s один из концов наручников к себе, после чего %s за собой преступника', cfg.main.male and 'пристегнул' or 'пристегнула', cfg.main.male and 'повел' or 'повела'))
+                        sampSendChat(string.format('/me %s Г®Г¤ГЁГ­ ГЁГ§ ГЄГ®Г­Г¶Г®Гў Г­Г Г°ГіГ·Г­ГЁГЄГ®Гў ГЄ Г±ГҐГЎГҐ, ГЇГ®Г±Г«ГҐ Г·ГҐГЈГ® %s Г§Г  Г±Г®ГЎГ®Г© ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ ', cfg.main.male and 'ГЇГ°ГЁГ±ГІГҐГЈГ­ГіГ«' or 'ГЇГ°ГЁГ±ГІГҐГЈГ­ГіГ«Г ', cfg.main.male and 'ГЇГ®ГўГҐГ«' or 'ГЇГ®ГўГҐГ«Г '))
                         wait(1400)
                         sampSendChat('/follow '..closeid)
                         gmegafhandle = closehandle
@@ -659,18 +659,18 @@ function followk()
 end
 
 function cputk()
-    if cfg.main.group == 'ПД/ФБР' then 
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then 
         local closeid = getClosestPlayerId()
         if closeid ~= -1 then
             local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
             if doesCharExist(closehandle) then
                 lua_thread.create(function()
                     if isCharOnAnyBike(PLAYER_PED) then
-                        sampSendChat(string.format("/me %s преступника на сиденье мотоцикла", cfg.main.male and 'посадил' or 'посадила'))
+                        sampSendChat(string.format("/me %s ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Г­Г  Г±ГЁГ¤ГҐГ­ГјГҐ Г¬Г®ГІГ®Г¶ГЁГЄГ«Г ", cfg.main.male and 'ГЇГ®Г±Г Г¤ГЁГ«' or 'ГЇГ®Г±Г Г¤ГЁГ«Г '))
                         wait(1400)
                         sampSendChat("/cput "..closeid.." 1", -1)
                     else
-                        sampSendChat(string.format("/me %s дверь автомобиля и %s туда преступника", cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула'))
+                        sampSendChat(string.format("/me %s Г¤ГўГҐГ°Гј Г ГўГІГ®Г¬Г®ГЎГЁГ«Гї ГЁ %s ГІГіГ¤Г  ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ ", cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'Г§Г ГІГ®Г«ГЄГ­ГіГ«' or 'Г§Г ГІГ®Г«ГЄГ­ГіГ«Г '))
                         wait(1400)
                         sampSendChat("/cput "..closeid.." "..getFreeSeat(), -1)
                     end
@@ -685,18 +685,18 @@ function cputk()
 end
 
 function cejectk()
-    if cfg.main.group == 'ПД/ФБР' then 
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then 
         if isCharInAnyCar(PLAYER_PED) then
             local closestId = getClosestPlayerIDinCar()
             if closestId ~= -1 then
                 local result, closehandle = sampGetCharHandleBySampPlayerId(closestId)
                 lua_thread.create(function()
                     if isCharOnAnyBike(PLAYER_PED) then
-                        sampSendChat(string.format("/me %s преступника с мотоцикла", cfg.main.male and 'высадил' or 'высадила'))
+                        sampSendChat(string.format("/me %s ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Г± Г¬Г®ГІГ®Г¶ГЁГЄГ«Г ", cfg.main.male and 'ГўГ»Г±Г Г¤ГЁГ«' or 'ГўГ»Г±Г Г¤ГЁГ«Г '))
                         wait(1400)
                         sampSendChat("/ceject "..closestId, -1)
                     else
-                        sampSendChat(string.format("/me %s дверь автомобиля и %s преступника", cfg.main.male and 'открыл' or 'открыл', cfg.main.male and 'высадил' or 'высадила'))
+                        sampSendChat(string.format("/me %s Г¤ГўГҐГ°Гј Г ГўГІГ®Г¬Г®ГЎГЁГ«Гї ГЁ %s ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ ", cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«', cfg.main.male and 'ГўГ»Г±Г Г¤ГЁГ«' or 'ГўГ»Г±Г Г¤ГЁГ«Г '))
                         wait(1400)
                         sampSendChat("/ceject "..closestId)
                     end
@@ -711,13 +711,13 @@ function cejectk()
 end
 
 function takek()
-    if cfg.main.group == 'ПД/ФБР' then 
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then 
         local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
         if valid then
             result, targetid = sampGetPlayerIdByCharHandle(ped)
             if result then
                 lua_thread.create(function()
-                    sampSendChat(string.format('/me надев перчатки, %s руками по торсу', cfg.main.male and 'провел' or 'провела'))
+                    sampSendChat(string.format('/me Г­Г Г¤ГҐГў ГЇГҐГ°Г·Г ГІГЄГЁ, %s Г°ГіГЄГ Г¬ГЁ ГЇГ® ГІГ®Г°Г±Гі', cfg.main.male and 'ГЇГ°Г®ГўГҐГ«' or 'ГЇГ°Г®ГўГҐГ«Г '))
                     wait(1400)
                     sampSendChat('/take '..targetid)
                     gmegafhandle = ped
@@ -732,7 +732,7 @@ function takek()
                 local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
                 if doesCharExist(closehandle) then
                     lua_thread.create(function()
-                        sampSendChat(string.format('/me надев перчатки, %s руками по торсу', cfg.main.male and 'провел' or 'провела'))
+                        sampSendChat(string.format('/me Г­Г Г¤ГҐГў ГЇГҐГ°Г·Г ГІГЄГЁ, %s Г°ГіГЄГ Г¬ГЁ ГЇГ® ГІГ®Г°Г±Гі', cfg.main.male and 'ГЇГ°Г®ГўГҐГ«' or 'ГЇГ°Г®ГўГҐГ«Г '))
                         wait(cfg.commands.zaderjka)
                         sampSendChat('/take '..closeid)
                         gmegafhandle = closehandle
@@ -747,26 +747,26 @@ function takek()
 end
 
 function arrestk()
-    if cfg.main.group == 'ПД/ФБР' then 
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then 
         local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
         if valid then
             result, targetid = sampGetPlayerIdByCharHandle(ped)
             if result then
                 lua_thread.create(function()
-                    --[[sampSendChat(string.format('/me %s камеру', cfg.main.male and 'открыл' or 'открыла'))
+                    --[[sampSendChat(string.format('/me %s ГЄГ Г¬ГҐГ°Гі', cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г '))
                     wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format('/me %s преступника в камеру', cfg.main.male and 'провел' or 'провела'))
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat('/arrest '..targetid)
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format('/me %s камеру', cfg.main.male and 'закрыл' or 'закрыла'))]]
-                    sampSendChat("/do Ключи от камеры висят на поясе.")
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format("/me %s ключи с пояса и %s камеру, после %s туда преступника", cfg.main.male and 'снял' or 'сняла', cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула'))
+                    sampSendChat(string.format('/me %s ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Гў ГЄГ Г¬ГҐГ°Гі', cfg.main.male and 'ГЇГ°Г®ГўГҐГ«' or 'ГЇГ°Г®ГўГҐГ«Г '))
                     wait(cfg.commands.zaderjka)
                     sampSendChat('/arrest '..targetid)
                     wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format("/me %s дверь камеры и %s ключи на пояс", cfg.main.male and 'закрыл' or 'закрыла', cfg.main.male and 'повесил' or 'повесила'))
+                    sampSendChat(string.format('/me %s ГЄГ Г¬ГҐГ°Гі', cfg.main.male and 'Г§Г ГЄГ°Г»Г«' or 'Г§Г ГЄГ°Г»Г«Г '))]]
+                    sampSendChat("/do ГЉГ«ГѕГ·ГЁ Г®ГІ ГЄГ Г¬ГҐГ°Г» ГўГЁГ±ГїГІ Г­Г  ГЇГ®ГїГ±ГҐ.")
+                    wait(cfg.commands.zaderjka)
+                    sampSendChat(string.format("/me %s ГЄГ«ГѕГ·ГЁ Г± ГЇГ®ГїГ±Г  ГЁ %s ГЄГ Г¬ГҐГ°Гі, ГЇГ®Г±Г«ГҐ %s ГІГіГ¤Г  ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ ", cfg.main.male and 'Г±Г­ГїГ«' or 'Г±Г­ГїГ«Г ', cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'Г§Г ГІГ®Г«ГЄГ­ГіГ«' or 'Г§Г ГІГ®Г«ГЄГ­ГіГ«Г '))
+                    wait(cfg.commands.zaderjka)
+                    sampSendChat('/arrest '..targetid)
+                    wait(cfg.commands.zaderjka)
+                    sampSendChat(string.format("/me %s Г¤ГўГҐГ°Гј ГЄГ Г¬ГҐГ°Г» ГЁ %s ГЄГ«ГѕГ·ГЁ Г­Г  ГЇГ®ГїГ±", cfg.main.male and 'Г§Г ГЄГ°Г»Г«' or 'Г§Г ГЄГ°Г»Г«Г ', cfg.main.male and 'ГЇГ®ГўГҐГ±ГЁГ«' or 'ГЇГ®ГўГҐГ±ГЁГ«Г '))
                     gmegafhandle = nil
                     gmegafid = -1
                     gmegaflvl = nil
@@ -779,20 +779,20 @@ function arrestk()
                 local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
                 if doesCharExist(closehandle) then
                     lua_thread.create(function()
-                        --[[sampSendChat(string.format('/me %s камеру', cfg.main.male and 'открыл' or 'открыла'))
+                        --[[sampSendChat(string.format('/me %s ГЄГ Г¬ГҐГ°Гі', cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г '))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(string.format('/me %s преступника в камеру', cfg.main.male and 'провел' or 'провела'))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat('/arrest '..closeid)
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(string.format('/me %s камеру', cfg.main.male and 'закрыл' or 'закрыла'))]]
-                        sampSendChat("/do Ключи от камеры висят на поясе.")
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(string.format("/me %s ключи с пояса и %s камеру, после %s туда преступника", cfg.main.male and 'снял' or 'сняла', cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула'))
+                        sampSendChat(string.format('/me %s ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Гў ГЄГ Г¬ГҐГ°Гі', cfg.main.male and 'ГЇГ°Г®ГўГҐГ«' or 'ГЇГ°Г®ГўГҐГ«Г '))
                         wait(cfg.commands.zaderjka)
                         sampSendChat('/arrest '..closeid)
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(string.format("/me %s дверь камеры и %s ключи на пояс", cfg.main.male and 'закрыл' or 'закрыла', cfg.main.male and 'повесил' or 'повесила'))
+                        sampSendChat(string.format('/me %s ГЄГ Г¬ГҐГ°Гі', cfg.main.male and 'Г§Г ГЄГ°Г»Г«' or 'Г§Г ГЄГ°Г»Г«Г '))]]
+                        sampSendChat("/do ГЉГ«ГѕГ·ГЁ Г®ГІ ГЄГ Г¬ГҐГ°Г» ГўГЁГ±ГїГІ Г­Г  ГЇГ®ГїГ±ГҐ.")
+                        wait(cfg.commands.zaderjka)
+                        sampSendChat(string.format("/me %s ГЄГ«ГѕГ·ГЁ Г± ГЇГ®ГїГ±Г  ГЁ %s ГЄГ Г¬ГҐГ°Гі, ГЇГ®Г±Г«ГҐ %s ГІГіГ¤Г  ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ ", cfg.main.male and 'Г±Г­ГїГ«' or 'Г±Г­ГїГ«Г ', cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'Г§Г ГІГ®Г«ГЄГ­ГіГ«' or 'Г§Г ГІГ®Г«ГЄГ­ГіГ«Г '))
+                        wait(cfg.commands.zaderjka)
+                        sampSendChat('/arrest '..closeid)
+                        wait(cfg.commands.zaderjka)
+                        sampSendChat(string.format("/me %s Г¤ГўГҐГ°Гј ГЄГ Г¬ГҐГ°Г» ГЁ %s ГЄГ«ГѕГ·ГЁ Г­Г  ГЇГ®ГїГ±", cfg.main.male and 'Г§Г ГЄГ°Г»Г«' or 'Г§Г ГЄГ°Г»Г«Г ', cfg.main.male and 'ГЇГ®ГўГҐГ±ГЁГ«' or 'ГЇГ®ГўГҐГ±ГЁГ«Г '))
                         gmegafhandle = nil
                         gmegafid = -1
                         gmegaflvl = nil
@@ -805,30 +805,30 @@ function arrestk()
 end
 
 function dejectk()
-    if cfg.main.group == 'ПД/ФБР' then 
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then 
         local closestId = getClosestPlayerIDinCarD()
         if closestId ~= -1 then
             local result, closehandle = sampGetCharHandleBySampPlayerId(closestId)
             if result then
                 lua_thread.create(function()
                     if isCharInFlyingVehicle(closehandle) then
-                        sampSendChat(string.format("/me %s дверь вертолёта и %s преступника", cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'вытащил' or 'вытащила'))
+                        sampSendChat(string.format("/me %s Г¤ГўГҐГ°Гј ГўГҐГ°ГІГ®Г«ВёГІГ  ГЁ %s ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ ", cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'ГўГ»ГІГ Г№ГЁГ«' or 'ГўГ»ГІГ Г№ГЁГ«Г '))
                         wait(1400)
                         sampSendChat("/deject "..closestId)
                     elseif isCharInModel(closehandle, 481) or isCharInModel(closehandle, 510) then
-                        sampSendChat(string.format("/me скинул преступника с велосипеда", cfg.main.male and 'скинул' or 'скинула'))
+                        sampSendChat(string.format("/me Г±ГЄГЁГ­ГіГ« ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Г± ГўГҐГ«Г®Г±ГЁГЇГҐГ¤Г ", cfg.main.male and 'Г±ГЄГЁГ­ГіГ«' or 'Г±ГЄГЁГ­ГіГ«Г '))
                         wait(1400)
                         sampSendChat("/deject "..closestId)
                     elseif isCharInModel(closehandle, 462) then
-                        sampSendChat(string.format("/me %s преступника со скутера", cfg.main.male and 'скинул' or 'скинула'))
+                        sampSendChat(string.format("/me %s ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Г±Г® Г±ГЄГіГІГҐГ°Г ", cfg.main.male and 'Г±ГЄГЁГ­ГіГ«' or 'Г±ГЄГЁГ­ГіГ«Г '))
                         wait(1400)
                         sampSendChat("/deject "..closestId)
                     elseif isCharOnAnyBike(closehandle) then
-                        sampSendChat(string.format("/me %s преступника с мотоцикла", cfg.main.male and 'скинул' or 'скинула'))
+                        sampSendChat(string.format("/me %s ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Г± Г¬Г®ГІГ®Г¶ГЁГЄГ«Г ", cfg.main.male and 'Г±ГЄГЁГ­ГіГ«' or 'Г±ГЄГЁГ­ГіГ«Г '))
                         wait(1400)
                         sampSendChat("/deject "..closestId)
                     elseif isCharInAnyCar(closehandle) then
-                        sampSendChat(string.format("/me %s окно и %s преступника из машины", cfg.main.male and 'разбил' or 'разбила', cfg.main.male and 'вытолкнул' or 'вытолкнула'))
+                        sampSendChat(string.format("/me %s Г®ГЄГ­Г® ГЁ %s ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  ГЁГ§ Г¬Г ГёГЁГ­Г»", cfg.main.male and 'Г°Г Г§ГЎГЁГ«' or 'Г°Г Г§ГЎГЁГ«Г ', cfg.main.male and 'ГўГ»ГІГ®Г«ГЄГ­ГіГ«' or 'ГўГ»ГІГ®Г«ГЄГ­ГіГ«Г '))
                         wait(1400)
                         sampSendChat("/deject "..closestId)
                     end
@@ -839,9 +839,9 @@ function dejectk()
 end
 
 function hikeyk()
-	if cfg.main.group == 'Мэрия' then
+	if cfg.main.group == 'ГЊГЅГ°ГЁГї' then
 		lua_thread.create(function()
-			sampSendChat(string.format('Приветствую, я адвокат %s. Кто нуждается в моих услугах?', sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' ')))
+			sampSendChat(string.format('ГЏГ°ГЁГўГҐГІГ±ГІГўГіГѕ, Гї Г Г¤ГўГ®ГЄГ ГІ %s. ГЉГІГ® Г­ГіГ¦Г¤Г ГҐГІГ±Гї Гў Г¬Г®ГЁГµ ГіГ±Г«ГіГЈГ Гµ?', sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' ')))
 			wait(1400)
 			sampSendChat(string.format('/b /showpass %s', select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))))
 		end)
@@ -849,16 +849,16 @@ function hikeyk()
 end
 
 function summakeyk()
-	if cfg.main.group == 'Мэрия' then
+	if cfg.main.group == 'ГЊГЅГ°ГЁГї' then
 		lua_thread.create(function()
 			local valid, tped = getCharPlayerIsTargeting(PLAYER_HANDLE)
 			if valid and doesCharExist(tped) then
 				local result, tid = sampGetPlayerIdByCharHandle(tped)
 				if result then
 					local tlvl = sampGetPlayerScore(tid)
-					sampSendChat(string.format('Сумма вашего вызволения составляет %s.', getFreeCost(tlvl)))
+					sampSendChat(string.format('Г‘ГіГ¬Г¬Г  ГўГ ГёГҐГЈГ® ГўГ»Г§ГўГ®Г«ГҐГ­ГЁГї Г±Г®Г±ГІГ ГўГ«ГїГҐГІ %s.', getFreeCost(tlvl)))
 					wait(1400)
-					sampSendChat('Чем желаете оплатить, банком или наличными?')
+					sampSendChat('Г—ГҐГ¬ Г¦ГҐГ«Г ГҐГІГҐ Г®ГЇГ«Г ГІГЁГІГј, ГЎГ Г­ГЄГ®Г¬ ГЁГ«ГЁ Г­Г Г«ГЁГ·Г­Г»Г¬ГЁ?')
 				end
 			end
 		end)
@@ -866,16 +866,16 @@ function summakeyk()
 end
 
 function freenalkeyk()
-	if cfg.main.group == 'Мэрия' then
+	if cfg.main.group == 'ГЊГЅГ°ГЁГї' then
 		lua_thread.create(function()
 			local valid, tped = getCharPlayerIsTargeting(PLAYER_HANDLE)
 			if valid and doesCharExist(tped) then
 				local result, tid = sampGetPlayerIdByCharHandle(tped)
 				if result then
 					local tlvl = sampGetPlayerScore(tid)
-					sampSendChat('/me достал бланк из кейса и начал его заполнять')
+					sampSendChat('/me Г¤Г®Г±ГІГ Г« ГЎГ«Г Г­ГЄ ГЁГ§ ГЄГҐГ©Г±Г  ГЁ Г­Г Г·Г Г« ГҐГЈГ® Г§Г ГЇГ®Г«Г­ГїГІГј')
 					wait(1400)
-					sampSendChat('/me поставил печать в бланке и передал заключенному')
+					sampSendChat('/me ГЇГ®Г±ГІГ ГўГЁГ« ГЇГҐГ·Г ГІГј Гў ГЎГ«Г Г­ГЄГҐ ГЁ ГЇГҐГ°ГҐГ¤Г Г« Г§Г ГЄГ«ГѕГ·ГҐГ­Г­Г®Г¬Гі')
 					wait(1400)
 					sampSendChat(string.format('/free %s 1 %s', tid, getFreeCost(tlvl)))
 				end
@@ -885,16 +885,16 @@ function freenalkeyk()
 end
 
 function freebankkeyk()
-	if cfg.main.group == 'Мэрия' then
+	if cfg.main.group == 'ГЊГЅГ°ГЁГї' then
 		lua_thread.create(function()
 			local valid, tped = getCharPlayerIsTargeting(PLAYER_HANDLE)
 			if valid and doesCharExist(tped) then
 				local result, tid = sampGetPlayerIdByCharHandle(tped)
 				if result then
 					local tlvl = sampGetPlayerScore(tid)
-					sampSendChat('/me достал бланк из кейса и начал его заполнять')
+					sampSendChat('/me Г¤Г®Г±ГІГ Г« ГЎГ«Г Г­ГЄ ГЁГ§ ГЄГҐГ©Г±Г  ГЁ Г­Г Г·Г Г« ГҐГЈГ® Г§Г ГЇГ®Г«Г­ГїГІГј')
 					wait(1400)
-					sampSendChat('/me поставил печать в бланке и передал заключенному')
+					sampSendChat('/me ГЇГ®Г±ГІГ ГўГЁГ« ГЇГҐГ·Г ГІГј Гў ГЎГ«Г Г­ГЄГҐ ГЁ ГЇГҐГ°ГҐГ¤Г Г« Г§Г ГЄГ«ГѕГ·ГҐГ­Г­Г®Г¬Гі')
 					wait(1400)
 					sampSendChat(string.format('/free %s 2 %s', tid, getFreeCost(tlvl)))
 				end
@@ -909,15 +909,15 @@ function vzaimk()
         local result, id = sampGetPlayerIdByCharHandle(ped)
         --targetid = id
         if result then
-            if cfg.main.group == 'ПД/ФБР' then
+            if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
                 gmegafhandle = ped
                 gmegafid = id
                 gmegaflvl = sampGetPlayerScore(id)
                 gmegaffrak = sampGetFraktionBySkin(id)
                 submenus_show(pkmmenuPD(id), "{9966cc}"..script.this.name.." {ffffff}| "..sampGetPlayerNickname(id).." ["..id.."] ")
-            elseif cfg.main.group == "Автошкола" then
+            elseif cfg.main.group == "ГЂГўГІГ®ГёГЄГ®Г«Г " then
                 submenus_show(pkmmenuAS(id), "{9966cc}"..script.this.name.." {ffffff}| "..sampGetPlayerNickname(id).." ["..id.."] ")
-            elseif cfg.main.group == "Медики" then
+            elseif cfg.main.group == "ГЊГҐГ¤ГЁГЄГЁ" then
                 submenus_show(pkmmenuMOH(id), "{9966cc}"..script.this.name.." {ffffff}| "..sampGetPlayerNickname(id).." ["..id.."] ")
             end
         end
@@ -926,7 +926,7 @@ end
 
 function sampGetFraktionBySkin(id)
     local skin = 0
-    local t = 'Гражданский'
+    local t = 'ГѓГ°Г Г¦Г¤Г Г­Г±ГЄГЁГ©'
     --if sampIsPlayerConnected(id) then
         local result, ped = sampGetCharHandleBySampPlayerId(id)
         if result then
@@ -940,16 +940,16 @@ function sampGetFraktionBySkin(id)
         if skin == 114 or skin == 115 or skin == 116 or skin == 48 or skin == 44 or skin == 41 or skin == 292 then t = 'Aztec Gang' end
         if skin == 173 or skin == 174 or skin == 175 or skin == 193 or skin == 226 or skin == 30 or skin == 119 then t = 'Rifa Gang' end
         if skin == 191 or skin == 252 or skin == 287 or skin == 61 or skin == 179 or skin == 255 then t = 'Army' end
-        if skin == 57 or skin == 98 or skin == 147 or skin == 150 or skin == 187 or skin == 216 then t = 'Мэрия' end
-        if skin == 59 or skin == 172 or skin == 189 or skin == 240 then t = 'Автошкола' end
-        if skin == 201 or skin == 247 or skin == 248 or skin == 254 or skin == 248 or skin == 298 then t = 'Байкеры' end
-        if skin == 272 or skin == 112 or skin == 125 or skin == 214 or skin == 111  or skin == 126 then t = 'Русская мафия' end
+        if skin == 57 or skin == 98 or skin == 147 or skin == 150 or skin == 187 or skin == 216 then t = 'ГЊГЅГ°ГЁГї' end
+        if skin == 59 or skin == 172 or skin == 189 or skin == 240 then t = 'ГЂГўГІГ®ГёГЄГ®Г«Г ' end
+        if skin == 201 or skin == 247 or skin == 248 or skin == 254 or skin == 248 or skin == 298 then t = 'ГЃГ Г©ГЄГҐГ°Г»' end
+        if skin == 272 or skin == 112 or skin == 125 or skin == 214 or skin == 111  or skin == 126 then t = 'ГђГіГ±Г±ГЄГ Гї Г¬Г ГґГЁГї' end
         if skin == 113 or skin == 124 or skin == 214 or skin == 223 then t = 'La Cosa Nostra' end
         if skin == 120 or skin == 123 or skin == 169 or skin == 186 then t = 'Yakuza' end
         if skin == 211 or skin == 217 or skin == 250 or skin == 261 then t = 'News' end
-        if skin == 70 or skin == 219 or skin == 274 or skin == 275 or skin == 276 or skin == 70 then t = 'Медики' end
+        if skin == 70 or skin == 219 or skin == 274 or skin == 275 or skin == 276 or skin == 70 then t = 'ГЊГҐГ¤ГЁГЄГЁ' end
         if skin == 286 or skin == 141 or skin == 163 or skin == 164 or skin == 165 or skin == 166 then t = 'FBI' end
-        if skin == 280 or skin == 265 or skin == 266 or skin == 267 or skin == 281 or skin == 282 or skin == 288 or skin == 284 or skin == 285 or skin == 304 or skin == 305 or skin == 306 or skin == 307 or skin == 309 or skin == 283 or skin == 303 then t = 'Полиция' end
+        if skin == 280 or skin == 265 or skin == 266 or skin == 267 or skin == 281 or skin == 282 or skin == 288 or skin == 284 or skin == 285 or skin == 304 or skin == 305 or skin == 306 or skin == 307 or skin == 309 or skin == 283 or skin == 303 then t = 'ГЏГ®Г«ГЁГ¶ГЁГї' end
     --end
     return t
 end
@@ -962,29 +962,29 @@ end
 
 function getMaskList(forma)
 	local mask = {
-		['гражданского'] = 0,
-		['полицейского'] = 1,
-		['военного'] = 2,
-		['лаборатория'] = 3,
-		['медика'] = 3,
-		['сотрудника мэрии'] = 4,
-		['работника автошколы'] = 5,
-		['работника новостей'] = 6,
-		['ЧОП LCN'] = 7,
-		['ЧОП Yakuza'] = 8,
-		['ЧОП Russian Mafia'] = 9,
-		['БК Rifa'] = 10,
-		['БК Grove'] = 11,
-		['БК Ballas'] = 12,
-		['БК Vagos'] = 13,
-		['БК Aztec'] = 14,
-		['байкеров'] = 15
+		['ГЈГ°Г Г¦Г¤Г Г­Г±ГЄГ®ГЈГ®'] = 0,
+		['ГЇГ®Г«ГЁГ¶ГҐГ©Г±ГЄГ®ГЈГ®'] = 1,
+		['ГўГ®ГҐГ­Г­Г®ГЈГ®'] = 2,
+		['Г«Г ГЎГ®Г°Г ГІГ®Г°ГЁГї'] = 3,
+		['Г¬ГҐГ¤ГЁГЄГ '] = 3,
+		['Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  Г¬ГЅГ°ГЁГЁ'] = 4,
+		['Г°Г ГЎГ®ГІГ­ГЁГЄГ  Г ГўГІГ®ГёГЄГ®Г«Г»'] = 5,
+		['Г°Г ГЎГ®ГІГ­ГЁГЄГ  Г­Г®ГўГ®Г±ГІГҐГ©'] = 6,
+		['Г—ГЋГЏ LCN'] = 7,
+		['Г—ГЋГЏ Yakuza'] = 8,
+		['Г—ГЋГЏ Russian Mafia'] = 9,
+		['ГЃГЉ Rifa'] = 10,
+		['ГЃГЉ Grove'] = 11,
+		['ГЃГЉ Ballas'] = 12,
+		['ГЃГЉ Vagos'] = 13,
+		['ГЃГЉ Aztec'] = 14,
+		['ГЎГ Г©ГЄГҐГ°Г®Гў'] = 15
 	}
 	return mask[forma]
 end
 
 local russian_characters = {
-    [168] = 'Ё', [184] = 'ё', [192] = 'А', [193] = 'Б', [194] = 'В', [195] = 'Г', [196] = 'Д', [197] = 'Е', [198] = 'Ж', [199] = 'З', [200] = 'И', [201] = 'Й', [202] = 'К', [203] = 'Л', [204] = 'М', [205] = 'Н', [206] = 'О', [207] = 'П', [208] = 'Р', [209] = 'С', [210] = 'Т', [211] = 'У', [212] = 'Ф', [213] = 'Х', [214] = 'Ц', [215] = 'Ч', [216] = 'Ш', [217] = 'Щ', [218] = 'Ъ', [219] = 'Ы', [220] = 'Ь', [221] = 'Э', [222] = 'Ю', [223] = 'Я', [224] = 'а', [225] = 'б', [226] = 'в', [227] = 'г', [228] = 'д', [229] = 'е', [230] = 'ж', [231] = 'з', [232] = 'и', [233] = 'й', [234] = 'к', [235] = 'л', [236] = 'м', [237] = 'н', [238] = 'о', [239] = 'п', [240] = 'р', [241] = 'с', [242] = 'т', [243] = 'у', [244] = 'ф', [245] = 'х', [246] = 'ц', [247] = 'ч', [248] = 'ш', [249] = 'щ', [250] = 'ъ', [251] = 'ы', [252] = 'ь', [253] = 'э', [254] = 'ю', [255] = 'я',
+    [168] = 'ВЁ', [184] = 'Вё', [192] = 'ГЂ', [193] = 'ГЃ', [194] = 'Г‚', [195] = 'Гѓ', [196] = 'Г„', [197] = 'Г…', [198] = 'Г†', [199] = 'Г‡', [200] = 'Г€', [201] = 'Г‰', [202] = 'ГЉ', [203] = 'Г‹', [204] = 'ГЊ', [205] = 'ГЌ', [206] = 'ГЋ', [207] = 'ГЏ', [208] = 'Гђ', [209] = 'Г‘', [210] = 'Г’', [211] = 'Г“', [212] = 'Г”', [213] = 'Г•', [214] = 'Г–', [215] = 'Г—', [216] = 'Г', [217] = 'Г™', [218] = 'Гљ', [219] = 'Г›', [220] = 'Гњ', [221] = 'Гќ', [222] = 'Гћ', [223] = 'Гџ', [224] = 'Г ', [225] = 'ГЎ', [226] = 'Гў', [227] = 'ГЈ', [228] = 'Г¤', [229] = 'ГҐ', [230] = 'Г¦', [231] = 'Г§', [232] = 'ГЁ', [233] = 'Г©', [234] = 'ГЄ', [235] = 'Г«', [236] = 'Г¬', [237] = 'Г­', [238] = 'Г®', [239] = 'ГЇ', [240] = 'Г°', [241] = 'Г±', [242] = 'ГІ', [243] = 'Гі', [244] = 'Гґ', [245] = 'Гµ', [246] = 'Г¶', [247] = 'Г·', [248] = 'Гё', [249] = 'Г№', [250] = 'Гє', [251] = 'Г»', [252] = 'Гј', [253] = 'ГЅ', [254] = 'Гѕ', [255] = 'Гї',
 }
 function string.rlower(s)
     s = s:lower()
@@ -1023,12 +1023,12 @@ function string.rupper(s)
     return output
 end
 function submenus_show(menu, caption, select_button, close_button, back_button)
-    select_button, close_button, back_button = select_button or '»', close_button or 'x', back_button or '«'
+    select_button, close_button, back_button = select_button or 'В»', close_button or 'x', back_button or 'В«'
     prev_menus = {}
     function display(menu, id, caption)
         local string_list = {}
         for i, v in ipairs(menu) do
-            table.insert(string_list, type(v.submenu) == 'table' and v.title .. ' »' or v.title)
+            table.insert(string_list, type(v.submenu) == 'table' and v.title .. ' В»' or v.title)
         end
         sampShowDialog(id, caption, table.concat(string_list, '\n'), select_button, (#prev_menus > 0) and back_button or close_button, sf.DIALOG_STYLE_LIST)
         repeat
@@ -1064,161 +1064,161 @@ end
 
 local dfmenu = {
     {
-        title = 'Бомба с часовым механизмом',
+        title = 'ГЃГ®Г¬ГЎГ  Г± Г·Г Г±Г®ГўГ»Г¬ Г¬ГҐГµГ Г­ГЁГ§Г¬Г®Г¬',
         onclick = function()
-            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'достал' or 'достала'))
+            sampSendChat(("/me %s Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
             wait(3500)
-            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'открыл' or 'открыла'))
+            sampSendChat(("/me %s Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г '))
             wait(3500)
-            sampSendChat(("/me %s взрывное устройство"):format(cfg.main.male and 'осмотрел' or 'осмотрела'))
+            sampSendChat(("/me %s ГўГ§Г°Г»ГўГ­Г®ГҐ ГіГ±ГІГ°Г®Г©Г±ГІГўГ®"):format(cfg.main.male and 'Г®Г±Г¬Г®ГІГ°ГҐГ«' or 'Г®Г±Г¬Г®ГІГ°ГҐГ«Г '))
             wait(3500)
-            sampSendChat(("/do %s тип взрывного устройства. Бомба с часовым механизмом."):format(cfg.main.male and 'Определил' or 'Определила'))
+            sampSendChat(("/do %s ГІГЁГЇ ГўГ§Г°Г»ГўГ­Г®ГЈГ® ГіГ±ГІГ°Г®Г©Г±ГІГўГ . ГЃГ®Г¬ГЎГ  Г± Г·Г Г±Г®ГўГ»Г¬ Г¬ГҐГµГ Г­ГЁГ§Г¬Г®Г¬."):format(cfg.main.male and 'ГЋГЇГ°ГҐГ¤ГҐГ«ГЁГ«' or 'ГЋГЇГ°ГҐГ¤ГҐГ«ГЁГ«Г '))
             wait(3500)
-            sampSendChat(("/do %s три провода выходящих с механизма."):format(cfg.main.male and 'Увидел' or 'Увидела'))
+            sampSendChat(("/do %s ГІГ°ГЁ ГЇГ°Г®ГўГ®Г¤Г  ГўГ»ГµГ®Г¤ГїГ№ГЁГµ Г± Г¬ГҐГµГ Г­ГЁГ§Г¬Г ."):format(cfg.main.male and 'Г“ГўГЁГ¤ГҐГ«' or 'Г“ГўГЁГ¤ГҐГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s нож из саперного набора"):format(cfg.main.male and 'достал' or 'достала'))
+            sampSendChat(("/me %s Г­Г®Г¦ ГЁГ§ Г±Г ГЇГҐГ°Г­Г®ГЈГ® Г­Г ГЎГ®Г°Г "):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
             wait(3500)
-            sampSendChat(("/me аккуратно %s первый провод"):format(cfg.main.male and 'зачистил' or 'зачистила'))
+            sampSendChat(("/me Г ГЄГЄГіГ°Г ГІГ­Г® %s ГЇГҐГ°ГўГ»Г© ГЇГ°Г®ГўГ®Г¤"):format(cfg.main.male and 'Г§Г Г·ГЁГ±ГІГЁГ«' or 'Г§Г Г·ГЁГ±ГІГЁГ«Г '))
             wait(3500)
-            sampSendChat(("/try %s отвертку с индикатором и %s край отвертки к оголённом проводу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'прислонил' or 'прислонила'))
+            sampSendChat(("/try %s Г®ГІГўГҐГ°ГІГЄГі Г± ГЁГ­Г¤ГЁГЄГ ГІГ®Г°Г®Г¬ ГЁ %s ГЄГ°Г Г© Г®ГІГўГҐГ°ГІГЄГЁ ГЄ Г®ГЈГ®Г«ВёГ­Г­Г®Г¬ ГЇГ°Г®ГўГ®Г¤Гі"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г ', cfg.main.male and 'ГЇГ°ГЁГ±Г«Г®Г­ГЁГ«' or 'ГЇГ°ГЁГ±Г«Г®Г­ГЁГ«Г '))
         end
     },
     {
-        title = 'Бомба с часовым механизмом если {63c600}[Удачно]',
+        title = 'ГЃГ®Г¬ГЎГ  Г± Г·Г Г±Г®ГўГ»Г¬ Г¬ГҐГµГ Г­ГЁГ§Г¬Г®Г¬ ГҐГ±Г«ГЁ {63c600}[Г“Г¤Г Г·Г­Г®]',
         onclick = function()
-            sampSendChat(("/me %s проводок"):format(cfg.main.male and 'перерезал' or 'перерезала'))
+            sampSendChat(("/me %s ГЇГ°Г®ГўГ®Г¤Г®ГЄ"):format(cfg.main.male and 'ГЇГҐГ°ГҐГ°ГҐГ§Г Г«' or 'ГЇГҐГ°ГҐГ°ГҐГ§Г Г«Г '))
             wait(3500)
-            sampSendChat(("/me %s к устройству"):format(cfg.main.male and 'прислушался' or 'прислушалась'))
+            sampSendChat(("/me %s ГЄ ГіГ±ГІГ°Г®Г©Г±ГІГўГі"):format(cfg.main.male and 'ГЇГ°ГЁГ±Г«ГіГёГ Г«Г±Гї' or 'ГЇГ°ГЁГ±Г«ГіГёГ Г«Г Г±Гј'))
             wait(3500)
-            sampSendChat("/do Механизм перестал издавать тикающие звуки.")
+            sampSendChat("/do ГЊГҐГµГ Г­ГЁГ§Г¬ ГЇГҐГ°ГҐГ±ГІГ Г« ГЁГ§Г¤Г ГўГ ГІГј ГІГЁГЄГ ГѕГ№ГЁГҐ Г§ГўГіГЄГЁ.")
             wait(3500)
-            sampSendChat("/do Бомба обезврежена.")
+            sampSendChat("/do ГЃГ®Г¬ГЎГ  Г®ГЎГҐГ§ГўГ°ГҐГ¦ГҐГ­Г .")
             wait(3500)
-            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЁГ­Г±ГІГ°ГіГ¬ГҐГ­ГІГ» Г®ГЎГ°Г ГІГ­Г® Гў Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЎГ°Г®Г­ГЁГ°Г®ГўГ Г­Г­Г»Г© ГЄГҐГ©Г± ГЁ Г ГЄГЄГіГ°Г ГІГ­Г® %s ГІГіГ¤Г  ГЎГ®Г¬ГЎГі"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г ', cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
         end
     },
     {
-        title = 'Бомба с часовым механизмом если {bf0000}[Неудачно]',
+        title = 'ГЃГ®Г¬ГЎГ  Г± Г·Г Г±Г®ГўГ»Г¬ Г¬ГҐГµГ Г­ГЁГ§Г¬Г®Г¬ ГҐГ±Г«ГЁ {bf0000}[ГЌГҐГіГ¤Г Г·Г­Г®]',
         onclick = function()
-            sampSendChat(("/me аккуратно %s второй провод"):format(cfg.main.male and 'зачистил' or 'зачистила'))
+            sampSendChat(("/me Г ГЄГЄГіГ°Г ГІГ­Г® %s ГўГІГ®Г°Г®Г© ГЇГ°Г®ГўГ®Г¤"):format(cfg.main.male and 'Г§Г Г·ГЁГ±ГІГЁГ«' or 'Г§Г Г·ГЁГ±ГІГЁГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s проводок"):format(cfg.main.male and 'перерезал' or 'перерезала'))
+            sampSendChat(("/me %s ГЇГ°Г®ГўГ®Г¤Г®ГЄ"):format(cfg.main.male and 'ГЇГҐГ°ГҐГ°ГҐГ§Г Г«' or 'ГЇГҐГ°ГҐГ°ГҐГ§Г Г«Г '))
             wait(3500)
-            sampSendChat(("/me %s к устройству"):format(cfg.main.male and 'прислушался' or 'прислушалась'))
+            sampSendChat(("/me %s ГЄ ГіГ±ГІГ°Г®Г©Г±ГІГўГі"):format(cfg.main.male and 'ГЇГ°ГЁГ±Г«ГіГёГ Г«Г±Гї' or 'ГЇГ°ГЁГ±Г«ГіГёГ Г«Г Г±Гј'))
             wait(3500)
-            sampSendChat("/do Механизм перестал издавать тикающие звуки.")
+            sampSendChat("/do ГЊГҐГµГ Г­ГЁГ§Г¬ ГЇГҐГ°ГҐГ±ГІГ Г« ГЁГ§Г¤Г ГўГ ГІГј ГІГЁГЄГ ГѕГ№ГЁГҐ Г§ГўГіГЄГЁ.")
             wait(3500)
-            sampSendChat("/do Бомба обезврежена.")
+            sampSendChat("/do ГЃГ®Г¬ГЎГ  Г®ГЎГҐГ§ГўГ°ГҐГ¦ГҐГ­Г .")
             wait(3500)
-            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЁГ­Г±ГІГ°ГіГ¬ГҐГ­ГІГ» Г®ГЎГ°Г ГІГ­Г® Гў Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЎГ°Г®Г­ГЁГ°Г®ГўГ Г­Г­Г»Г© ГЄГҐГ©Г± ГЁ Г ГЄГЄГіГ°Г ГІГ­Г® %s ГІГіГ¤Г  ГЎГ®Г¬ГЎГі"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г ', cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
         end
     },
     {
-        title = 'Бомба с дистанционным управлением',
+        title = 'ГЃГ®Г¬ГЎГ  Г± Г¤ГЁГ±ГІГ Г­Г¶ГЁГ®Г­Г­Г»Г¬ ГіГЇГ°Г ГўГ«ГҐГ­ГЁГҐГ¬',
         onclick = function()
-            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'достал' or 'достала'))
+            sampSendChat(("/me %s Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
             wait(3500)
-            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'открыл' or 'открыла'))
+            sampSendChat(("/me %s Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г '))
             wait(3500)
-            sampSendChat(("/me %s взрывное устройство"):format(cfg.main.male and 'осмотрел' or 'осмотрела'))
+            sampSendChat(("/me %s ГўГ§Г°Г»ГўГ­Г®ГҐ ГіГ±ГІГ°Г®Г©Г±ГІГўГ®"):format(cfg.main.male and 'Г®Г±Г¬Г®ГІГ°ГҐГ«' or 'Г®Г±Г¬Г®ГІГ°ГҐГ«Г '))
             wait(3500)
-            sampSendChat(("/do %s тип взрывного устройства. Бомба с дистанционным управлением."):format(cfg.main.male and 'Определил' or 'Определила'))
+            sampSendChat(("/do %s ГІГЁГЇ ГўГ§Г°Г»ГўГ­Г®ГЈГ® ГіГ±ГІГ°Г®Г©Г±ГІГўГ . ГЃГ®Г¬ГЎГ  Г± Г¤ГЁГ±ГІГ Г­Г¶ГЁГ®Г­Г­Г»Г¬ ГіГЇГ°Г ГўГ«ГҐГ­ГЁГҐГ¬."):format(cfg.main.male and 'ГЋГЇГ°ГҐГ¤ГҐГ«ГЁГ«' or 'ГЋГЇГ°ГҐГ¤ГҐГ«ГЁГ«Г '))
             wait(3500)
-            sampSendChat(("/do %s два шурупа на блоке с механизмом."):format(cfg.main.male and 'Увидел' or 'Увидела'))
+            sampSendChat(("/do %s Г¤ГўГ  ГёГіГ°ГіГЇГ  Г­Г  ГЎГ«Г®ГЄГҐ Г± Г¬ГҐГµГ Г­ГЁГ§Г¬Г®Г¬."):format(cfg.main.male and 'Г“ГўГЁГ¤ГҐГ«' or 'Г“ГўГЁГ¤ГҐГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s отвертку из саперного набора"):format(cfg.main.male and 'достал' or 'достала'))
+            sampSendChat(("/me %s Г®ГІГўГҐГ°ГІГЄГі ГЁГ§ Г±Г ГЇГҐГ°Г­Г®ГЈГ® Г­Г ГЎГ®Г°Г "):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
             wait(3500)
-            sampSendChat("/me аккуратно выкручивает шуруп")
+            sampSendChat("/me Г ГЄГЄГіГ°Г ГІГ­Г® ГўГ»ГЄГ°ГіГ·ГЁГўГ ГҐГІ ГёГіГ°ГіГЇ")
             wait(3500)
-            sampSendChat(("/me %s крышку блока и %s антенну"):format(cfg.main.male and 'отодвинул' or 'отодвинула', cfg.main.male and 'увидел' or 'увидела'))
+            sampSendChat(("/me %s ГЄГ°Г»ГёГЄГі ГЎГ«Г®ГЄГ  ГЁ %s Г Г­ГІГҐГ­Г­Гі"):format(cfg.main.male and 'Г®ГІГ®Г¤ГўГЁГ­ГіГ«' or 'Г®ГІГ®Г¤ГўГЁГ­ГіГ«Г ', cfg.main.male and 'ГіГўГЁГ¤ГҐГ«' or 'ГіГўГЁГ¤ГҐГ«Г '))
             wait(3500)
-            sampSendChat(("/do %s красный мигающий индикатор."):format(cfg.main.male and 'Увидел' or 'Увидела'))
+            sampSendChat(("/do %s ГЄГ°Г Г±Г­Г»Г© Г¬ГЁГЈГ ГѕГ№ГЁГ© ГЁГ­Г¤ГЁГЄГ ГІГ®Г°."):format(cfg.main.male and 'Г“ГўГЁГ¤ГҐГ«' or 'Г“ГўГЁГ¤ГҐГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s путь микросхемы от антенны к детонатору"):format(cfg.main.male and 'просмотрел' or 'просмотрела'))
+            sampSendChat(("/me %s ГЇГіГІГј Г¬ГЁГЄГ°Г®Г±ГµГҐГ¬Г» Г®ГІ Г Г­ГІГҐГ­Г­Г» ГЄ Г¤ГҐГІГ®Г­Г ГІГ®Г°Гі"):format(cfg.main.male and 'ГЇГ°Г®Г±Г¬Г®ГІГ°ГҐГ«' or 'ГЇГ°Г®Г±Г¬Г®ГІГ°ГҐГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s два провода"):format(cfg.main.male and 'Увидел' or 'Увидела'))
+            sampSendChat(("/me %s Г¤ГўГ  ГЇГ°Г®ГўГ®Г¤Г "):format(cfg.main.male and 'Г“ГўГЁГ¤ГҐГ«' or 'Г“ГўГЁГ¤ГҐГ«Г '))
             wait(3500)
-            sampSendChat(("/try %s первый провод. Индикатор перестал мигать."):format(cfg.main.male and 'перерезал' or 'перерезала'))
+            sampSendChat(("/try %s ГЇГҐГ°ГўГ»Г© ГЇГ°Г®ГўГ®Г¤. Г€Г­Г¤ГЁГЄГ ГІГ®Г° ГЇГҐГ°ГҐГ±ГІГ Г« Г¬ГЁГЈГ ГІГј."):format(cfg.main.male and 'ГЇГҐГ°ГҐГ°ГҐГ§Г Г«' or 'ГЇГҐГ°ГҐГ°ГҐГ§Г Г«Г '))
         end
     },
     {
-        title = 'Бомба с дистанционным управлением если {63c600}[Удачно]',
+        title = 'ГЃГ®Г¬ГЎГ  Г± Г¤ГЁГ±ГІГ Г­Г¶ГЁГ®Г­Г­Г»Г¬ ГіГЇГ°Г ГўГ«ГҐГ­ГЁГҐГ¬ ГҐГ±Г«ГЁ {63c600}[Г“Г¤Г Г·Г­Г®]',
         onclick = function()
-            sampSendChat("/do Бомба обезврежена.")
+            sampSendChat("/do ГЃГ®Г¬ГЎГ  Г®ГЎГҐГ§ГўГ°ГҐГ¦ГҐГ­Г .")
             wait(3500)
-            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЁГ­Г±ГІГ°ГіГ¬ГҐГ­ГІГ» Г®ГЎГ°Г ГІГ­Г® Гў Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЎГ°Г®Г­ГЁГ°Г®ГўГ Г­Г­Г»Г© ГЄГҐГ©Г± ГЁ Г ГЄГЄГіГ°Г ГІГ­Г® %s ГІГіГ¤Г  ГЎГ®Г¬ГЎГі"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г ', cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
         end
     },
     {
-        title = 'Бомба с дистанционным управлением если {bf0000}[Неудачно]',
+        title = 'ГЃГ®Г¬ГЎГ  Г± Г¤ГЁГ±ГІГ Г­Г¶ГЁГ®Г­Г­Г»Г¬ ГіГЇГ°Г ГўГ«ГҐГ­ГЁГҐГ¬ ГҐГ±Г«ГЁ {bf0000}[ГЌГҐГіГ¤Г Г·Г­Г®]',
         onclick = function()
-            sampSendChat(("/me %s второй провод"):format(cfg.main.male and 'перерезал' or 'перерезала'))
+            sampSendChat(("/me %s ГўГІГ®Г°Г®Г© ГЇГ°Г®ГўГ®Г¤"):format(cfg.main.male and 'ГЇГҐГ°ГҐГ°ГҐГ§Г Г«' or 'ГЇГҐГ°ГҐГ°ГҐГ§Г Г«Г '))
             wait(3500)
-            sampSendChat("/do Индикатор перестал мигать.")
+            sampSendChat("/do Г€Г­Г¤ГЁГЄГ ГІГ®Г° ГЇГҐГ°ГҐГ±ГІГ Г« Г¬ГЁГЈГ ГІГј.")
             wait(3500)
-            sampSendChat("/do Бомба обезврежена.")
+            sampSendChat("/do ГЃГ®Г¬ГЎГ  Г®ГЎГҐГ§ГўГ°ГҐГ¦ГҐГ­Г .")
             wait(3500)
-            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЁГ­Г±ГІГ°ГіГ¬ГҐГ­ГІГ» Г®ГЎГ°Г ГІГ­Г® Гў Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЎГ°Г®Г­ГЁГ°Г®ГўГ Г­Г­Г»Г© ГЄГҐГ©Г± ГЁ Г ГЄГЄГіГ°Г ГІГ­Г® %s ГІГіГ¤Г  ГЎГ®Г¬ГЎГі"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г ', cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
         end
     },
     {
-        title = 'Бомба с активационным кодом',
+        title = 'ГЃГ®Г¬ГЎГ  Г± Г ГЄГІГЁГўГ Г¶ГЁГ®Г­Г­Г»Г¬ ГЄГ®Г¤Г®Г¬',
         onclick = function()
-            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'достал' or 'достала'))
+            sampSendChat(("/me %s Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
             wait(3500)
-            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'открыл' or 'открыла'))
+            sampSendChat(("/me %s Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г '))
             wait(3500)
-            sampSendChat(("/me %s взрывное устройство"):format(cfg.main.male and 'осмотрел' or 'осмотрела'))
+            sampSendChat(("/me %s ГўГ§Г°Г»ГўГ­Г®ГҐ ГіГ±ГІГ°Г®Г©Г±ГІГўГ®"):format(cfg.main.male and 'Г®Г±Г¬Г®ГІГ°ГҐГ«' or 'Г®Г±Г¬Г®ГІГ°ГҐГ«Г '))
             wait(3500)
-            sampSendChat(("/do %s тип взрывного устройства. Бомба с активационным кодом."):format(cfg.main.male and 'Определил' or 'Определила'))
+            sampSendChat(("/do %s ГІГЁГЇ ГўГ§Г°Г»ГўГ­Г®ГЈГ® ГіГ±ГІГ°Г®Г©Г±ГІГўГ . ГЃГ®Г¬ГЎГ  Г± Г ГЄГІГЁГўГ Г¶ГЁГ®Г­Г­Г»Г¬ ГЄГ®Г¤Г®Г¬."):format(cfg.main.male and 'ГЋГЇГ°ГҐГ¤ГҐГ«ГЁГ«' or 'ГЋГЇГ°ГҐГ¤ГҐГ«ГЁГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s из саперного набора прибор для подбора кода"):format(cfg.main.male and 'достал' or 'достала'))
+            sampSendChat(("/me %s ГЁГ§ Г±Г ГЇГҐГ°Г­Г®ГЈГ® Г­Г ГЎГ®Г°Г  ГЇГ°ГЁГЎГ®Г° Г¤Г«Гї ГЇГ®Г¤ГЎГ®Г°Г  ГЄГ®Г¤Г "):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
             wait(3500)
-            sampSendChat(("/me %s прибор к бомбе"):format(cfg.main.male and 'подключил' or 'подключила'))
+            sampSendChat(("/me %s ГЇГ°ГЁГЎГ®Г° ГЄ ГЎГ®Г¬ГЎГҐ"):format(cfg.main.male and 'ГЇГ®Г¤ГЄГ«ГѕГ·ГЁГ«' or 'ГЇГ®Г¤ГЄГ«ГѕГ·ГЁГ«Г '))
             wait(3500)
-            sampSendChat("/do На приборе высветилось: Ожидание получения пароля.")
+            sampSendChat("/do ГЌГ  ГЇГ°ГЁГЎГ®Г°ГҐ ГўГ»Г±ГўГҐГІГЁГ«Г®Г±Гј: ГЋГ¦ГЁГ¤Г Г­ГЁГҐ ГЇГ®Г«ГіГ·ГҐГ­ГЁГї ГЇГ Г°Г®Г«Гї.")
             wait(3500)
-            sampSendChat("/do На приборе высветилось: Пароль 5326.")
+            sampSendChat("/do ГЌГ  ГЇГ°ГЁГЎГ®Г°ГҐ ГўГ»Г±ГўГҐГІГЁГ«Г®Г±Гј: ГЏГ Г°Г®Г«Гј 5326.")
             wait(3500)
-            sampSendChat(("/try %s полученный пароль. Экран бомбы выключился"):format(cfg.main.male and 'ввёл' or 'ввёла'))
+            sampSendChat(("/try %s ГЇГ®Г«ГіГ·ГҐГ­Г­Г»Г© ГЇГ Г°Г®Г«Гј. ГќГЄГ°Г Г­ ГЎГ®Г¬ГЎГ» ГўГ»ГЄГ«ГѕГ·ГЁГ«Г±Гї"):format(cfg.main.male and 'ГўГўВёГ«' or 'ГўГўВёГ«Г '))
         end
     },
     {
-        title = 'Бомба с активационным кодом если {63c600}[Удачно]',
+        title = 'ГЃГ®Г¬ГЎГ  Г± Г ГЄГІГЁГўГ Г¶ГЁГ®Г­Г­Г»Г¬ ГЄГ®Г¤Г®Г¬ ГҐГ±Г«ГЁ {63c600}[Г“Г¤Г Г·Г­Г®]',
         onclick = function()
-            sampSendChat("/do Бомба обезврежена.")
+            sampSendChat("/do ГЃГ®Г¬ГЎГ  Г®ГЎГҐГ§ГўГ°ГҐГ¦ГҐГ­Г .")
             wait(3500)
-            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЁГ­Г±ГІГ°ГіГ¬ГҐГ­ГІГ» Г®ГЎГ°Г ГІГ­Г® Гў Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЎГ°Г®Г­ГЁГ°Г®ГўГ Г­Г­Г»Г© ГЄГҐГ©Г± ГЁ Г ГЄГЄГіГ°Г ГІГ­Г® %s ГІГіГ¤Г  ГЎГ®Г¬ГЎГі"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г ', cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
         end
     },
     {
-        title = 'Бомба с активационным кодом если {bf0000}[Неудачно]',
+        title = 'ГЃГ®Г¬ГЎГ  Г± Г ГЄГІГЁГўГ Г¶ГЁГ®Г­Г­Г»Г¬ ГЄГ®Г¤Г®Г¬ ГҐГ±Г«ГЁ {bf0000}[ГЌГҐГіГ¤Г Г·Г­Г®]',
         onclick = function()
-            sampSendChat(("/me перезагрузила прибор"):format(cfg.main.male and 'перезагрузил' or 'перезагрузила'))
+            sampSendChat(("/me ГЇГҐГ°ГҐГ§Г ГЈГ°ГіГ§ГЁГ«Г  ГЇГ°ГЁГЎГ®Г°"):format(cfg.main.male and 'ГЇГҐГ°ГҐГ§Г ГЈГ°ГіГ§ГЁГ«' or 'ГЇГҐГ°ГҐГ§Г ГЈГ°ГіГ§ГЁГ«Г '))
             wait(3500)
-            sampSendChat("/do На приборе высветилось: Ожидание получения пароля.")
+            sampSendChat("/do ГЌГ  ГЇГ°ГЁГЎГ®Г°ГҐ ГўГ»Г±ГўГҐГІГЁГ«Г®Г±Гј: ГЋГ¦ГЁГ¤Г Г­ГЁГҐ ГЇГ®Г«ГіГ·ГҐГ­ГЁГї ГЇГ Г°Г®Г«Гї.")
             wait(3500)
-            sampSendChat("/do На приборе высветилось: Пароль 3789.")
+            sampSendChat("/do ГЌГ  ГЇГ°ГЁГЎГ®Г°ГҐ ГўГ»Г±ГўГҐГІГЁГ«Г®Г±Гј: ГЏГ Г°Г®Г«Гј 3789.")
             wait(3500)
-            sampSendChat(("/me %s полученный пароль"):format(cfg.main.male and 'ввёл' or 'ввёла'))
+            sampSendChat(("/me %s ГЇГ®Г«ГіГ·ГҐГ­Г­Г»Г© ГЇГ Г°Г®Г«Гј"):format(cfg.main.male and 'ГўГўВёГ«' or 'ГўГўВёГ«Г '))
             wait(3500)
-            sampSendChat("/Экран бомбы выключился")
+            sampSendChat("/ГќГЄГ°Г Г­ ГЎГ®Г¬ГЎГ» ГўГ»ГЄГ«ГѕГ·ГЁГ«Г±Гї")
             wait(3500)
-            sampSendChat("/do Бомба обезврежена.")
+            sampSendChat("/do ГЃГ®Г¬ГЎГ  Г®ГЎГҐГ§ГўГ°ГҐГ¦ГҐГ­Г .")
             wait(3500)
-            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЁГ­Г±ГІГ°ГіГ¬ГҐГ­ГІГ» Г®ГЎГ°Г ГІГ­Г® Гў Г±Г ГЇГҐГ°Г­Г»Г© Г­Г ГЎГ®Г°"):format(cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
             wait(3500)
-            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
+            sampSendChat(("/me %s ГЎГ°Г®Г­ГЁГ°Г®ГўГ Г­Г­Г»Г© ГЄГҐГ©Г± ГЁ Г ГЄГЄГіГ°Г ГІГ­Г® %s ГІГіГ¤Г  ГЎГ®Г¬ГЎГі"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г ', cfg.main.male and 'Г±Г«Г®Г¦ГЁГ«' or 'Г±Г«Г®Г¦ГЁГ«Г '))
         end
     }
 }
@@ -1226,342 +1226,342 @@ local dfmenu = {
 local fcmenu =
 {
   {
-    title = 'Теракты',
+    title = 'Г’ГҐГ°Г ГЄГІГ»',
     submenu =
     {
       {
-        title = '{00BFFF}« Мэрия »'
+        title = '{00BFFF}В« ГЊГЅГ°ГЁГї В»'
       },
       {
-        title = '{00BFFF}Захват мэрии без заложников — {ff0000}100.000$'
+        title = '{00BFFF}Г‡Г ГµГўГ ГІ Г¬ГЅГ°ГЁГЁ ГЎГҐГ§ Г§Г Г«Г®Г¦Г­ГЁГЄГ®Гў В— {ff0000}100.000$'
       },
       {
-        title = '{00BFFF}Захват мэрии c заложниками — {ff0000}150.000$'
+        title = '{00BFFF}Г‡Г ГµГўГ ГІ Г¬ГЅГ°ГЁГЁ c Г§Г Г«Г®Г¦Г­ГЁГЄГ Г¬ГЁ В— {ff0000}150.000$'
       },
       {
-        title = '{9A9593}« Офис ФБР »'
+        title = '{9A9593}В« ГЋГґГЁГ± Г”ГЃГђ В»'
       },
       {
-        title = '{9A9593}Захват офиса федерального бюро без заложников — {ff0000}100.000$'
+        title = '{9A9593}Г‡Г ГµГўГ ГІ Г®ГґГЁГ±Г  ГґГҐГ¤ГҐГ°Г Г«ГјГ­Г®ГЈГ® ГЎГѕГ°Г® ГЎГҐГ§ Г§Г Г«Г®Г¦Г­ГЁГЄГ®Гў В— {ff0000}100.000$'
       },
       {
-        title = '{9A9593}Захват офиса федерального бюро c заложниками — {ff0000}150.000$'
+        title = '{9A9593}Г‡Г ГµГўГ ГІ Г®ГґГЁГ±Г  ГґГҐГ¤ГҐГ°Г Г«ГјГ­Г®ГЈГ® ГЎГѕГ°Г® c Г§Г Г«Г®Г¦Г­ГЁГЄГ Г¬ГЁ В— {ff0000}150.000$'
       },
       {
-        title = '{0080FF}« Участок SFPD »'
+        title = '{0080FF}В« Г“Г·Г Г±ГІГ®ГЄ SFPD В»'
       },
       {
-        title = '{0080FF}Захват участка SAPD без заложников — {ff0000}100.000$'
+        title = '{0080FF}Г‡Г ГµГўГ ГІ ГіГ·Г Г±ГІГЄГ  SAPD ГЎГҐГ§ Г§Г Г«Г®Г¦Г­ГЁГЄГ®Гў В— {ff0000}100.000$'
       },
       {
-        title = '{0080FF}Захват участка SAPD c заложниками — {ff0000}150.000$'
+        title = '{0080FF}Г‡Г ГµГўГ ГІ ГіГ·Г Г±ГІГЄГ  SAPD c Г§Г Г«Г®Г¦Г­ГЁГЄГ Г¬ГЁ В— {ff0000}150.000$'
       },
       {
-        title = '{BF4040}« Больница »'
+        title = '{BF4040}В« ГЃГ®Г«ГјГ­ГЁГ¶Г  В»'
       },
       {
-        title = '{BF4040}Захват больницы без заложников — {ff0000}75.000$'
+        title = '{BF4040}Г‡Г ГµГўГ ГІ ГЎГ®Г«ГјГ­ГЁГ¶Г» ГЎГҐГ§ Г§Г Г«Г®Г¦Г­ГЁГЄГ®Гў В— {ff0000}75.000$'
       },
       {
-        title = '{BF4040}Захват больницы с заложниками — {ff0000}100.000$'
+        title = '{BF4040}Г‡Г ГµГўГ ГІ ГЎГ®Г«ГјГ­ГЁГ¶Г» Г± Г§Г Г«Г®Г¦Г­ГЁГЄГ Г¬ГЁ В— {ff0000}100.000$'
       },
       {
-        title = '{00BFFF}« Автошкола »'
+        title = '{00BFFF}В« ГЂГўГІГ®ГёГЄГ®Г«Г  В»'
       },
       {
-        title = '{00BFFF}Захват автошколы без заложников — {ff0000}50.000$'
+        title = '{00BFFF}Г‡Г ГµГўГ ГІ Г ГўГІГ®ГёГЄГ®Г«Г» ГЎГҐГ§ Г§Г Г«Г®Г¦Г­ГЁГЄГ®Гў В— {ff0000}50.000$'
       },
       {
-        title = '{00BFFF}Захват автошколы с заложниками — {ff0000}75.000$'
+        title = '{00BFFF}Г‡Г ГµГўГ ГІ Г ГўГІГ®ГёГЄГ®Г«Г» Г± Г§Г Г«Г®Г¦Г­ГЁГЄГ Г¬ГЁ В— {ff0000}75.000$'
       },
       {
-        title = '{40BFBF}« CМИ »'
+        title = '{40BFBF}В« CГЊГ€ В»'
       },
       {
-        title = '{40BFBF}Захват СМИ без заложников — {ff0000}50.000$'
+        title = '{40BFBF}Г‡Г ГµГўГ ГІ Г‘ГЊГ€ ГЎГҐГ§ Г§Г Г«Г®Г¦Г­ГЁГЄГ®Гў В— {ff0000}50.000$'
       },
       {
-        title = '{40BFBF}Захват СМИ с заложниками — {ff0000}75.000$'
+        title = '{40BFBF}Г‡Г ГµГўГ ГІ Г‘ГЊГ€ Г± Г§Г Г«Г®Г¦Г­ГЁГЄГ Г¬ГЁ В— {ff0000}75.000$'
       },
       {
-        title = '« Остальное »'
+        title = 'В« ГЋГ±ГІГ Г«ГјГ­Г®ГҐ В»'
       },
       {
-        title = 'Захват развлекательных/рабочих заведений без заложников — {ff0000}50.000$'
+        title = 'Г‡Г ГµГўГ ГІ Г°Г Г§ГўГ«ГҐГЄГ ГІГҐГ«ГјГ­Г»Гµ/Г°Г ГЎГ®Г·ГЁГµ Г§Г ГўГҐГ¤ГҐГ­ГЁГ© ГЎГҐГ§ Г§Г Г«Г®Г¦Г­ГЁГЄГ®Гў В— {ff0000}50.000$'
       },
       {
-        title = 'Захват развлекательных/рабочих заведений с заложниками — {ff0000}75.000$'
+        title = 'Г‡Г ГµГўГ ГІ Г°Г Г§ГўГ«ГҐГЄГ ГІГҐГ«ГјГ­Г»Гµ/Г°Г ГЎГ®Г·ГЁГµ Г§Г ГўГҐГ¤ГҐГ­ГЁГ© Г± Г§Г Г«Г®Г¦Г­ГЁГЄГ Г¬ГЁ В— {ff0000}75.000$'
       }
     }
   },
   {
-    title = 'Похищения',
+    title = 'ГЏГ®ГµГЁГ№ГҐГ­ГЁГї',
     submenu =
     {
       {
-        title = 'Мэрия',
+        title = 'ГЊГЅГ°ГЁГї',
         submenu =
         {
           {
-            title = '{0040BF}Мэр{ffffff} [6] - {ff0000}100.000$'
+            title = '{0040BF}ГЊГЅГ°{ffffff} [6] - {ff0000}100.000$'
           },
           {
-            title = '{0040BF}Зам.Мэра{ffffff} [5] - {ff0000}80.000$'
+            title = '{0040BF}Г‡Г Г¬.ГЊГЅГ°Г {ffffff} [5] - {ff0000}80.000$'
           },
           {
-            title = '{0040BF}Начальник охраны{ffffff} [4] - {ff0000}60.000$'
+            title = '{0040BF}ГЌГ Г·Г Г«ГјГ­ГЁГЄ Г®ГµГ°Г Г­Г»{ffffff} [4] - {ff0000}60.000$'
           },
           {
-            title = '{0040BF}Охранник{ffffff} [3] - {ff0000}40.000$'
+            title = '{0040BF}ГЋГµГ°Г Г­Г­ГЁГЄ{ffffff} [3] - {ff0000}40.000$'
           },
           {
-            title = '{0040BF}Адвокат{ffffff} [2] - {ff0000}30.000$'
+            title = '{0040BF}ГЂГ¤ГўГ®ГЄГ ГІ{ffffff} [2] - {ff0000}30.000$'
           },
           {
-            title = '{0040BF}Секретарь{ffffff} [1] - {ff0000}20.000$'
+            title = '{0040BF}Г‘ГҐГЄГ°ГҐГІГ Г°Гј{ffffff} [1] - {ff0000}20.000$'
           }
         }
       },
       {
-        title = 'ФБР',
+        title = 'Г”ГЃГђ',
         submenu =
         {
           {
-            title = '{9A9593}Директор{ffffff} [10] - {ff0000}100.000$'
+            title = '{9A9593}Г„ГЁГ°ГҐГЄГІГ®Г°{ffffff} [10] - {ff0000}100.000$'
           },
           {
-            title = '{9A9593}Зам.Директора{FFFFFF} [9] - {ff0000}80.000$'
+            title = '{9A9593}Г‡Г Г¬.Г„ГЁГ°ГҐГЄГІГ®Г°Г {FFFFFF} [9] - {ff0000}80.000$'
           },
           {
-            title = '{9A9593}Инспектор{ffffff} [8] - {ff0000}70.000$'
+            title = '{9A9593}Г€Г­Г±ГЇГҐГЄГІГ®Г°{ffffff} [8] - {ff0000}70.000$'
           },
           {
-            title = '{9A9593}Глава CID{ffffff} [7] - {ff0000}60.000$'
+            title = '{9A9593}ГѓГ«Г ГўГ  CID{ffffff} [7] - {ff0000}60.000$'
           },
           {
-            title = '{9A9593}Глава DEA{ffffff} [6] - {ff0000}50.000$'
+            title = '{9A9593}ГѓГ«Г ГўГ  DEA{ffffff} [6] - {ff0000}50.000$'
           },
           {
-            title = '{9A9593}Агент CID{ffffff} [5] - {ff0000}40.000$'
+            title = '{9A9593}ГЂГЈГҐГ­ГІ CID{ffffff} [5] - {ff0000}40.000$'
           },
           {
-            title = '{9A9593}Агент DEA{ffffff} [4] - {ff0000}30.000$'
+            title = '{9A9593}ГЂГЈГҐГ­ГІ DEA{ffffff} [4] - {ff0000}30.000$'
           },
           {
-            title = '{9A9593}Мл.Агент{ffffff} [3] - {ff0000}25.000$'
+            title = '{9A9593}ГЊГ«.ГЂГЈГҐГ­ГІ{ffffff} [3] - {ff0000}25.000$'
           },
           {
-            title = '{9A9593}Дежурный{ffffff} [2] - {ff0000}20.000$'
+            title = '{9A9593}Г„ГҐГ¦ГіГ°Г­Г»Г©{ffffff} [2] - {ff0000}20.000$'
           },
           {
-            title = '{9A9593}Стажер{ffffff} [1] - {ff0000}15.000$'
+            title = '{9A9593}Г‘ГІГ Г¦ГҐГ°{ffffff} [1] - {ff0000}15.000$'
           }
         }
       },
       {
-        title = 'Полиция',
+        title = 'ГЏГ®Г«ГЁГ¶ГЁГї',
         submenu =
         {
           {
-            title = '{0000FF}Шериф{ffffff} [14] - {ff0000}80.000$'
+            title = '{0000FF}ГГҐГ°ГЁГґ{ffffff} [14] - {ff0000}80.000$'
           },
           {
-            title = '{0000FF}Полковник{ffffff} [13] - {ff0000}70.000$'
+            title = '{0000FF}ГЏГ®Г«ГЄГ®ГўГ­ГЁГЄ{ffffff} [13] - {ff0000}70.000$'
           },
           {
-            title = '{0000FF}Подполковник{ffffff} [12] - {ff0000}65.000$'
+            title = '{0000FF}ГЏГ®Г¤ГЇГ®Г«ГЄГ®ГўГ­ГЁГЄ{ffffff} [12] - {ff0000}65.000$'
           },
           {
-            title = '{0000FF}Майор{ffffff} [11] - {ff0000}60.000$'
+            title = '{0000FF}ГЊГ Г©Г®Г°{ffffff} [11] - {ff0000}60.000$'
           },
           {
-            title = '{0000FF}Капитан{ffffff} [10] - {ff0000}55.000$'
+            title = '{0000FF}ГЉГ ГЇГЁГІГ Г­{ffffff} [10] - {ff0000}55.000$'
           },
           {
-            title = '{0000FF}Ст.Лейтенант{ffffff} [9] - {ff0000}50.000$'
+            title = '{0000FF}Г‘ГІ.Г‹ГҐГ©ГІГҐГ­Г Г­ГІ{ffffff} [9] - {ff0000}50.000$'
           },
           {
-            title = '{0000FF}Лейтенант{ffffff} [8] - {ff0000}45.000$'
+            title = '{0000FF}Г‹ГҐГ©ГІГҐГ­Г Г­ГІ{ffffff} [8] - {ff0000}45.000$'
           },
           {
-            title = '{0000FF}Мл.Лейтенант{ffffff} [7] - {ff0000}40.000$'
+            title = '{0000FF}ГЊГ«.Г‹ГҐГ©ГІГҐГ­Г Г­ГІ{ffffff} [7] - {ff0000}40.000$'
           },
           {
-            title = '{0000FF}Ст.Прапорщик{ffffff} [6] - {ff0000}35.000$'
+            title = '{0000FF}Г‘ГІ.ГЏГ°Г ГЇГ®Г°Г№ГЁГЄ{ffffff} [6] - {ff0000}35.000$'
           },
           {
-            title = '{0000FF}Прапорщик{ffffff} [5] - {ff0000}30.000$'
+            title = '{0000FF}ГЏГ°Г ГЇГ®Г°Г№ГЁГЄ{ffffff} [5] - {ff0000}30.000$'
           },
           {
-            title = '{0000FF}Сержант{ffffff} [4] - {ff0000}25.000$'
+            title = '{0000FF}Г‘ГҐГ°Г¦Г Г­ГІ{ffffff} [4] - {ff0000}25.000$'
           },
           {
-            title = '{0000FF}Мл.Сержант{ffffff} [3] - {ff0000}20.000$'
+            title = '{0000FF}ГЊГ«.Г‘ГҐГ°Г¦Г Г­ГІ{ffffff} [3] - {ff0000}20.000$'
           },
           {
-            title = '{0000FF}Офицер{ffffff} [2] - {ff0000}15.000$'
+            title = '{0000FF}ГЋГґГЁГ¶ГҐГ°{ffffff} [2] - {ff0000}15.000$'
           },
           {
-            title = '{0000FF}Кадет{ffffff} [1] - {ff0000}10.000$'
+            title = '{0000FF}ГЉГ Г¤ГҐГІ{ffffff} [1] - {ff0000}10.000$'
           }
         }
       },
       {
-        title = 'Армия',
+        title = 'ГЂГ°Г¬ГЁГї',
         submenu =
         {
           {
-            title = '{008040}Генерал{ffffff} [15] - {ff0000}80.000$'
+            title = '{008040}ГѓГҐГ­ГҐГ°Г Г«{ffffff} [15] - {ff0000}80.000$'
           },
           {
-            title = '{008040}Полковник{ffffff} [14] - {ff0000}75.000$'
+            title = '{008040}ГЏГ®Г«ГЄГ®ГўГ­ГЁГЄ{ffffff} [14] - {ff0000}75.000$'
           },
           {
-            title = '{008040}Подполковник{ffffff} [13] - {ff0000}70.000$'
+            title = '{008040}ГЏГ®Г¤ГЇГ®Г«ГЄГ®ГўГ­ГЁГЄ{ffffff} [13] - {ff0000}70.000$'
           },
           {
-            title = '{008040}Майор{ffffff} [12] - {ff0000}65.000$'
+            title = '{008040}ГЊГ Г©Г®Г°{ffffff} [12] - {ff0000}65.000$'
           },
           {
-            title = '{008040}Капитан{ffffff} [11] - {ff0000}60.000$'
+            title = '{008040}ГЉГ ГЇГЁГІГ Г­{ffffff} [11] - {ff0000}60.000$'
           },
           {
-            title = '{008040}Ст.Лейтенант{ffffff} [10] - {ff0000}55.000$'
+            title = '{008040}Г‘ГІ.Г‹ГҐГ©ГІГҐГ­Г Г­ГІ{ffffff} [10] - {ff0000}55.000$'
           },
           {
-            title = '{008040}Лейтенант{ffffff} [9] - {ff0000}50.000$'
+            title = '{008040}Г‹ГҐГ©ГІГҐГ­Г Г­ГІ{ffffff} [9] - {ff0000}50.000$'
           },
           {
-            title = '{008040}Мл.Лейтенант{ffffff} [8] - {ff0000}45.000$'
+            title = '{008040}ГЊГ«.Г‹ГҐГ©ГІГҐГ­Г Г­ГІ{ffffff} [8] - {ff0000}45.000$'
           },
           {
-            title = '{008040}Прапорщик{ffffff} [7] - {ff0000}40.000$'
+            title = '{008040}ГЏГ°Г ГЇГ®Г°Г№ГЁГЄ{ffffff} [7] - {ff0000}40.000$'
           },
           {
-            title = '{008040}Старшина{ffffff} [6] - {ff0000}35.000$'
+            title = '{008040}Г‘ГІГ Г°ГёГЁГ­Г {ffffff} [6] - {ff0000}35.000$'
           },
           {
-            title = '{008040}Ст.сержант{ffffff} [5] - {ff0000}30.000$'
+            title = '{008040}Г‘ГІ.Г±ГҐГ°Г¦Г Г­ГІ{ffffff} [5] - {ff0000}30.000$'
           },
           {
-            title = '{008040}Сержант{ffffff} [4] - {ff0000}25.000$'
+            title = '{008040}Г‘ГҐГ°Г¦Г Г­ГІ{ffffff} [4] - {ff0000}25.000$'
           },
           {
-            title = '{008040}Мл.Сержант{ffffff} [3] - {ff0000}20.000$'
+            title = '{008040}ГЊГ«.Г‘ГҐГ°Г¦Г Г­ГІ{ffffff} [3] - {ff0000}20.000$'
           },
           {
-            title = '{008040}Ефрейтор{ffffff} [2] - {ff0000}15.000$'
+            title = '{008040}Г…ГґГ°ГҐГ©ГІГ®Г°{ffffff} [2] - {ff0000}15.000$'
           },
           {
-            title = '{008040}Рядовой{ffffff} [1] - {ff0000}10.000$'
+            title = '{008040}ГђГїГ¤Г®ГўГ®Г©{ffffff} [1] - {ff0000}10.000$'
           }
         }
       },
       {
-        title = 'Медики',
+        title = 'ГЊГҐГ¤ГЁГЄГЁ',
         submenu =
         {
           {
-            title = '{BF4040}Глав.Врач{ffffff} [10] - {ff0000}80.000$'
+            title = '{BF4040}ГѓГ«Г Гў.Г‚Г°Г Г·{ffffff} [10] - {ff0000}80.000$'
           },
           {
-            title = '{BF4040}Зам.Глав.Врача{ffffff} [9] - {ff0000}75.000$'
+            title = '{BF4040}Г‡Г Г¬.ГѓГ«Г Гў.Г‚Г°Г Г·Г {ffffff} [9] - {ff0000}75.000$'
           },
           {
-            title = '{BF4040}Хирург{ffffff} [8] - {ff0000}70.000$'
+            title = '{BF4040}Г•ГЁГ°ГіГ°ГЈ{ffffff} [8] - {ff0000}70.000$'
           },
           {
-            title = '{BF4040}Психолог{ffffff} [7] - {ff0000}60.000$'
+            title = '{BF4040}ГЏГ±ГЁГµГ®Г«Г®ГЈ{ffffff} [7] - {ff0000}60.000$'
           },
           {
-            title = '{BF4040}Доктор{ffffff} [6] - {ff0000}40.000$'
+            title = '{BF4040}Г„Г®ГЄГІГ®Г°{ffffff} [6] - {ff0000}40.000$'
           },
           {
-            title = '{BF4040}Нарколог{ffffff} [5] - {ff0000}35.000$'
+            title = '{BF4040}ГЌГ Г°ГЄГ®Г«Г®ГЈ{ffffff} [5] - {ff0000}35.000$'
           },
           {
-            title = '{BF4040}Спасатель{ffffff} [4] - {ff0000}30.000$'
+            title = '{BF4040}Г‘ГЇГ Г±Г ГІГҐГ«Гј{ffffff} [4] - {ff0000}30.000$'
           },
           {
-            title = '{BF4040}Мед.Брат{ffffff} [3] - {ff0000}25.000$'
+            title = '{BF4040}ГЊГҐГ¤.ГЃГ°Г ГІ{ffffff} [3] - {ff0000}25.000$'
           },
           {
-            title = '{BF4040}Санитар{ffffff} [2] - {ff0000}20.000$'
+            title = '{BF4040}Г‘Г Г­ГЁГІГ Г°{ffffff} [2] - {ff0000}20.000$'
           },
           {
-            title = '{BF4040}Интерн{ffffff} [1] - {ff0000}15.000$'
+            title = '{BF4040}Г€Г­ГІГҐГ°Г­{ffffff} [1] - {ff0000}15.000$'
           }
         }
       },
       {
-        title = 'Автошкола',
+        title = 'ГЂГўГІГ®ГёГЄГ®Г«Г ',
         submenu =
         {
           {
-            title = '{40BFFF}Управляющий{ffffff} [10] - {ff0000}80.000$'
+            title = '{40BFFF}Г“ГЇГ°Г ГўГ«ГїГѕГ№ГЁГ©{ffffff} [10] - {ff0000}80.000$'
           },
           {
-            title = '{40BFFF}Директор{ffffff} [9] - {ff0000}75.000$'
+            title = '{40BFFF}Г„ГЁГ°ГҐГЄГІГ®Г°{ffffff} [9] - {ff0000}75.000$'
           },
           {
-            title = '{40BFFF}Ст.Менеджер{ffffff} [8] - {ff0000}70.000$'
+            title = '{40BFFF}Г‘ГІ.ГЊГҐГ­ГҐГ¤Г¦ГҐГ°{ffffff} [8] - {ff0000}70.000$'
           },
           {
-            title = '{40BFFF}Мл.Менеджер{ffffff} [7] - {ff0000}60.000$'
+            title = '{40BFFF}ГЊГ«.ГЊГҐГ­ГҐГ¤Г¦ГҐГ°{ffffff} [7] - {ff0000}60.000$'
           },
           {
-            title = '{40BFFF}Координатор{ffffff} [6] - {ff0000}55.000$'
+            title = '{40BFFF}ГЉГ®Г®Г°Г¤ГЁГ­Г ГІГ®Г°{ffffff} [6] - {ff0000}55.000$'
           },
           {
-            title = '{40BFFF}Инструктор{FFFFFF} [5] - {ff0000}50.000$'
+            title = '{40BFFF}Г€Г­Г±ГІГ°ГіГЄГІГ®Г°{FFFFFF} [5] - {ff0000}50.000$'
           },
           {
-            title = '{40BFFF}Мл.Инструктор{ffffff} [4] - {ff0000}45.000$'
+            title = '{40BFFF}ГЊГ«.Г€Г­Г±ГІГ°ГіГЄГІГ®Г°{ffffff} [4] - {ff0000}45.000$'
           },
           {
-            title = '{40BFFF}Экзаменатор{ffffff} [3] - {ff0000}30.000$'
+            title = '{40BFFF}ГќГЄГ§Г Г¬ГҐГ­Г ГІГ®Г°{ffffff} [3] - {ff0000}30.000$'
           },
           {
-            title = '{40BFFF}Консультант{ffffff} [2] - {ff0000}25.000$'
+            title = '{40BFFF}ГЉГ®Г­Г±ГіГ«ГјГІГ Г­ГІ{ffffff} [2] - {ff0000}25.000$'
           },
           {
-            title = '{40BFFF}Стажер{ffffff} [1] - {ff0000}20.000$'
+            title = '{40BFFF}Г‘ГІГ Г¦ГҐГ°{ffffff} [1] - {ff0000}20.000$'
           }
         }
       },
       {
-        title = 'Новости',
+        title = 'ГЌГ®ГўГ®Г±ГІГЁ',
         submenu =
         {
           {
-            title = '{FFFF80}Генеральный директор{ffffff} [10] - {ff0000}70.000$'
+            title = '{FFFF80}ГѓГҐГ­ГҐГ°Г Г«ГјГ­Г»Г© Г¤ГЁГ°ГҐГЄГІГ®Г°{ffffff} [10] - {ff0000}70.000$'
           },
           {
-            title = '{FFFF80}Програмный директор{ffffff} [9] - {ff0000}60.000$'
+            title = '{FFFF80}ГЏГ°Г®ГЈГ°Г Г¬Г­Г»Г© Г¤ГЁГ°ГҐГЄГІГ®Г°{ffffff} [9] - {ff0000}60.000$'
           },
           {
-            title = '{FFFF80}Технический директор{ffffff} [8] - {ff0000}55.000$'
+            title = '{FFFF80}Г’ГҐГµГ­ГЁГ·ГҐГ±ГЄГЁГ© Г¤ГЁГ°ГҐГЄГІГ®Г°{ffffff} [8] - {ff0000}55.000$'
           },
           {
-            title = '{FFFF80}Главный редактор{ffffff} [7] - {ff0000}50.000$'
+            title = '{FFFF80}ГѓГ«Г ГўГ­Г»Г© Г°ГҐГ¤Г ГЄГІГ®Г°{ffffff} [7] - {ff0000}50.000$'
           },
           {
-            title = '{FFFF80}Редактор{ffffff} [6] - {ff0000}45.000$'
+            title = '{FFFF80}ГђГҐГ¤Г ГЄГІГ®Г°{ffffff} [6] - {ff0000}45.000$'
           },
           {
-            title = '{FFFF80}Ведущий{ffffff} [5] - {ff0000}40.000$'
+            title = '{FFFF80}Г‚ГҐГ¤ГіГ№ГЁГ©{ffffff} [5] - {ff0000}40.000$'
           },
           {
-            title = '{FFFF80}Репортер{ffffff} [4] - {ff0000}30.000$'
+            title = '{FFFF80}ГђГҐГЇГ®Г°ГІГҐГ°{ffffff} [4] - {ff0000}30.000$'
           },
           {
-            title = '{FFFF80}Звукорежиссер{ffffff} [3] - {ff0000}25.000$'
+            title = '{FFFF80}Г‡ГўГіГЄГ®Г°ГҐГ¦ГЁГ±Г±ГҐГ°{ffffff} [3] - {ff0000}25.000$'
           },
           {
-            title = '{FFFF80}Звукооператор{ffffff} [2] - {ff0000}20.000$'
+            title = '{FFFF80}Г‡ГўГіГЄГ®Г®ГЇГҐГ°Г ГІГ®Г°{ffffff} [2] - {ff0000}20.000$'
           },
           {
-            title = '{FFFF80}Стажер{ffffff} [1] - {ff0000}15.000$'
+            title = '{FFFF80}Г‘ГІГ Г¦ГҐГ°{ffffff} [1] - {ff0000}15.000$'
           }
         }
       }
@@ -1571,77 +1571,77 @@ local fcmenu =
 
 local fthmenuPD = {
     {
-        title = '{ffffff}» Запросить поддержку в текущий квадрат',
+        title = '{ffffff}В» Г‡Г ГЇГ°Г®Г±ГЁГІГј ГЇГ®Г¤Г¤ГҐГ°Г¦ГЄГі Гў ГІГҐГЄГіГ№ГЁГ© ГЄГўГ Г¤Г°Г ГІ',
         onclick = function()
             if cfg.main.tarb then
-                sampSendChat(string.format('/r [%s]: Нужна поддержка в квадрат %s', cfg.main.tar, kvadrat()))
+                sampSendChat(string.format('/r [%s]: ГЌГіГ¦Г­Г  ГЇГ®Г¤Г¤ГҐГ°Г¦ГЄГ  Гў ГЄГўГ Г¤Г°Г ГІ %s', cfg.main.tar, kvadrat()))
             else
-                sampSendChat(string.format('/r Нужна поддержка в квадрат %s', kvadrat()))
+                sampSendChat(string.format('/r ГЌГіГ¦Г­Г  ГЇГ®Г¤Г¤ГҐГ°Г¦ГЄГ  Гў ГЄГўГ Г¤Г°Г ГІ %s', kvadrat()))
             end
         end
     },
     {
-        title = '{ffffff}» Запросить эвакуацию в текущий квадрат',
+        title = '{ffffff}В» Г‡Г ГЇГ°Г®Г±ГЁГІГј ГЅГўГ ГЄГіГ Г¶ГЁГѕ Гў ГІГҐГЄГіГ№ГЁГ© ГЄГўГ Г¤Г°Г ГІ',
         onclick = function()
-            sampShowDialog(1401, '{9966cc}'..script.this.name..' {ffffff}| Эвакуация', '{ffffff}Введите: кол-во мест\nПример: 3 места', 'Отправить', 'Отмена', 1)
+            sampShowDialog(1401, '{9966cc}'..script.this.name..' {ffffff}| ГќГўГ ГЄГіГ Г¶ГЁГї', '{ffffff}Г‚ГўГҐГ¤ГЁГІГҐ: ГЄГ®Г«-ГўГ® Г¬ГҐГ±ГІ\nГЏГ°ГЁГ¬ГҐГ°: 3 Г¬ГҐГ±ГІГ ', 'ГЋГІГЇГ°Г ГўГЁГІГј', 'ГЋГІГ¬ГҐГ­Г ', 1)
         end
     },
     {
-        title = '{ffffff}» Цены выкупа',
+        title = '{ffffff}В» Г–ГҐГ­Г» ГўГ»ГЄГіГЇГ ',
         onclick = function()
-            submenus_show(fcmenu, '{9966cc}'..script.this.name..' {ffffff}| Цены выкупа')
+            submenus_show(fcmenu, '{9966cc}'..script.this.name..' {ffffff}| Г–ГҐГ­Г» ГўГ»ГЄГіГЇГ ')
         end
     }
 }
 
 local fthmenuAS = {
     {
-        title = "{FFFFFF}» Приветствие",
+        title = "{FFFFFF}В» ГЏГ°ГЁГўГҐГІГ±ГІГўГЁГҐ",
         onclick = function() 
-            sampSendChat(("Добрый день. Я сотрудник Автошколы %s, чем могу помочь?"):format(sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub("_", " ")))
+            sampSendChat(("Г„Г®ГЎГ°Г»Г© Г¤ГҐГ­Гј. Гџ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄ ГЂГўГІГ®ГёГЄГ®Г«Г» %s, Г·ГҐГ¬ Г¬Г®ГЈГі ГЇГ®Г¬Г®Г·Гј?"):format(sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub("_", " ")))
         end
     },
     {
-        title = "{FFFFFF}» Попросить паспорт",
+        title = "{FFFFFF}В» ГЏГ®ГЇГ°Г®Г±ГЁГІГј ГЇГ Г±ГЇГ®Г°ГІ",
         onclick = function()
-            sampSendChat("Ваш паспорт, пожалуйста.")
+            sampSendChat("Г‚Г Гё ГЇГ Г±ГЇГ®Г°ГІ, ГЇГ®Г¦Г Г«ГіГ©Г±ГІГ .")
             wait(1400)
             sampSendChat(("/b /showpass %s"):format(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))))
         end
     },
     {
-        title = "{FFFFFF}» Попрощаться",
-        onclick = function() sampSendChat("Хорошего дня!") end
+        title = "{FFFFFF}В» ГЏГ®ГЇГ°Г®Г№Г ГІГјГ±Гї",
+        onclick = function() sampSendChat("Г•Г®Г°Г®ГёГҐГЈГ® Г¤Г­Гї!") end
     },
     {
-        title = "{FFFFFF}» Ударить шокером (близжайшего игрока)",
+        title = "{FFFFFF}В» Г“Г¤Г Г°ГЁГІГј ГёГ®ГЄГҐГ°Г®Г¬ (ГЎГ«ГЁГ§Г¦Г Г©ГёГҐГЈГ® ГЁГЈГ°Г®ГЄГ )",
         onclick = function()
-            sampSendChat(("/me %s шокер с пояса"):format(cfg.main.male and 'снял' or 'сняла'))
+            sampSendChat(("/me %s ГёГ®ГЄГҐГ° Г± ГЇГ®ГїГ±Г "):format(cfg.main.male and 'Г±Г­ГїГ«' or 'Г±Г­ГїГ«Г '))
             wait(cfg.commands.zaderjka)
             sampSendChat("/itazer")
             wait(cfg.commands.zaderjka)
-            sampSendChat(("/me %s шокер на пояс"):format(cfg.main.male and 'повесил' or 'повесила'))
+            sampSendChat(("/me %s ГёГ®ГЄГҐГ° Г­Г  ГЇГ®ГїГ±"):format(cfg.main.male and 'ГЇГ®ГўГҐГ±ГЁГ«' or 'ГЇГ®ГўГҐГ±ГЁГ«Г '))
         end
     }
 }
 
 local fthmenuMOH = {
     {
-        title = "» Приветствие",
+        title = "В» ГЏГ°ГЁГўГҐГІГ±ГІГўГЁГҐ",
         onclick = function()
-            sampSendChat("Здравствуйте, что вас беспокоит? ")
+            sampSendChat("Г‡Г¤Г°Г ГўГ±ГІГўГіГ©ГІГҐ, Г·ГІГ® ГўГ Г± ГЎГҐГ±ГЇГ®ГЄГ®ГЁГІ? ")
         end
     },
     {
-        title = "» Попрощаться",
+        title = "В» ГЏГ®ГЇГ°Г®Г№Г ГІГјГ±Гї",
         onclick = function()
-            sampSendChat("Удачного дня, не болейте.")
+            sampSendChat("Г“Г¤Г Г·Г­Г®ГЈГ® Г¤Г­Гї, Г­ГҐ ГЎГ®Г«ГҐГ©ГІГҐ.")
         end
     },
     {
-        title = "» Огласить стоимость сеанса от наркозависимости",
+        title = "В» ГЋГЈГ«Г Г±ГЁГІГј Г±ГІГ®ГЁГ¬Г®Г±ГІГј Г±ГҐГ Г­Г±Г  Г®ГІ Г­Г Г°ГЄГ®Г§Г ГўГЁГ±ГЁГ¬Г®Г±ГІГЁ",
         onclick = function()
-            sampSendChat("Стоимость сеанса от наркозависимости составляет 10.000$.")
+            sampSendChat("Г‘ГІГ®ГЁГ¬Г®Г±ГІГј Г±ГҐГ Г­Г±Г  Г®ГІ Г­Г Г°ГЄГ®Г§Г ГўГЁГ±ГЁГ¬Г®Г±ГІГЁ Г±Г®Г±ГІГ ГўГ«ГїГҐГІ 10.000$.")
         end
     }
 }
@@ -1706,7 +1706,7 @@ function naparnik()
                     if isCharInAnyCar(ichar) then
                         local iveh = storeCarCharIsInNoSave(ichar)
                         if veh == iveh then
-                            if sampGetFraktionBySkin(i) == 'Полиция' or sampGetFraktionBySkin(i) == 'FBI' then
+                            if sampGetFraktionBySkin(i) == 'ГЏГ®Г«ГЁГ¶ГЁГї' or sampGetFraktionBySkin(i) == 'FBI' then
                                 local inick, ifam = sampGetPlayerNickname(i):match('(.+)_(.+)')
                                 if inick and ifam then
                                     table.insert(v, string.format('%s.%s', inick:sub(1,1), ifam))
@@ -1725,7 +1725,7 @@ function naparnik()
                 if doesCharExist(ichar) then
                     local ix, iy, iz = getCharCoordinates(ichar)
                     if getDistanceBetweenCoords3d(myposx, myposy, myposz, ix, iy, iz) <= 30 then
-                        if sampGetFraktionBySkin(i) == 'Полиция' or sampGetFraktionBySkin(i) == 'FBI' then
+                        if sampGetFraktionBySkin(i) == 'ГЏГ®Г«ГЁГ¶ГЁГї' or sampGetFraktionBySkin(i) == 'FBI' then
                             local inick, ifam = sampGetPlayerNickname(i):match('(.+)_(.+)')
                             if inick and ifam then
                                 table.insert(v, string.format('%s.%s', inick:sub(1,1), ifam))
@@ -1737,11 +1737,11 @@ function naparnik()
         end
     end
     if #v == 0 then
-        return 'Напарников нет.'
+        return 'ГЌГ ГЇГ Г°Г­ГЁГЄГ®Гў Г­ГҐГІ.'
     elseif #v == 1 then
-        return 'Напарник: '..table.concat(v, ', ').. '.'
+        return 'ГЌГ ГЇГ Г°Г­ГЁГЄ: '..table.concat(v, ', ').. '.'
     elseif #v >=2 then
-        return 'Напарники: '..table.concat(v, ', ').. '.'
+        return 'ГЌГ ГЇГ Г°Г­ГЁГЄГЁ: '..table.concat(v, ', ').. '.'
     end
 end
 
@@ -1799,30 +1799,30 @@ function onHotKey(id, keys)
 end
 function kvadrat()
     local KV = {
-        [1] = "А",
-        [2] = "Б",
-        [3] = "В",
-        [4] = "Г",
-        [5] = "Д",
-        [6] = "Ж",
-        [7] = "З",
-        [8] = "И",
-        [9] = "К",
-        [10] = "Л",
-        [11] = "М",
-        [12] = "Н",
-        [13] = "О",
-        [14] = "П",
-        [15] = "Р",
-        [16] = "С",
-        [17] = "Т",
-        [18] = "У",
-        [19] = "Ф",
-        [20] = "Х",
-        [21] = "Ц",
-        [22] = "Ч",
-        [23] = "Ш",
-        [24] = "Я",
+        [1] = "ГЂ",
+        [2] = "ГЃ",
+        [3] = "Г‚",
+        [4] = "Гѓ",
+        [5] = "Г„",
+        [6] = "Г†",
+        [7] = "Г‡",
+        [8] = "Г€",
+        [9] = "ГЉ",
+        [10] = "Г‹",
+        [11] = "ГЊ",
+        [12] = "ГЌ",
+        [13] = "ГЋ",
+        [14] = "ГЏ",
+        [15] = "Гђ",
+        [16] = "Г‘",
+        [17] = "Г’",
+        [18] = "Г“",
+        [19] = "Г”",
+        [20] = "Г•",
+        [21] = "Г–",
+        [22] = "Г—",
+        [23] = "Г",
+        [24] = "Гџ",
     }
     local X, Y, Z = getCharCoordinates(playerPed)
     X = math.ceil((X + 3000) / 250)
@@ -1858,54 +1858,54 @@ end
 
 function kvadrat1(param)
     local KV = {
-        ["А"] = 1,
-        ["Б"] = 2,
-        ["В"] = 3,
-        ["Г"] = 4,
-        ["Д"] = 5,
-        ["Ж"] = 6,
-        ["З"] = 7,
-        ["И"] = 8,
-        ["К"] = 9,
-        ["Л"] = 10,
-        ["М"] = 11,
-        ["Н"] = 12,
-        ["О"] = 13,
-        ["П"] = 14,
-        ["Р"] = 15,
-        ["С"] = 16,
-        ["Т"] = 17,
-        ["У"] = 18,
-        ["Ф"] = 19,
-        ["Х"] = 20,
-        ["Ц"] = 21,
-        ["Ч"] = 22,
-        ["Ш"] = 23,
-        ["Я"] = 24,
-        ["а"] = 1,
-        ["б"] = 2,
-        ["в"] = 3,
-        ["г"] = 4,
-        ["д"] = 5,
-        ["ж"] = 6,
-        ["з"] = 7,
-        ["и"] = 8,
-        ["к"] = 9,
-        ["л"] = 10,
-        ["м"] = 11,
-        ["н"] = 12,
-        ["о"] = 13,
-        ["п"] = 14,
-        ["р"] = 15,
-        ["с"] = 16,
-        ["т"] = 17,
-        ["у"] = 18,
-        ["ф"] = 19,
-        ["х"] = 20,
-        ["ц"] = 21,
-        ["ч"] = 22,
-        ["ш"] = 23,
-        ["я"] = 24,
+        ["ГЂ"] = 1,
+        ["ГЃ"] = 2,
+        ["Г‚"] = 3,
+        ["Гѓ"] = 4,
+        ["Г„"] = 5,
+        ["Г†"] = 6,
+        ["Г‡"] = 7,
+        ["Г€"] = 8,
+        ["ГЉ"] = 9,
+        ["Г‹"] = 10,
+        ["ГЊ"] = 11,
+        ["ГЌ"] = 12,
+        ["ГЋ"] = 13,
+        ["ГЏ"] = 14,
+        ["Гђ"] = 15,
+        ["Г‘"] = 16,
+        ["Г’"] = 17,
+        ["Г“"] = 18,
+        ["Г”"] = 19,
+        ["Г•"] = 20,
+        ["Г–"] = 21,
+        ["Г—"] = 22,
+        ["Г"] = 23,
+        ["Гџ"] = 24,
+        ["Г "] = 1,
+        ["ГЎ"] = 2,
+        ["Гў"] = 3,
+        ["ГЈ"] = 4,
+        ["Г¤"] = 5,
+        ["Г¦"] = 6,
+        ["Г§"] = 7,
+        ["ГЁ"] = 8,
+        ["ГЄ"] = 9,
+        ["Г«"] = 10,
+        ["Г¬"] = 11,
+        ["Г­"] = 12,
+        ["Г®"] = 13,
+        ["ГЇ"] = 14,
+        ["Г°"] = 15,
+        ["Г±"] = 16,
+        ["ГІ"] = 17,
+        ["Гі"] = 18,
+        ["Гґ"] = 19,
+        ["Гµ"] = 20,
+        ["Г¶"] = 21,
+        ["Г·"] = 22,
+        ["Гё"] = 23,
+        ["Гї"] = 24,
     }
     return KV[param]
 end
@@ -1935,31 +1935,31 @@ end
 function getNameSphere(id)
     local names =
     {
-      [1] = 'АВ',
-      [2] = 'АШ',
-      [3] = 'СФа',
-      [4] = 'В',
-      [5] = 'А',
-      [6] = 'СФн',
-      [7] = 'Тоннель',
-      [8] = 'Мэрия',
-      [9] = 'Хот-Доги',
-      [10] = 'Больница ЛС',
-      [11] = 'АВ',
-      [12] = 'Мост',
-      [13] = 'Перекресток',
-      [14] = 'Развилка',
-      [15] = 'В',
-      [16] = 'А',
-      [17] = 'В',
-      [18] = 'С',
-      [19] = 'КПП',
-      [20] = 'Порт ЛС',
-      [21] = 'Опасный район',
-      [32] = 'КПП',
+      [1] = 'ГЂГ‚',
+      [2] = 'ГЂГ',
+      [3] = 'Г‘Г”Г ',
+      [4] = 'Г‚',
+      [5] = 'ГЂ',
+      [6] = 'Г‘Г”Г­',
+      [7] = 'Г’Г®Г­Г­ГҐГ«Гј',
+      [8] = 'ГЊГЅГ°ГЁГї',
+      [9] = 'Г•Г®ГІ-Г„Г®ГЈГЁ',
+      [10] = 'ГЃГ®Г«ГјГ­ГЁГ¶Г  Г‹Г‘',
+      [11] = 'ГЂГ‚',
+      [12] = 'ГЊГ®Г±ГІ',
+      [13] = 'ГЏГҐГ°ГҐГЄГ°ГҐГ±ГІГ®ГЄ',
+      [14] = 'ГђГ Г§ГўГЁГ«ГЄГ ',
+      [15] = 'Г‚',
+      [16] = 'ГЂ',
+      [17] = 'Г‚',
+      [18] = 'Г‘',
+      [19] = 'ГЉГЏГЏ',
+      [20] = 'ГЏГ®Г°ГІ Г‹Г‘',
+      [21] = 'ГЋГЇГ Г±Г­Г»Г© Г°Г Г©Г®Г­',
+      [32] = 'ГЉГЏГЏ',
       [33] = 'D',
-      [34] = 'Холл Мэрии',
-      [35] = 'Авторынок'
+      [34] = 'Г•Г®Г«Г« ГЊГЅГ°ГЁГЁ',
+      [35] = 'ГЂГўГІГ®Г°Г»Г­Г®ГЄ'
     }
     return names[id]
 end
@@ -1967,132 +1967,132 @@ end
 function longtoshort(long)
     local short =
     {
-      ['Армия ЛВ'] = 'LVa',
-      ['Армия СФ'] = 'SFa',
-      ['ФБР'] = 'FBI'
+      ['ГЂГ°Г¬ГЁГї Г‹Г‚'] = 'LVa',
+      ['ГЂГ°Г¬ГЁГї Г‘Г”'] = 'SFa',
+      ['Г”ГЃГђ'] = 'FBI'
     }
     return short[long]
 end
 local osnova = {
 	{
-		title = 'Лаборатория',
+		title = 'Г‹Г ГЎГ®Г°Г ГІГ®Г°ГЁГї',
 		onclick = function()
 			local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
-			sampSendChat(("/r %s в сотрудника лаборатории."):format(cfg.main.male and 'Переоделся' or 'Переоделась'))
+			sampSendChat(("/r %s Гў Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  Г«Г ГЎГ®Г°Г ГІГ®Г°ГЁГЁ."):format(cfg.main.male and 'ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г±Гї' or 'ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г Г±Гј'))
 	        wait(1400)
 	        sampSendChat("/rb "..myid)
 		end
 	},
 	{
-		title = 'Гражданский',
+		title = 'ГѓГ°Г Г¦Г¤Г Г­Г±ГЄГЁГ©',
 		onclick = function()
-			mstype = 'гражданского'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'ГЈГ°Г Г¦Г¤Г Г­Г±ГЄГ®ГЈГ®'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
-		title = 'Полиция',
+		title = 'ГЏГ®Г«ГЁГ¶ГЁГї',
 		onclick = function()
-			mstype = 'полицейского'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'ГЇГ®Г«ГЁГ¶ГҐГ©Г±ГЄГ®ГЈГ®'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
-		title = 'Армия',
+		title = 'ГЂГ°Г¬ГЁГї',
 		onclick = function()
-			mstype = 'военного'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'ГўГ®ГҐГ­Г­Г®ГЈГ®'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
-		title = 'МЧС',
+		title = 'ГЊГ—Г‘',
 		onclick = function()
-			mstype = 'медика'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'Г¬ГҐГ¤ГЁГЄГ '
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
-		title = 'Мэрия',
+		title = 'ГЊГЅГ°ГЁГї',
 		onclick = function()
-			mstype = 'сотрудника мэрии'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  Г¬ГЅГ°ГЁГЁ'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
-		title = 'Автошкола',
+		title = 'ГЂГўГІГ®ГёГЄГ®Г«Г ',
 		onclick = function()
-			mstype = 'работника автошколы'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'Г°Г ГЎГ®ГІГ­ГЁГЄГ  Г ГўГІГ®ГёГЄГ®Г«Г»'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
-		title = 'Новости',
+		title = 'ГЌГ®ГўГ®Г±ГІГЁ',
 		onclick = function()
-			mstype = 'работника новостей'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'Г°Г ГЎГ®ГІГ­ГЁГЄГ  Г­Г®ГўГ®Г±ГІГҐГ©'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
 		title = 'LCN',
 		ocnlick = function()
-			mstype = 'ЧОП LCN'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'Г—ГЋГЏ LCN'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
 		title = 'Yakuza',
 		onclick = function()
-			mstype = 'ЧОП Yakuza'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'Г—ГЋГЏ Yakuza'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
 		title = 'Russian Mafia',
 		onclick = function()
-			mstype = 'ЧОП Russian Mafia'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'Г—ГЋГЏ Russian Mafia'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
 		title = 'Rifa',
 		onclick = function()
-			mstype = 'БК Rifa'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'ГЃГЉ Rifa'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
 		title = 'Grove',
 		onclick = function()
-			mstype = 'БК Grove'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'ГЃГЉ Grove'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
 		title = 'Ballas',
 		onclick = function()
-			mstype = 'БК Ballas'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'ГЃГЉ Ballas'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
 		title = 'Vagos',
 		onclick = function()
-			mstype = 'БК Vagos'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'ГЃГЉ Vagos'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
 		title = 'Aztec',
 		onclick = function()
-			mstype = 'БК Aztec'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'ГЃГЉ Aztec'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	},
 	{
-		title = 'Байкеры',
+		title = 'ГЃГ Г©ГЄГҐГ°Г»',
 		onclick = function()
-			mstype = 'байкеров'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
+			mstype = 'ГЎГ Г©ГЄГҐГ°Г®Гў'
+			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| ГЊГ Г±ГЄГЁГ°Г®ГўГЄГ ', 'Г‚ГўГҐГ¤ГЁГІГҐ: ГЇГ°ГЁГ·ГЁГ­Гі', 'В»', 'x', 1)
 		end
 	}
 }
@@ -2113,7 +2113,7 @@ local tCarsName = {"Landstalker", "Bravura", "Buffalo", "Linerunner", "Perrenial
 "Tug", "Trailer", "Emperor", "Wayfarer", "Euros", "Hotdog", "Club", "FreightBox", "Trailer", "Andromada", "Dodo", "RCCam", "Launch", "PoliceCar", "PoliceCar",
 "PoliceCar", "PoliceRanger", "Picador", "S.W.A.T", "Alpha", "Phoenix", "GlendaleShit", "SadlerShit", "Luggage A", "Luggage B", "Stairs", "Boxville", "Tiller",
 "UtilityTrailer"}
-local tCarsTypeName = {"Автомобиль", "Мотоицикл", "Вертолёт", "Самолёт", "Прицеп", "Лодка", "Другое", "Поезд", "Велосипед"}
+local tCarsTypeName = {"ГЂГўГІГ®Г¬Г®ГЎГЁГ«Гј", "ГЊГ®ГІГ®ГЁГ¶ГЁГЄГ«", "Г‚ГҐГ°ГІГ®Г«ВёГІ", "Г‘Г Г¬Г®Г«ВёГІ", "ГЏГ°ГЁГ¶ГҐГЇ", "Г‹Г®Г¤ГЄГ ", "Г„Г°ГіГЈГ®ГҐ", "ГЏГ®ГҐГ§Г¤", "Г‚ГҐГ«Г®Г±ГЁГЇГҐГ¤"}
 local tCarsSpeed = {43, 40, 51, 30, 36, 45, 30, 41, 27, 43, 36, 61, 46, 30, 29, 53, 42, 30, 32, 41, 40, 42, 38, 27, 37,
 54, 48, 45, 43, 55, 51, 36, 26, 30, 46, 0, 41, 43, 39, 46, 37, 21, 38, 35, 30, 45, 60, 35, 30, 52, 0, 53, 43, 16, 33, 43,
 29, 26, 43, 37, 48, 43, 30, 29, 14, 13, 40, 39, 40, 34, 43, 30, 34, 29, 41, 48, 69, 51, 32, 38, 51, 20, 43, 34, 18, 27,
@@ -2143,20 +2143,20 @@ function update()
                 ttt = updlist1
 			    if info and info.latest then
                     if tonumber(thisScript().version) < tonumber(info.latest) then
-                        ftext('Обнаружено обновление {9966cc}'..script.this.name..'{ffffff}. Для обновления нажмите кнопку в окошке.')
-                        ftext('Примечание: Если у вас не появилось окошко введите {9966cc}/ft')
+                        ftext('ГЋГЎГ­Г Г°ГіГ¦ГҐГ­Г® Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ {9966cc}'..script.this.name..'{ffffff}. Г„Г«Гї Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГї Г­Г Г¦Г¬ГЁГІГҐ ГЄГ­Г®ГЇГЄГі Гў Г®ГЄГ®ГёГЄГҐ.')
+                        ftext('ГЏГ°ГЁГ¬ГҐГ·Г Г­ГЁГҐ: Г…Г±Г«ГЁ Гі ГўГ Г± Г­ГҐ ГЇГ®ГїГўГЁГ«Г®Г±Гј Г®ГЄГ®ГёГЄГ® ГўГўГҐГ¤ГЁГІГҐ {9966cc}/ft')
                         updwindows.v = true
                         canupdate = true
                     else
-                        print('Обновлений скрипта не обнаружено. Приятной игры.')
+                        print('ГЋГЎГ­Г®ГўГ«ГҐГ­ГЁГ© Г±ГЄГ°ГЁГЇГІГ  Г­ГҐ Г®ГЎГ­Г Г°ГіГ¦ГҐГ­Г®. ГЏГ°ГЁГїГІГ­Г®Г© ГЁГЈГ°Г».')
                         update = false
 				    end
                 end
             else
-                print("Проверка обновления прошка неуспешно. Запускаю старую версию.")
+                print("ГЏГ°Г®ГўГҐГ°ГЄГ  Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГї ГЇГ°Г®ГёГЄГ  Г­ГҐГіГ±ГЇГҐГёГ­Г®. Г‡Г ГЇГіГ±ГЄГ Гѕ Г±ГІГ Г°ГіГѕ ГўГҐГ°Г±ГЁГѕ.")
             end
         elseif status == 64 then
-            print("Проверка обновления прошка неуспешно. Запускаю старую версию.")
+            print("ГЏГ°Г®ГўГҐГ°ГЄГ  Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГї ГЇГ°Г®ГёГЄГ  Г­ГҐГіГ±ГЇГҐГёГ­Г®. Г‡Г ГЇГіГ±ГЄГ Гѕ Г±ГІГ Г°ГіГѕ ГўГҐГ°Г±ГЁГѕ.")
             update = false
         end
     end)
@@ -2164,27 +2164,27 @@ end
 
 
 function goupdate()
-    ftext('Началось скачивание обновления. Скрипт перезагрузится через пару секунд.', -1)
+    ftext('ГЌГ Г·Г Г«Г®Г±Гј Г±ГЄГ Г·ГЁГўГ Г­ГЁГҐ Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГї. Г‘ГЄГ°ГЁГЇГІ ГЇГҐГ°ГҐГ§Г ГЈГ°ГіГ§ГЁГІГ±Гї Г·ГҐГ°ГҐГ§ ГЇГ Г°Гі Г±ГҐГЄГіГ­Г¤.', -1)
     wait(300)
     downloadUrlToFile(updatelink, thisScript().path, function(id3, status1, p13, p23)
         if status1 == dlstatus.STATUS_ENDDOWNLOADDATA then
             thisScript():reload()
         elseif status1 == 64 then
-            ftext("Скачивание обновления прошло не успешно. Запускаю старую версию")
+            ftext("Г‘ГЄГ Г·ГЁГўГ Г­ГЁГҐ Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГї ГЇГ°Г®ГёГ«Г® Г­ГҐ ГіГ±ГЇГҐГёГ­Г®. Г‡Г ГЇГіГ±ГЄГ Гѕ Г±ГІГ Г°ГіГѕ ГўГҐГ°Г±ГЁГѕ")
         end
     end)
 end
 
 function libs()
     if not limgui or not lsampev or not lsphere or not lrkeys or not limadd or not lsha1 or not lbasexx then
-        ftext('Начата загрузка недостающих библиотек')
-        ftext('По окончанию загрузки скрипт будет перезагружен')
+        ftext('ГЌГ Г·Г ГІГ  Г§Г ГЈГ°ГіГ§ГЄГ  Г­ГҐГ¤Г®Г±ГІГ ГѕГ№ГЁГµ ГЎГЁГЎГ«ГЁГ®ГІГҐГЄ')
+        ftext('ГЏГ® Г®ГЄГ®Г­Г·Г Г­ГЁГѕ Г§Г ГЈГ°ГіГ§ГЄГЁ Г±ГЄГ°ГЁГЇГІ ГЎГіГ¤ГҐГІ ГЇГҐГ°ГҐГ§Г ГЈГ°ГіГ¦ГҐГ­')
         if limgui == false then
             imgui_download_status = 'proccess'
             downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/imgui.lua', 'moonloader/lib/imgui.lua', function(id, status, p1, p2)
                 if status == dlstatus.STATUS_DOWNLOADINGDATA then
                     imgui_download_status = 'proccess'
-                    print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
+                    print(string.format('Г‡Г ГЈГ°ГіГ¦ГҐГ­Г® %d ГЄГЁГ«Г®ГЎГ Г©ГІ ГЁГ§ %d ГЄГЁГ«Г®ГЎГ Г©ГІ.', p1, p2))
                 elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                     imgui_download_status = 'succ'
                 elseif status == 64 then
@@ -2193,18 +2193,18 @@ function libs()
             end)
             while imgui_download_status == 'proccess' do wait(0) end
             if imgui_download_status == 'failed' then
-                print('Не удалось загрузить: imgui.lua')
+                print('ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г§Г ГЈГ°ГіГ§ГЁГІГј: imgui.lua')
                 thisScript():unload()
             else
-                print('Файл: imgui.lua успешно загружен')
+                print('Г”Г Г©Г«: imgui.lua ГіГ±ГЇГҐГёГ­Г® Г§Г ГЈГ°ГіГ¦ГҐГ­')
                 if doesFileExist('moonloader/lib/MoonImGui.dll') then
-                    print('Imgui был загружен')
+                    print('Imgui ГЎГ»Г« Г§Г ГЈГ°ГіГ¦ГҐГ­')
                 else
                     imgui_download_status = 'proccess'
                     downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/MoonImGui.dll', 'moonloader/lib/MoonImGui.dll', function(id, status, p1, p2)
                         if status == dlstatus.STATUS_DOWNLOADINGDATA then
                             imgui_download_status = 'proccess'
-                            print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
+                            print(string.format('Г‡Г ГЈГ°ГіГ¦ГҐГ­Г® %d ГЄГЁГ«Г®ГЎГ Г©ГІ ГЁГ§ %d ГЄГЁГ«Г®ГЎГ Г©ГІ.', p1, p2))
                         elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                             imgui_download_status = 'succ'
                         elseif status == 64 then
@@ -2213,10 +2213,10 @@ function libs()
                     end)
                     while imgui_download_status == 'proccess' do wait(0) end
                     if imgui_download_status == 'failed' then
-                        print('Не удалось загрузить Imgui')
+                        print('ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г§Г ГЈГ°ГіГ§ГЁГІГј Imgui')
                         thisScript():unload()
                     else
-                        print('Imgui был загружен')
+                        print('Imgui ГЎГ»Г« Г§Г ГЈГ°ГіГ¦ГҐГ­')
                     end
                 end
             end
@@ -2230,7 +2230,7 @@ function libs()
                 downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/samp/'..v, 'moonloader/lib/samp/'..v, function(id, status, p1, p2)
                     if status == dlstatus.STATUS_DOWNLOADINGDATA then
                         sampev_download_status = 'proccess'
-                        print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
+                        print(string.format('Г‡Г ГЈГ°ГіГ¦ГҐГ­Г® %d ГЄГЁГ«Г®ГЎГ Г©ГІ ГЁГ§ %d ГЄГЁГ«Г®ГЎГ Г©ГІ.', p1, p2))
                     elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                         sampev_download_status = 'succ'
                     elseif status == 64 then
@@ -2239,10 +2239,10 @@ function libs()
                 end)
                 while sampev_download_status == 'proccess' do wait(0) end
                 if sampev_download_status == 'failed' then
-                    print('Не удалось загрузить sampev')
+                    print('ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г§Г ГЈГ°ГіГ§ГЁГІГј sampev')
                     thisScript():unload()
                 else
-                    print(v..' был загружен')
+                    print(v..' ГЎГ»Г« Г§Г ГЈГ°ГіГ¦ГҐГ­')
                 end
             end
         end
@@ -2251,7 +2251,7 @@ function libs()
             downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/sphere.lua', 'moonloader/lib/sphere.lua', function(id, status, p1, p2)
                 if status == dlstatus.STATUS_DOWNLOADINGDATA then
                     sphere_download_status = 'proccess'
-                    print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
+                    print(string.format('Г‡Г ГЈГ°ГіГ¦ГҐГ­Г® %d ГЄГЁГ«Г®ГЎГ Г©ГІ ГЁГ§ %d ГЄГЁГ«Г®ГЎГ Г©ГІ.', p1, p2))
                 elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                     sphere_download_status = 'succ'
                 elseif status == 64 then
@@ -2260,10 +2260,10 @@ function libs()
             end)
             while sphere_download_status == 'proccess' do wait(0) end
             if sphere_download_status == 'failed' then
-                print('Не удалось загрузить Sphere.lua')
+                print('ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г§Г ГЈГ°ГіГ§ГЁГІГј Sphere.lua')
                 thisScript():unload()
             else
-                print('Sphere.lua был загружен')
+                print('Sphere.lua ГЎГ»Г« Г§Г ГЈГ°ГіГ¦ГҐГ­')
             end
         end
         if not lrkeys then
@@ -2271,7 +2271,7 @@ function libs()
             downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/rkeys.lua', 'moonloader/lib/rkeys.lua', function(id, status, p1, p2)
                 if status == dlstatus.STATUS_DOWNLOADINGDATA then
                     rkeys_download_status = 'proccess'
-                    print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
+                    print(string.format('Г‡Г ГЈГ°ГіГ¦ГҐГ­Г® %d ГЄГЁГ«Г®ГЎГ Г©ГІ ГЁГ§ %d ГЄГЁГ«Г®ГЎГ Г©ГІ.', p1, p2))
                 elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                     rkeys_download_status = 'succ'
                 elseif status == 64 then
@@ -2280,10 +2280,10 @@ function libs()
             end)
             while rkeys_download_status == 'proccess' do wait(0) end
             if rkeys_download_status == 'failed' then
-                print('Не удалось загрузить rkeys.lua')
+                print('ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г§Г ГЈГ°ГіГ§ГЁГІГј rkeys.lua')
                 thisScript():unload()
             else
-                print('rkeys.lua был загружен')
+                print('rkeys.lua ГЎГ»Г« Г§Г ГЈГ°ГіГ¦ГҐГ­')
             end
         end
         if not limadd then
@@ -2291,7 +2291,7 @@ function libs()
             downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/imgui_addons.lua', 'moonloader/lib/imgui_addons.lua', function(id, status, p1, p2)
                 if status == dlstatus.STATUS_DOWNLOADINGDATA then
                     imadd_download_status = 'proccess'
-                    print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
+                    print(string.format('Г‡Г ГЈГ°ГіГ¦ГҐГ­Г® %d ГЄГЁГ«Г®ГЎГ Г©ГІ ГЁГ§ %d ГЄГЁГ«Г®ГЎГ Г©ГІ.', p1, p2))
                 elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                     imadd_download_status = 'succ'
                 elseif status == 64 then
@@ -2300,10 +2300,10 @@ function libs()
             end)
             while imadd_download_status == 'proccess' do wait(0) end
             if imadd_download_status == 'failed' then
-                print('Не удалось загрузить imgui_addons.lua')
+                print('ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г§Г ГЈГ°ГіГ§ГЁГІГј imgui_addons.lua')
                 thisScript():unload()
             else
-                print('imgui_addons.lua был загружен')
+                print('imgui_addons.lua ГЎГ»Г« Г§Г ГЈГ°ГіГ¦ГҐГ­')
             end
         end
         if not lsha1 then
@@ -2311,7 +2311,7 @@ function libs()
             downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/sha1.lua', 'moonloader/lib/sha1.lua', function(id, status, p1, p2)
                 if status == dlstatus.STATUS_DOWNLOADINGDATA then
                     sha1_download_status = 'proccess'
-                    print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
+                    print(string.format('Г‡Г ГЈГ°ГіГ¦ГҐГ­Г® %d ГЄГЁГ«Г®ГЎГ Г©ГІ ГЁГ§ %d ГЄГЁГ«Г®ГЎГ Г©ГІ.', p1, p2))
                 elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                     sha1_download_status = 'succ'
                 elseif status == 64 then
@@ -2320,10 +2320,10 @@ function libs()
             end)
             while sha1_download_status == 'proccess' do wait(0) end
             if sha1_download_status == 'failed' then
-                print('Не удалось загрузить sha1.lua')
+                print('ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г§Г ГЈГ°ГіГ§ГЁГІГј sha1.lua')
                 thisScript():unload()
             else
-                print('sha1.lua был загружен')
+                print('sha1.lua ГЎГ»Г« Г§Г ГЈГ°ГіГ¦ГҐГ­')
             end
         end
         if not lbasexx then
@@ -2331,7 +2331,7 @@ function libs()
             downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/basexx.lua', 'moonloader/lib/basexx.lua', function(id, status, p1, p2)
                 if status == dlstatus.STATUS_DOWNLOADINGDATA then
                     basexx_download_status = 'proccess'
-                    print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
+                    print(string.format('Г‡Г ГЈГ°ГіГ¦ГҐГ­Г® %d ГЄГЁГ«Г®ГЎГ Г©ГІ ГЁГ§ %d ГЄГЁГ«Г®ГЎГ Г©ГІ.', p1, p2))
                 elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                     basexx_download_status = 'succ'
                 elseif status == 64 then
@@ -2340,16 +2340,16 @@ function libs()
             end)
             while basexx_download_status == 'proccess' do wait(0) end
             if basexx_download_status == 'failed' then
-                print('Не удалось загрузить basexx.lua')
+                print('ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г§Г ГЈГ°ГіГ§ГЁГІГј basexx.lua')
                 thisScript():unload()
             else
-                print('basexx.lua был загружен')
+                print('basexx.lua ГЎГ»Г« Г§Г ГЈГ°ГіГ¦ГҐГ­')
             end
         end
-        ftext('Все необходимые библиотеки были загружены')
+        ftext('Г‚Г±ГҐ Г­ГҐГ®ГЎГµГ®Г¤ГЁГ¬Г»ГҐ ГЎГЁГЎГ«ГЁГ®ГІГҐГЄГЁ ГЎГ»Г«ГЁ Г§Г ГЈГ°ГіГ¦ГҐГ­Г»')
         reloadScripts()
     else
-        print('Все необходиме библиотеки были найдены и загружены')
+        print('Г‚Г±ГҐ Г­ГҐГ®ГЎГµГ®Г¤ГЁГ¬ГҐ ГЎГЁГЎГ«ГЁГ®ГІГҐГЄГЁ ГЎГ»Г«ГЁ Г­Г Г©Г¤ГҐГ­Г» ГЁ Г§Г ГЈГ°ГіГ¦ГҐГ­Г»')
     end
 end
 
@@ -2362,10 +2362,10 @@ function checkStats()
     local chtime = nil
     checkstat = false
     if rang == -1 and frak == -1 then
-        frak = 'Нет'
-        rang = 'Нет'
-        ftext('Не удалось определить статистику персонажа. Повторить попытку?', -1)
-        ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+        frak = 'ГЌГҐГІ'
+        rang = 'ГЌГҐГІ'
+        ftext('ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г®ГЇГ°ГҐГ¤ГҐГ«ГЁГІГј Г±ГІГ ГІГЁГ±ГІГЁГЄГі ГЇГҐГ°Г±Г®Г­Г Г¦Г . ГЏГ®ГўГІГ®Г°ГЁГІГј ГЇГ®ГЇГ»ГІГЄГі?', -1)
+        ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
         opyatstat = true
     end
 end
@@ -2382,19 +2382,19 @@ function ykf()
                     file:close()
                 else
                     local file = io.open("moonloader/fbitools/yk.txt", "w")
-                    file:write("Произошла ошибка закачки УК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
+                    file:write("ГЏГ°Г®ГЁГ§Г®ГёГ«Г  Г®ГёГЁГЎГЄГ  Г§Г ГЄГ Г·ГЄГЁ Г“ГЉ.\nГ€Г§Г¬ГҐГ­ГЁГІГј ГІГҐГЄГ±ГІ ГЅГІГ®Г© ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® Гў ГґГ Г©Г«ГҐ: moonloader/fbitools/yk.txt")
                     file:close()
                 end
             elseif status == 64 then
                 local file = io.open("moonloader/fbitools/yk.txt", "w")
-                file:write("Произошла ошибка закачки УК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
+                file:write("ГЏГ°Г®ГЁГ§Г®ГёГ«Г  Г®ГёГЁГЎГЄГ  Г§Г ГЄГ Г·ГЄГЁ Г“ГЉ.\nГ€Г§Г¬ГҐГ­ГЁГІГј ГІГҐГЄГ±ГІ ГЅГІГ®Г© ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® Гў ГґГ Г©Г«ГҐ: moonloader/fbitools/yk.txt")
                 file:close()
             end
         end)
     end
     if not doesFileExist('moonloader/fbitools/yk.txt') then
         local file = io.open("moonloader/fbitools/yk.txt", "w")
-        file:write("Произошла ошибка закачки УК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
+        file:write("ГЏГ°Г®ГЁГ§Г®ГёГ«Г  Г®ГёГЁГЎГЄГ  Г§Г ГЄГ Г·ГЄГЁ Г“ГЉ.\nГ€Г§Г¬ГҐГ­ГЁГІГј ГІГҐГЄГ±ГІ ГЅГІГ®Г© ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® Гў ГґГ Г©Г«ГҐ: moonloader/fbitools/yk.txt")
         file:close()
     end
 
@@ -2420,19 +2420,19 @@ function fpf()
                     file:close()
                 else
                     local file = io.open("moonloader/fbitools/fp.txt", "w")
-                    file:write("Произошла ошибка закачки ФП.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
+                    file:write("ГЏГ°Г®ГЁГ§Г®ГёГ«Г  Г®ГёГЁГЎГЄГ  Г§Г ГЄГ Г·ГЄГЁ Г”ГЏ.\nГ€Г§Г¬ГҐГ­ГЁГІГј ГІГҐГЄГ±ГІ ГЅГІГ®Г© ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® Гў ГґГ Г©Г«ГҐ: moonloader/fbitools/yk.txt")
                     file:close()
                 end
             elseif status == 64 then
                 local file = io.open("moonloader/fbitools/fp.txt", "w")
-                file:write("Произошла ошибка закачки ФП.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
+                file:write("ГЏГ°Г®ГЁГ§Г®ГёГ«Г  Г®ГёГЁГЎГЄГ  Г§Г ГЄГ Г·ГЄГЁ Г”ГЏ.\nГ€Г§Г¬ГҐГ­ГЁГІГј ГІГҐГЄГ±ГІ ГЅГІГ®Г© ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® Гў ГґГ Г©Г«ГҐ: moonloader/fbitools/yk.txt")
                 file:close()
             end
         end)
     end
     if not doesFileExist('moonloader/fbitools/fp.txt') then 
         local file = io.open("moonloader/fbitools/fp.txt", "w")
-        file:write("Произошла ошибка закачки ФП.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
+        file:write("ГЏГ°Г®ГЁГ§Г®ГёГ«Г  Г®ГёГЁГЎГЄГ  Г§Г ГЄГ Г·ГЄГЁ Г”ГЏ.\nГ€Г§Г¬ГҐГ­ГЁГІГј ГІГҐГЄГ±ГІ ГЅГІГ®Г© ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® Гў ГґГ Г©Г«ГҐ: moonloader/fbitools/yk.txt")
         file:close()
     end
 end
@@ -2449,19 +2449,19 @@ function akf()
                     file:close()
                 else
                     local file = io.open("moonloader/fbitools/ak.txt", "w")
-                    file:write("Произошла ошибка закачки АК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
+                    file:write("ГЏГ°Г®ГЁГ§Г®ГёГ«Г  Г®ГёГЁГЎГЄГ  Г§Г ГЄГ Г·ГЄГЁ ГЂГЉ.\nГ€Г§Г¬ГҐГ­ГЁГІГј ГІГҐГЄГ±ГІ ГЅГІГ®Г© ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® Гў ГґГ Г©Г«ГҐ: moonloader/fbitools/yk.txt")
                     file:close()
                 end
             elseif status == 64 then
                 local file = io.open("moonloader/fbitools/ak.txt", "w")
-                file:write("Произошла ошибка закачки АК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
+                file:write("ГЏГ°Г®ГЁГ§Г®ГёГ«Г  Г®ГёГЁГЎГЄГ  Г§Г ГЄГ Г·ГЄГЁ ГЂГЉ.\nГ€Г§Г¬ГҐГ­ГЁГІГј ГІГҐГЄГ±ГІ ГЅГІГ®Г© ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® Гў ГґГ Г©Г«ГҐ: moonloader/fbitools/yk.txt")
                 file:close()
             end
         end)
     end
     if not doesFileExist('moonloader/fbitools/ak.txt') then
         local file = io.open("moonloader/fbitools/ak.txt", "w")
-        file:write("Произошла ошибка закачки АК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
+        file:write("ГЏГ°Г®ГЁГ§Г®ГёГ«Г  Г®ГёГЁГЎГЄГ  Г§Г ГЄГ Г·ГЄГЁ ГЂГЉ.\nГ€Г§Г¬ГҐГ­ГЁГІГј ГІГҐГЄГ±ГІ ГЅГІГ®Г© ГёГЇГ®Г°Г» Г¬Г®Г¦Г­Г® Гў ГґГ Г©Г«ГҐ: moonloader/fbitools/yk.txt")
         file:close()
     end
 end
@@ -2492,241 +2492,241 @@ function sumenu(args)
     return
     {
       {
-        title = '{5b83c2}« Раздел №1 »',
+        title = '{5b83c2}В« ГђГ Г§Г¤ГҐГ« В№1 В»',
         onclick = function()
         end
       },
       {
-        title = '{ffffff}» Избиение - {ff0000}2 уровень розыска.',
+        title = '{ffffff}В» Г€Г§ГЎГЁГҐГ­ГЁГҐ - {ff0000}2 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 2 Избиение")
+          sampSendChat("/su "..args.." 2 Г€Г§ГЎГЁГҐГ­ГЁГҐ")
         end
       },
       {
-        title = '{ffffff}» Вооруженное нападение на гражданского - {ff0000}3 уровень розыска.',
+        title = '{ffffff}В» Г‚Г®Г®Г°ГіГ¦ГҐГ­Г­Г®ГҐ Г­Г ГЇГ Г¤ГҐГ­ГЁГҐ Г­Г  ГЈГ°Г Г¦Г¤Г Г­Г±ГЄГ®ГЈГ® - {ff0000}3 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 3 Вооруженное нападение на гражданского")
+          sampSendChat("/su "..args.." 3 Г‚Г®Г®Г°ГіГ¦ГҐГ­Г­Г®ГҐ Г­Г ГЇГ Г¤ГҐГ­ГЁГҐ Г­Г  ГЈГ°Г Г¦Г¤Г Г­Г±ГЄГ®ГЈГ®")
         end
       },
       {
-        title = '{ffffff}» Вооруженное нападение на гос.служащего - {ff0000}6 уровень розыска.',
+        title = '{ffffff}В» Г‚Г®Г®Г°ГіГ¦ГҐГ­Г­Г®ГҐ Г­Г ГЇГ Г¤ГҐГ­ГЁГҐ Г­Г  ГЈГ®Г±.Г±Г«ГіГ¦Г Г№ГҐГЈГ® - {ff0000}6 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 6 Вооруженное нападение на ПО")
+          sampSendChat("/su "..args.." 6 Г‚Г®Г®Г°ГіГ¦ГҐГ­Г­Г®ГҐ Г­Г ГЇГ Г¤ГҐГ­ГЁГҐ Г­Г  ГЏГЋ")
         end
       },
       {
-        title = '{ffffff}» Убийство человека - {ff0000}3 уровень розыска.',
+        title = '{ffffff}В» Г“ГЎГЁГ©Г±ГІГўГ® Г·ГҐГ«Г®ГўГҐГЄГ  - {ff0000}3 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 3 Убийство человека")
+          sampSendChat("/su "..args.." 3 Г“ГЎГЁГ©Г±ГІГўГ® Г·ГҐГ«Г®ГўГҐГЄГ ")
         end
       },
       {
-        title = '{ffffff}» Хулиганство - {ff0000}1 уровень розыска.',
+        title = '{ffffff}В» Г•ГіГ«ГЁГЈГ Г­Г±ГІГўГ® - {ff0000}1 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 1 Хулиганство")
+          sampSendChat("/su "..args.." 1 Г•ГіГ«ГЁГЈГ Г­Г±ГІГўГ®")
         end
       },
       {
-        title = '{ffffff}» Неадекватное поведение - {ff0000}1 уровень розыска.',
+        title = '{ffffff}В» ГЌГҐГ Г¤ГҐГЄГўГ ГІГ­Г®ГҐ ГЇГ®ГўГҐГ¤ГҐГ­ГЁГҐ - {ff0000}1 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 1 Неадекватное поведение")
+          sampSendChat("/su "..args.." 1 ГЌГҐГ Г¤ГҐГЄГўГ ГІГ­Г®ГҐ ГЇГ®ГўГҐГ¤ГҐГ­ГЁГҐ")
         end
       },
       {
-        title = '{ffffff}» Попрошайничество - {ff0000}1 уровень розыска.',
+        title = '{ffffff}В» ГЏГ®ГЇГ°Г®ГёГ Г©Г­ГЁГ·ГҐГ±ГІГўГ® - {ff0000}1 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 1 Попрошайничество")
+          sampSendChat("/su "..args.." 1 ГЏГ®ГЇГ°Г®ГёГ Г©Г­ГЁГ·ГҐГ±ГІГўГ®")
         end
       },
       {
-        title = '{ffffff}» Оскорбление - {ff0000}2 уровень розыска.',
+        title = '{ffffff}В» ГЋГ±ГЄГ®Г°ГЎГ«ГҐГ­ГЁГҐ - {ff0000}2 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 2 Оскорбление")
+          sampSendChat("/su "..args.." 2 ГЋГ±ГЄГ®Г°ГЎГ«ГҐГ­ГЁГҐ")
         end
       },
       {
-        title = '{ffffff}» Наезд на пешехода - {ff0000}2 уровень розыска.',
+        title = '{ffffff}В» ГЌГ ГҐГ§Г¤ Г­Г  ГЇГҐГёГҐГµГ®Г¤Г  - {ff0000}2 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 2 Наезд на пешехода")
+          sampSendChat("/su "..args.." 2 ГЌГ ГҐГ§Г¤ Г­Г  ГЇГҐГёГҐГµГ®Г¤Г ")
         end
       },
       {
-        title = '{ffffff}» Игнорирование спец.сигнала - {ff0000}1 уровень розыска.',
+        title = '{ffffff}В» Г€ГЈГ­Г®Г°ГЁГ°Г®ГўГ Г­ГЁГҐ Г±ГЇГҐГ¶.Г±ГЁГЈГ­Г Г«Г  - {ff0000}1 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 1 Игнорирование спец.сигнала")
+          sampSendChat("/su "..args.." 1 Г€ГЈГ­Г®Г°ГЁГ°Г®ГўГ Г­ГЁГҐ Г±ГЇГҐГ¶.Г±ГЁГЈГ­Г Г«Г ")
         end
       },
       {
-        title = '{ffffff}» Угон транспортного средства - {ff0000}2 уровень розыска.',
+        title = '{ffffff}В» Г“ГЈГ®Г­ ГІГ°Г Г­Г±ГЇГ®Г°ГІГ­Г®ГЈГ® Г±Г°ГҐГ¤Г±ГІГўГ  - {ff0000}2 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 2 Угон транспортного средства")
+          sampSendChat("/su "..args.." 2 Г“ГЈГ®Г­ ГІГ°Г Г­Г±ГЇГ®Г°ГІГ­Г®ГЈГ® Г±Г°ГҐГ¤Г±ГІГўГ ")
         end
       },
       {
-        title = '{ffffff}» Порча чужого имущества - {ff0000}1 уровень розыска.',
+        title = '{ffffff}В» ГЏГ®Г°Г·Г  Г·ГіГ¦Г®ГЈГ® ГЁГ¬ГіГ№ГҐГ±ГІГўГ  - {ff0000}1 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.. " 1 Порча чужого имущества")
+          sampSendChat("/su "..args.. " 1 ГЏГ®Г°Г·Г  Г·ГіГ¦Г®ГЈГ® ГЁГ¬ГіГ№ГҐГ±ГІГўГ ")
         end
       },
       {
-        title = '{ffffff}» Уничтожение чужого имущества - {ff0000}4 уровень розыска.',
+        title = '{ffffff}В» Г“Г­ГЁГ·ГІГ®Г¦ГҐГ­ГЁГҐ Г·ГіГ¦Г®ГЈГ® ГЁГ¬ГіГ№ГҐГ±ГІГўГ  - {ff0000}4 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 4 Уничтожение чужого имущества")
+          sampSendChat("/su "..args.." 4 Г“Г­ГЁГ·ГІГ®Г¦ГҐГ­ГЁГҐ Г·ГіГ¦Г®ГЈГ® ГЁГ¬ГіГ№ГҐГ±ГІГўГ ")
         end
       },
       {
-        title = '{ffffff}» Неподчинение сотруднику ПО - {ff0000}1 уровень розыска.',
+        title = '{ffffff}В» ГЌГҐГЇГ®Г¤Г·ГЁГ­ГҐГ­ГЁГҐ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГі ГЏГЋ - {ff0000}1 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 1 Неподчинение сотруднику ПО")
+          sampSendChat("/su "..args.." 1 ГЌГҐГЇГ®Г¤Г·ГЁГ­ГҐГ­ГЁГҐ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГі ГЏГЋ")
         end
       },
       {
-        title = '{ffffff}» Уход от сотрудника ПО - {ff0000}2 уровень розыска',
+        title = '{ffffff}В» Г“ГµГ®Г¤ Г®ГІ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  ГЏГЋ - {ff0000}2 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ ',
         onclick = function()
-          sampSendChat("/su "..args.." 2 Уход от сотрудника ПО")
+          sampSendChat("/su "..args.." 2 Г“ГµГ®Г¤ Г®ГІ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  ГЏГЋ")
         end
       },
       {
-          title = '{ffffff}» Уход с места ДТП - {ff0000}3 уровень розыска',
+          title = '{ffffff}В» Г“ГµГ®Г¤ Г± Г¬ГҐГ±ГІГ  Г„Г’ГЏ - {ff0000}3 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ ',
           onclick = function()
-            sampSendChat('/su '..args.. ' 3 Уход с места ДТП')
+            sampSendChat('/su '..args.. ' 3 Г“ГµГ®Г¤ Г± Г¬ГҐГ±ГІГ  Г„Г’ГЏ')
           end
       },
       {
-        title = '{ffffff}» Побег из места заключения - {ff0000}6 уровень розыска.',
+        title = '{ffffff}В» ГЏГ®ГЎГҐГЈ ГЁГ§ Г¬ГҐГ±ГІГ  Г§Г ГЄГ«ГѕГ·ГҐГ­ГЁГї - {ff0000}6 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 6 Побег из места заключения")
+          sampSendChat("/su "..args.." 6 ГЏГ®ГЎГҐГЈ ГЁГ§ Г¬ГҐГ±ГІГ  Г§Г ГЄГ«ГѕГ·ГҐГ­ГЁГї")
         end
       },
       {
-        title = '{ffffff}» Проникновение на охраняемую территорию - {ff0000}2 уровень розыска.',
+        title = '{ffffff}В» ГЏГ°Г®Г­ГЁГЄГ­Г®ГўГҐГ­ГЁГҐ Г­Г  Г®ГµГ°Г Г­ГїГҐГ¬ГіГѕ ГІГҐГ°Г°ГЁГІГ®Г°ГЁГѕ - {ff0000}2 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 2 Проникновение на охр. территорию")
+          sampSendChat("/su "..args.." 2 ГЏГ°Г®Г­ГЁГЄГ­Г®ГўГҐГ­ГЁГҐ Г­Г  Г®ГµГ°. ГІГҐГ°Г°ГЁГІГ®Г°ГЁГѕ")
         end
       },
       {
-        title = '{ffffff}» Провокация - {ff0000}2 уровень розыска.',
+        title = '{ffffff}В» ГЏГ°Г®ГўГ®ГЄГ Г¶ГЁГї - {ff0000}2 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 2 Провокация")
+          sampSendChat("/su "..args.." 2 ГЏГ°Г®ГўГ®ГЄГ Г¶ГЁГї")
         end
       },
       {
-        title = '{ffffff}» Угрозы - {ff0000}1 уровень розыска.',
+        title = '{ffffff}В» Г“ГЈГ°Г®Г§Г» - {ff0000}1 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 1 Угрозы")
+          sampSendChat("/su "..args.." 1 Г“ГЈГ°Г®Г§Г»")
         end
       },
       {
-        title = '{ffffff}» Предложение интим. услуг - {ff0000}1 уровень розыска',
+        title = '{ffffff}В» ГЏГ°ГҐГ¤Г«Г®Г¦ГҐГ­ГЁГҐ ГЁГ­ГІГЁГ¬. ГіГ±Г«ГіГЈ - {ff0000}1 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ ',
         onclick = function()
-          sampSendChat('/su '..args..' 1 Предложение интимных услуг')
+          sampSendChat('/su '..args..' 1 ГЏГ°ГҐГ¤Г«Г®Г¦ГҐГ­ГЁГҐ ГЁГ­ГІГЁГ¬Г­Г»Гµ ГіГ±Г«ГіГЈ')
         end
       },
       {
-        title = '{ffffff}» Изнасилование - {ff0000}3 уровень розыска',
+        title = '{ffffff}В» Г€Г§Г­Г Г±ГЁГ«Г®ГўГ Г­ГЁГҐ - {ff0000}3 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ ',
         onclick = function()
-          sampSendChat('/su '..args..' 3 Изнасилование')
+          sampSendChat('/su '..args..' 3 Г€Г§Г­Г Г±ГЁГ«Г®ГўГ Г­ГЁГҐ')
         end
       },
       {
-        title = '{ffffff}» Чистосердечное признание - {ff0000}1 уровень розыска.',
+        title = '{ffffff}В» Г—ГЁГ±ГІГ®Г±ГҐГ°Г¤ГҐГ·Г­Г®ГҐ ГЇГ°ГЁГ§Г­Г Г­ГЁГҐ - {ff0000}1 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
           local result = isCharInAnyCar(PLAYER_PED)
           if result then
             sampSendChat("/clear "..args)
             wait(1400)
-            sampSendChat("/su "..args.." 1 Чистосердечное признание")
+            sampSendChat("/su "..args.." 1 Г—ГЁГ±ГІГ®Г±ГҐГ°Г¤ГҐГ·Г­Г®ГҐ ГЇГ°ГЁГ§Г­Г Г­ГЁГҐ")
           else
             sampAddChatMessage("{9966CC}"..script.this.name.." {FFFFFF}| You have to be in the car", -1)
           end
         end
       },
       {
-        title = '{ffbc54}« Раздел №2 »',
+        title = '{ffbc54}В« ГђГ Г§Г¤ГҐГ« В№2 В»',
         onclick = function()
         end
       },
       {
-        title = '{ffffff}» Хранение материалов - {ff0000}3 уровень розыска.',
+        title = '{ffffff}В» Г•Г°Г Г­ГҐГ­ГЁГҐ Г¬Г ГІГҐГ°ГЁГ Г«Г®Гў - {ff0000}3 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 3 Хранение материалов")
+          sampSendChat("/su "..args.." 3 Г•Г°Г Г­ГҐГ­ГЁГҐ Г¬Г ГІГҐГ°ГЁГ Г«Г®Гў")
         end
       },
       {
-        title = '{ffffff}» Хранение наркотиков - {ff0000}3 уровень розыска.',
+        title = '{ffffff}В» Г•Г°Г Г­ГҐГ­ГЁГҐ Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў - {ff0000}3 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 3 Хранение наркотиков")
+          sampSendChat("/su "..args.." 3 Г•Г°Г Г­ГҐГ­ГЁГҐ Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў")
         end
       },
       {
-        title = '{ffffff}» Продажа ключей от камеры - {ff0000}6 уровень розыска',
+        title = '{ffffff}В» ГЏГ°Г®Г¤Г Г¦Г  ГЄГ«ГѕГ·ГҐГ© Г®ГІ ГЄГ Г¬ГҐГ°Г» - {ff0000}6 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ ',
         onclick = function()
-          sampSendChat("/su "..args.." 6 Продажа ключей от камеры")
+          sampSendChat("/su "..args.." 6 ГЏГ°Г®Г¤Г Г¦Г  ГЄГ«ГѕГ·ГҐГ© Г®ГІ ГЄГ Г¬ГҐГ°Г»")
         end
       },
       {
-        title = '{ffffff}» Употребление наркотиков - {ff0000}3 уровень розыска',
+        title = '{ffffff}В» Г“ГЇГ®ГІГ°ГҐГЎГ«ГҐГ­ГЁГҐ Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў - {ff0000}3 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ ',
         onclick = function()
-          sampSendChat("/su "..args.." 3 Употребление наркотиков")
+          sampSendChat("/su "..args.." 3 Г“ГЇГ®ГІГ°ГҐГЎГ«ГҐГ­ГЁГҐ Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў")
         end
       },
       {
-        title = '{ffffff}» Продажа наркотиков - {ff0000}2 уровень розыска',
+        title = '{ffffff}В» ГЏГ°Г®Г¤Г Г¦Г  Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў - {ff0000}2 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ ',
         onclick = function()
-          sampSendChat("/su "..args.." 2 Продажа наркотиков")
+          sampSendChat("/su "..args.." 2 ГЏГ°Г®Г¤Г Г¦Г  Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў")
         end
       },
       {
-        title = '{ffffff}» Покупка военной формы - {ff0000}2 уровень розыска',
+        title = '{ffffff}В» ГЏГ®ГЄГіГЇГЄГ  ГўГ®ГҐГ­Г­Г®Г© ГґГ®Г°Г¬Г» - {ff0000}2 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ ',
         onclick = function()
-          sampSendChat("/su "..args.." 2 Покупка военной формы")
+          sampSendChat("/su "..args.." 2 ГЏГ®ГЄГіГЇГЄГ  ГўГ®ГҐГ­Г­Г®Г© ГґГ®Г°Г¬Г»")
         end
       },
       {
-        title = '{ffffff}» Предложение взятки гос.служащему - {ff0000}2 уровень розыска.',
+        title = '{ffffff}В» ГЏГ°ГҐГ¤Г«Г®Г¦ГҐГ­ГЁГҐ ГўГ§ГїГІГЄГЁ ГЈГ®Г±.Г±Г«ГіГ¦Г Г№ГҐГ¬Гі - {ff0000}2 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 2 Предложение взятки гос.служащему")
+          sampSendChat("/su "..args.." 2 ГЏГ°ГҐГ¤Г«Г®Г¦ГҐГ­ГЁГҐ ГўГ§ГїГІГЄГЁ ГЈГ®Г±.Г±Г«ГіГ¦Г Г№ГҐГ¬Гі")
         end
       },
       {
-        title = '{ae0620}« Раздел №3 »',
+        title = '{ae0620}В« ГђГ Г§Г¤ГҐГ« В№3 В»',
         onclick = function()
         end
       },
       {
-        title = '{ffffff}» Уход в AFK от ареста - {ff0000}6 уровень розыска.',
+        title = '{ffffff}В» Г“ГµГ®Г¤ Гў AFK Г®ГІ Г Г°ГҐГ±ГІГ  - {ff0000}6 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 6 Уход")
+          sampSendChat("/su "..args.." 6 Г“ГµГ®Г¤")
         end
       },
       {
-        title = '{ffffff}» Совершение терракта - {ff0000}6 уровень розыска.',
+        title = '{ffffff}В» Г‘Г®ГўГҐГ°ГёГҐГ­ГЁГҐ ГІГҐГ°Г°Г ГЄГІГ  - {ff0000}6 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 6 Совершение теракта")
+          sampSendChat("/su "..args.." 6 Г‘Г®ГўГҐГ°ГёГҐГ­ГЁГҐ ГІГҐГ°Г ГЄГІГ ")
         end
       },
       {
-        title = '{ffffff}» Неуплата штрафа - {ff0000}2 уровень розыска.',
+        title = '{ffffff}В» ГЌГҐГіГЇГ«Г ГІГ  ГёГІГ°Г ГґГ  - {ff0000}2 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 2 Неуплата штрафа")
+          sampSendChat("/su "..args.." 2 ГЌГҐГіГЇГ«Г ГІГ  ГёГІГ°Г ГґГ ")
         end
       },
       {
-        title = '{ffffff}» Превышение полномочий адвоката - {ff0000}3 уровень розыска.',
+        title = '{ffffff}В» ГЏГ°ГҐГўГ»ГёГҐГ­ГЁГҐ ГЇГ®Г«Г­Г®Г¬Г®Г·ГЁГ© Г Г¤ГўГ®ГЄГ ГІГ  - {ff0000}3 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ .',
         onclick = function()
-          sampSendChat("/su "..args.." 3 Превышение полномочий адвоката")
+          sampSendChat("/su "..args.." 3 ГЏГ°ГҐГўГ»ГёГҐГ­ГЁГҐ ГЇГ®Г«Г­Г®Г¬Г®Г·ГЁГ© Г Г¤ГўГ®ГЄГ ГІГ ")
         end
       },
       {
-        title = '{ffffff}» Похищение гражданского/гос.служащего - {ff0000}4 уровень розыска',
+        title = '{ffffff}В» ГЏГ®ГµГЁГ№ГҐГ­ГЁГҐ ГЈГ°Г Г¦Г¤Г Г­Г±ГЄГ®ГЈГ®/ГЈГ®Г±.Г±Г«ГіГ¦Г Г№ГҐГЈГ® - {ff0000}4 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ ',
         onclick = function()
-          sampSendChat("/su "..args.." 4 Похищение")
+          sampSendChat("/su "..args.." 4 ГЏГ®ГµГЁГ№ГҐГ­ГЁГҐ")
         end
       },
       {
-        title = '{ffffff}» Статус ООП - {ff0000}6 уровень розыска',
+        title = '{ffffff}В» Г‘ГІГ ГІГіГ± ГЋГЋГЏ - {ff0000}6 ГіГ°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ ',
         onclick = function()
-          sampSendChat("/su "..args.." 6 ООП")
+          sampSendChat("/su "..args.." 6 ГЋГЋГЏ")
         end
       }
     }
@@ -2743,23 +2743,23 @@ end
 function giveLicense(id, list)
     ins.list = list
     ins.isLicense = true
-    sampSendChat(("/me %s папку с лицензиями"):format(cfg.main.male and "открыл" or "открыла"))
+    sampSendChat(("/me %s ГЇГ ГЇГЄГі Г± Г«ГЁГ¶ГҐГ­Г§ГЁГїГ¬ГЁ"):format(cfg.main.male and "Г®ГІГЄГ°Г»Г«" or "Г®ГІГЄГ°Г»Г«Г "))
     wait(cfg.commands.zaderjka)
-    sampSendChat("/do Лицензия в руке.")
+    sampSendChat("/do Г‹ГЁГ¶ГҐГ­Г§ГЁГї Гў Г°ГіГЄГҐ.")
     wait(cfg.commands.zaderjka)
-    sampSendChat(("/me %s печать \"Autoschool San Fierro\" и %s лицензию"):format(cfg.main.male and "поставил" or "поставила", cfg.main.male and "передал" or "передала"))
+    sampSendChat(("/me %s ГЇГҐГ·Г ГІГј \"Autoschool San Fierro\" ГЁ %s Г«ГЁГ¶ГҐГ­Г§ГЁГѕ"):format(cfg.main.male and "ГЇГ®Г±ГІГ ГўГЁГ«" or "ГЇГ®Г±ГІГ ГўГЁГ«Г ", cfg.main.male and "ГЇГҐГ°ГҐГ¤Г Г«" or "ГЇГҐГ°ГҐГ¤Г Г«Г "))
     wait(1400)
     sampSendChat(("/givelicense %s"):format(id))
 end
 
 function healPlayer(id, head)
-    sampSendChat(("/me %s аптечку"):format(cfg.main.male and "достал" or "достала"))
+    sampSendChat(("/me %s Г ГЇГІГҐГ·ГЄГі"):format(cfg.main.male and "Г¤Г®Г±ГІГ Г«" or "Г¤Г®Г±ГІГ Г«Г "))
     wait(cfg.commands.zaderjka)
-    sampSendChat(("/me %s необходимый препарат"):format(cfg.main.male and "нашел" or "нашла"))
+    sampSendChat(("/me %s Г­ГҐГ®ГЎГµГ®Г¤ГЁГ¬Г»Г© ГЇГ°ГҐГЇГ Г°Г ГІ"):format(cfg.main.male and "Г­Г ГёГҐГ«" or "Г­Г ГёГ«Г "))
     wait(cfg.commands.zaderjka)
-    sampSendChat(("/do %s в руках"):format(head and "Аспирин" or "Ношпа"))
+    sampSendChat(("/do %s Гў Г°ГіГЄГ Гµ"):format(head and "ГЂГ±ГЇГЁГ°ГЁГ­" or "ГЌГ®ГёГЇГ "))
     wait(cfg.commands.zaderjka)
-    sampSendChat(("/me %s пациенту лекарство и %s запить водой"):format(cfg.main.male and "передал" or "передала", cfg.main.male and "дал" or "дала"))
+    sampSendChat(("/me %s ГЇГ Г¶ГЁГҐГ­ГІГі Г«ГҐГЄГ Г°Г±ГІГўГ® ГЁ %s Г§Г ГЇГЁГІГј ГўГ®Г¤Г®Г©"):format(cfg.main.male and "ГЇГҐГ°ГҐГ¤Г Г«" or "ГЇГҐГ°ГҐГ¤Г Г«Г ", cfg.main.male and "Г¤Г Г«" or "Г¤Г Г«Г "))
     wait(1400)
     sampSendChat(("/heal %s"):format(id))
 end
@@ -2768,32 +2768,32 @@ function pkmmenuMOH(id)
     return
     {
         {
-            title = "Вылечить",
+            title = "Г‚Г»Г«ГҐГ·ГЁГІГј",
             submenu = {
                 {
-                    title = "Голова",
+                    title = "ГѓГ®Г«Г®ГўГ ",
                     onclick = function()
                         healPlayer(id, true)
                     end
                 },
                 {
-                    title = "Живота",
+                    title = "Г†ГЁГўГ®ГІГ ",
                     onclick = function()
                         healPlayer(id, false)
                     end
                 },
                 {
-                    title = "Горло",
+                    title = "ГѓГ®Г°Г«Г®",
                     onclick = function()
-                        sampSendChat(("/me %s горло"):format(cfg.main.male and "осмотрел" or "осмотрела"))
+                        sampSendChat(("/me %s ГЈГ®Г°Г«Г®"):format(cfg.main.male and "Г®Г±Г¬Г®ГІГ°ГҐГ«" or "Г®Г±Г¬Г®ГІГ°ГҐГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s аптечку"):format(cfg.main.male and "достал" or "достала"))
+                        sampSendChat(("/me %s Г ГЇГІГҐГ·ГЄГі"):format(cfg.main.male and "Г¤Г®Г±ГІГ Г«" or "Г¤Г®Г±ГІГ Г«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s необходимый препарат"):format(cfg.main.male and "нашел" or "нашла"))
+                        sampSendChat(("/me %s Г­ГҐГ®ГЎГµГ®Г¤ГЁГ¬Г»Г© ГЇГ°ГҐГЇГ Г°Г ГІ"):format(cfg.main.male and "Г­Г ГёГҐГ«" or "Г­Г ГёГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat("/do Стопангин в руках")
+                        sampSendChat("/do Г‘ГІГ®ГЇГ Г­ГЈГЁГ­ Гў Г°ГіГЄГ Гµ")
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s пациенту лекарство и %s запить водой"):format(cfg.main.male and "передал" or "передала", cfg.main.male and "дал" or "дала"))
+                        sampSendChat(("/me %s ГЇГ Г¶ГЁГҐГ­ГІГі Г«ГҐГЄГ Г°Г±ГІГўГ® ГЁ %s Г§Г ГЇГЁГІГј ГўГ®Г¤Г®Г©"):format(cfg.main.male and "ГЇГҐГ°ГҐГ¤Г Г«" or "ГЇГҐГ°ГҐГ¤Г Г«Г ", cfg.main.male and "Г¤Г Г«" or "Г¤Г Г«Г "))
                         wait(1400)
                         sampSendChat(("/heal %s"):format(id))
                     end
@@ -2801,157 +2801,157 @@ function pkmmenuMOH(id)
             }
         },
         {
-            title = "» Провести сеанс",
+            title = "В» ГЏГ°Г®ГўГҐГ±ГІГЁ Г±ГҐГ Г­Г±",
             onclick = function()
-                sampSendChat("/do Шприц в руке.")
+                sampSendChat("/do ГГЇГ°ГЁГ¶ Гў Г°ГіГЄГҐ.")
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s ватку смоченную мед.спиртом и %s место укола"):format(cfg.main.male and "взял" or "взяла", cfg.main.male and "обработал" or "обработала"))
+                sampSendChat(("/me %s ГўГ ГІГЄГі Г±Г¬Г®Г·ГҐГ­Г­ГіГѕ Г¬ГҐГ¤.Г±ГЇГЁГ°ГІГ®Г¬ ГЁ %s Г¬ГҐГ±ГІГ® ГіГЄГ®Г«Г "):format(cfg.main.male and "ГўГ§ГїГ«" or "ГўГ§ГїГ«Г ", cfg.main.male and "Г®ГЎГ°Г ГЎГ®ГІГ Г«" or "Г®ГЎГ°Г ГЎГ®ГІГ Г«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s жгут на руке пациента, после чего %s инъекцию"):format(cfg.main.male and "затянул" or "затянула", cfg.main.male and "ввел" or "ввела"))
+                sampSendChat(("/me %s Г¦ГЈГіГІ Г­Г  Г°ГіГЄГҐ ГЇГ Г¶ГЁГҐГ­ГІГ , ГЇГ®Г±Г«ГҐ Г·ГҐГЈГ® %s ГЁГ­ГєГҐГЄГ¶ГЁГѕ"):format(cfg.main.male and "Г§Г ГІГїГ­ГіГ«" or "Г§Г ГІГїГ­ГіГ«Г ", cfg.main.male and "ГўГўГҐГ«" or "ГўГўГҐГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s жгут и %s ватку к месту укола"):format(cfg.main.male and "снял" or "сняла", cfg.main.male and "приложил" or "приложила"))
+                sampSendChat(("/me %s Г¦ГЈГіГІ ГЁ %s ГўГ ГІГЄГі ГЄ Г¬ГҐГ±ГІГі ГіГЄГ®Г«Г "):format(cfg.main.male and "Г±Г­ГїГ«" or "Г±Г­ГїГ«Г ", cfg.main.male and "ГЇГ°ГЁГ«Г®Г¦ГЁГ«" or "ГЇГ°ГЁГ«Г®Г¦ГЁГ«Г "))
                 wait(1400)
                 sampSendChat(("/healaddict %s 10000"):format(id))
             end
         },
         {
-            title = "» Сделать рентген",
+            title = "В» Г‘Г¤ГҐГ«Г ГІГј Г°ГҐГ­ГІГЈГҐГ­",
             onclick = function()
-                sampSendChat(("/me %s рентгеновский аппарат"):format(cfg.main.male and "включил" or "включила"))
+                sampSendChat(("/me %s Г°ГҐГ­ГІГЈГҐГ­Г®ГўГ±ГЄГЁГ© Г ГЇГЇГ Г°Г ГІ"):format(cfg.main.male and "ГўГЄГ«ГѕГ·ГЁГ«" or "ГўГЄГ«ГѕГ·ГЁГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat("/do Рентгеновский аппарат зашумел.")
+                sampSendChat("/do ГђГҐГ­ГІГЈГҐГ­Г®ГўГ±ГЄГЁГ© Г ГЇГЇГ Г°Г ГІ Г§Г ГёГіГ¬ГҐГ«.")
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s рентгеновским аппаратом по поврежденному участку"):format(cfg.main.male and "провел" or "провела"))
+                sampSendChat(("/me %s Г°ГҐГ­ГІГЈГҐГ­Г®ГўГ±ГЄГЁГ¬ Г ГЇГЇГ Г°Г ГІГ®Г¬ ГЇГ® ГЇГ®ГўГ°ГҐГ¦Г¤ГҐГ­Г­Г®Г¬Гі ГіГ·Г Г±ГІГЄГі"):format(cfg.main.male and "ГЇГ°Г®ГўГҐГ«" or "ГЇГ°Г®ГўГҐГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat("/me рассматривает снимок")
+                sampSendChat("/me Г°Г Г±Г±Г¬Г ГІГ°ГЁГўГ ГҐГІ Г±Г­ГЁГ¬Г®ГЄ")
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/try %s перелом"):format(cfg.main.male and "обнаружил" or "обнаружила"))
+                sampSendChat(("/try %s ГЇГҐГ°ГҐГ«Г®Г¬"):format(cfg.main.male and "Г®ГЎГ­Г Г°ГіГ¦ГЁГ«" or "Г®ГЎГ­Г Г°ГіГ¦ГЁГ«Г "))
             end
         },
         {
-            title = "» Вылечить перелом конечностей",
+            title = "В» Г‚Г»Г«ГҐГ·ГЁГІГј ГЇГҐГ°ГҐГ«Г®Г¬ ГЄГ®Г­ГҐГ·Г­Г®Г±ГІГҐГ©",
             onclick = function()
-                sampSendChat(("/me %s со стола перчатки и %s их"):format(cfg.main.male and "взял" or "взяла", cfg.main.male and "надел" or "надела"))
+                sampSendChat(("/me %s Г±Г® Г±ГІГ®Г«Г  ГЇГҐГ°Г·Г ГІГЄГЁ ГЁ %s ГЁГµ"):format(cfg.main.male and "ГўГ§ГїГ«" or "ГўГ§ГїГ«Г ", cfg.main.male and "Г­Г Г¤ГҐГ«" or "Г­Г Г¤ГҐГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s шприц с обезбаливающим, после чего %s поврежденный участок"):format(cfg.main.male and "взял" or "взяла", cfg.main.male and "обезболил" or "обезболила"))
+                sampSendChat(("/me %s ГёГЇГ°ГЁГ¶ Г± Г®ГЎГҐГ§ГЎГ Г«ГЁГўГ ГѕГ№ГЁГ¬, ГЇГ®Г±Г«ГҐ Г·ГҐГЈГ® %s ГЇГ®ГўГ°ГҐГ¦Г¤ГҐГ­Г­Г»Г© ГіГ·Г Г±ГІГ®ГЄ"):format(cfg.main.male and "ГўГ§ГїГ«" or "ГўГ§ГїГ«Г ", cfg.main.male and "Г®ГЎГҐГ§ГЎГ®Г«ГЁГ«" or "Г®ГЎГҐГ§ГЎГ®Г«ГЁГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s репозицию поврежденного участка"):format(cfg.main.male and "провел" or "провела"))
+                sampSendChat(("/me %s Г°ГҐГЇГ®Г§ГЁГ¶ГЁГѕ ГЇГ®ГўГ°ГҐГ¦Г¤ГҐГ­Г­Г®ГЈГ® ГіГ·Г Г±ГІГЄГ "):format(cfg.main.male and "ГЇГ°Г®ГўГҐГ«" or "ГЇГ°Г®ГўГҐГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s бинт вдоль стола, после чего %s гипсовый раствор"):format(cfg.main.male and "раскатил" or "раскатила", cfg.main.male and "втер" or "втерла"))
+                sampSendChat(("/me %s ГЎГЁГ­ГІ ГўГ¤Г®Г«Гј Г±ГІГ®Г«Г , ГЇГ®Г±Г«ГҐ Г·ГҐГЈГ® %s ГЈГЁГЇГ±Г®ГўГ»Г© Г°Г Г±ГІГўГ®Г°"):format(cfg.main.male and "Г°Г Г±ГЄГ ГІГЁГ«" or "Г°Г Г±ГЄГ ГІГЁГ«Г ", cfg.main.male and "ГўГІГҐГ°" or "ГўГІГҐГ°Г«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s бинт, после чего зафиксировал перелом"):format(cfg.main.male and "свернул" or "свернула"))
+                sampSendChat(("/me %s ГЎГЁГ­ГІ, ГЇГ®Г±Г«ГҐ Г·ГҐГЈГ® Г§Г ГґГЁГЄГ±ГЁГ°Г®ГўГ Г« ГЇГҐГ°ГҐГ«Г®Г¬"):format(cfg.main.male and "Г±ГўГҐГ°Г­ГіГ«" or "Г±ГўГҐГ°Г­ГіГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat("Приходите через месяц. Всего доброго!")
+                sampSendChat("ГЏГ°ГЁГµГ®Г¤ГЁГІГҐ Г·ГҐГ°ГҐГ§ Г¬ГҐГ±ГїГ¶. Г‚Г±ГҐГЈГ® Г¤Г®ГЎГ°Г®ГЈГ®!")
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s перчатки и %s их в урну возле стола"):format(cfg.main.male and "снял" or "сняла", cfg.main.male and "бросил" or "бросила"))
+                sampSendChat(("/me %s ГЇГҐГ°Г·Г ГІГЄГЁ ГЁ %s ГЁГµ Гў ГіГ°Г­Гі ГўГ®Г§Г«ГҐ Г±ГІГ®Г«Г "):format(cfg.main.male and "Г±Г­ГїГ«" or "Г±Г­ГїГ«Г ", cfg.main.male and "ГЎГ°Г®Г±ГЁГ«" or "ГЎГ°Г®Г±ГЁГ«Г "))
             end
         },
         {
-            title = "» Вылечить перелом позвоночника / ребер",
+            title = "В» Г‚Г»Г«ГҐГ·ГЁГІГј ГЇГҐГ°ГҐГ«Г®Г¬ ГЇГ®Г§ГўГ®Г­Г®Г·Г­ГЁГЄГ  / Г°ГҐГЎГҐГ°",
             onclick = function()
-                sampSendChat(("/me осторожно %s пострадавшего на операционный стол"):format(cfg.main.male and "уклал" or "уклала"))
+                sampSendChat(("/me Г®Г±ГІГ®Г°Г®Г¦Г­Г® %s ГЇГ®Г±ГІГ°Г Г¤Г ГўГёГҐГЈГ® Г­Г  Г®ГЇГҐГ°Г Г¶ГЁГ®Г­Г­Г»Г© Г±ГІГ®Г«"):format(cfg.main.male and "ГіГЄГ«Г Г«" or "ГіГЄГ«Г Г«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s со стола перчатки и %s их"):format(cfg.main.male and "взял" or "взяла", cfg.main.male and "надел" or "надела"))
+                sampSendChat(("/me %s Г±Г® Г±ГІГ®Г«Г  ГЇГҐГ°Г·Г ГІГЄГЁ ГЁ %s ГЁГµ"):format(cfg.main.male and "ГўГ§ГїГ«" or "ГўГ§ГїГ«Г ", cfg.main.male and "Г­Г Г¤ГҐГ«" or "Г­Г Г¤ГҐГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s пострадавшего к капельнице"):format(cfg.main.male and "подключил" or "подключила"))
+                sampSendChat(("/me %s ГЇГ®Г±ГІГ°Г Г¤Г ГўГёГҐГЈГ® ГЄ ГЄГ ГЇГҐГ«ГјГ­ГЁГ¶ГҐ"):format(cfg.main.male and "ГЇГ®Г¤ГЄГ«ГѕГ·ГЁГ«" or "ГЇГ®Г¤ГЄГ«ГѕГ·ГЁГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s ватку спиртом и %s кожу на руке пациента"):format(cfg.main.male and "намочил" or "намочила", cfg.main.male and "обработал" or "обработала"))
+                sampSendChat(("/me %s ГўГ ГІГЄГі Г±ГЇГЁГ°ГІГ®Г¬ ГЁ %s ГЄГ®Г¦Гі Г­Г  Г°ГіГЄГҐ ГЇГ Г¶ГЁГҐГ­ГІГ "):format(cfg.main.male and "Г­Г Г¬Г®Г·ГЁГ«" or "Г­Г Г¬Г®Г·ГЁГ«Г ", cfg.main.male and "Г®ГЎГ°Г ГЎГ®ГІГ Г«" or "Г®ГЎГ°Г ГЎГ®ГІГ Г«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me внутривенно %s Фторотан"):format(cfg.main.male and "ввел" or "ввела"))
+                sampSendChat(("/me ГўГ­ГіГІГ°ГЁГўГҐГ­Г­Г® %s Г”ГІГ®Г°Г®ГІГ Г­"):format(cfg.main.male and "ГўГўГҐГ«" or "ГўГўГҐГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat("/do Наркоз начинает действовать, пациент потерял сознание.")
+                sampSendChat("/do ГЌГ Г°ГЄГ®Г§ Г­Г Г·ГЁГ­Г ГҐГІ Г¤ГҐГ©Г±ГІГўГ®ГўГ ГІГј, ГЇГ Г¶ГЁГҐГ­ГІ ГЇГ®ГІГҐГ°ГїГ« Г±Г®Г§Г­Г Г­ГЁГҐ.")
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s скальпель и пинцет"):format(cfg.main.male and "достал" or "достала"))
+                sampSendChat(("/me %s Г±ГЄГ Г«ГјГЇГҐГ«Гј ГЁ ГЇГЁГ­Г¶ГҐГІ"):format(cfg.main.male and "Г¤Г®Г±ГІГ Г«" or "Г¤Г®Г±ГІГ Г«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me с помощью различных инструментов %s репозицию поврежденного участка"):format(cfg.main.male and "произвел" or "произвела"))
+                sampSendChat(("/me Г± ГЇГ®Г¬Г®Г№ГјГѕ Г°Г Г§Г«ГЁГ·Г­Г»Гµ ГЁГ­Г±ГІГ°ГіГ¬ГҐГ­ГІГ®Гў %s Г°ГҐГЇГ®Г§ГЁГ¶ГЁГѕ ГЇГ®ГўГ°ГҐГ¦Г¤ГҐГ­Г­Г®ГЈГ® ГіГ·Г Г±ГІГЄГ "):format(cfg.main.male and "ГЇГ°Г®ГЁГ§ГўГҐГ«" or "ГЇГ°Г®ГЁГ§ГўГҐГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s из тумбочки специальный корсет"):format(cfg.main.male and "достал" or "достала"))
+                sampSendChat(("/me %s ГЁГ§ ГІГіГ¬ГЎГ®Г·ГЄГЁ Г±ГЇГҐГ¶ГЁГ Г«ГјГ­Г»Г© ГЄГ®Г°Г±ГҐГІ"):format(cfg.main.male and "Г¤Г®Г±ГІГ Г«" or "Г¤Г®Г±ГІГ Г«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s поврежденный участок с помощью карсета"):format(cfg.main.male and "зафиксировал" or "зафиксировала"))
+                sampSendChat(("/me %s ГЇГ®ГўГ°ГҐГ¦Г¤ГҐГ­Г­Г»Г© ГіГ·Г Г±ГІГ®ГЄ Г± ГЇГ®Г¬Г®Г№ГјГѕ ГЄГ Г°Г±ГҐГІГ "):format(cfg.main.male and "Г§Г ГґГЁГЄГ±ГЁГ°Г®ГўГ Г«" or "Г§Г ГґГЁГЄГ±ГЁГ°Г®ГўГ Г«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s перчатки и %s их в урну возле стола"):format(cfg.main.male and "снял" or "сняла", cfg.main.male and "бросил" or "бросила"))
+                sampSendChat(("/me %s ГЇГҐГ°Г·Г ГІГЄГЁ ГЁ %s ГЁГµ Гў ГіГ°Г­Гі ГўГ®Г§Г«ГҐ Г±ГІГ®Г«Г "):format(cfg.main.male and "Г±Г­ГїГ«" or "Г±Г­ГїГ«Г ", cfg.main.male and "ГЎГ°Г®Г±ГЁГ«" or "ГЎГ°Г®Г±ГЁГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s в отдельный контейнер грязный инструментарий"):format(cfg.main.male and "убрал" or "убрала"))
+                sampSendChat(("/me %s Гў Г®ГІГ¤ГҐГ«ГјГ­Г»Г© ГЄГ®Г­ГІГҐГ©Г­ГҐГ° ГЈГ°ГїГ§Г­Г»Г© ГЁГ­Г±ГІГ°ГіГ¬ГҐГ­ГІГ Г°ГЁГ©"):format(cfg.main.male and "ГіГЎГ°Г Г«" or "ГіГЎГ°Г Г«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat("/do Прошло некоторое время, пациент пришел в сознание.")
+                sampSendChat("/do ГЏГ°Г®ГёГ«Г® Г­ГҐГЄГ®ГІГ®Г°Г®ГҐ ГўГ°ГҐГ¬Гї, ГЇГ Г¶ГЁГҐГ­ГІ ГЇГ°ГЁГёГҐГ« Гў Г±Г®Г§Г­Г Г­ГЁГҐ.")
             end
         },
         {
-            title = "» Глубокий порез",
+            title = "В» ГѓГ«ГіГЎГ®ГЄГЁГ© ГЇГ®Г°ГҐГ§",
             onclick = function()
-                sampSendChat(("/me %s со стола перчатки и %s их"):format(cfg.main.male and "взял" or "взяла", cfg.main.male and "надел" or "надела"))
+                sampSendChat(("/me %s Г±Г® Г±ГІГ®Г«Г  ГЇГҐГ°Г·Г ГІГЄГЁ ГЁ %s ГЁГµ"):format(cfg.main.male and "ГўГ§ГїГ«" or "ГўГ§ГїГ«Г ", cfg.main.male and "Г­Г Г¤ГҐГ«" or "Г­Г Г¤ГҐГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s осмотр пациента"):format(cfg.main.male and "провел" or "провела"))
+                sampSendChat(("/me %s Г®Г±Г¬Г®ГІГ° ГЇГ Г¶ГЁГҐГ­ГІГ "):format(cfg.main.male and "ГЇГ°Г®ГўГҐГ«" or "ГЇГ°Г®ГўГҐГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s степень тяжести пореза у пациента"):format(cfg.main.male and "определил" or "определила"))
+                sampSendChat(("/me %s Г±ГІГҐГЇГҐГ­Гј ГІГїГ¦ГҐГ±ГІГЁ ГЇГ®Г°ГҐГ§Г  Гі ГЇГ Г¶ГЁГҐГ­ГІГ "):format(cfg.main.male and "Г®ГЇГ°ГҐГ¤ГҐГ«ГЁГ«" or "Г®ГЇГ°ГҐГ¤ГҐГ«ГЁГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s поврежденный участок"):format(cfg.main.male and "обезболил" or "обезболила"))
+                sampSendChat(("/me %s ГЇГ®ГўГ°ГҐГ¦Г¤ГҐГ­Г­Г»Г© ГіГ·Г Г±ГІГ®ГЄ"):format(cfg.main.male and "Г®ГЎГҐГ§ГЎГ®Г«ГЁГ«" or "Г®ГЎГҐГ§ГЎГ®Г«ГЁГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s из мед. сумки жгут и %s его поверх повреждения"):format(cfg.main.male and "достал" or "достала", cfg.main.male and "наложил" or "наложила"))
+                sampSendChat(("/me %s ГЁГ§ Г¬ГҐГ¤. Г±ГіГ¬ГЄГЁ Г¦ГЈГіГІ ГЁ %s ГҐГЈГ® ГЇГ®ГўГҐГ°Гµ ГЇГ®ГўГ°ГҐГ¦Г¤ГҐГ­ГЁГї"):format(cfg.main.male and "Г¤Г®Г±ГІГ Г«" or "Г¤Г®Г±ГІГ Г«Г ", cfg.main.male and "Г­Г Г«Г®Г¦ГЁГ«" or "Г­Г Г«Г®Г¦ГЁГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s хирургические инструменты на столе"):format(cfg.main.male and "разложил" or "разложила"))
+                sampSendChat(("/me %s ГµГЁГ°ГіГ°ГЈГЁГ·ГҐГ±ГЄГЁГҐ ГЁГ­Г±ГІГ°ГіГ¬ГҐГ­ГІГ» Г­Г  Г±ГІГ®Г«ГҐ"):format(cfg.main.male and "Г°Г Г§Г«Г®Г¦ГЁГ«" or "Г°Г Г§Г«Г®Г¦ГЁГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s специальные иглу и нити"):format(cfg.main.male and "взял" or "взяла"))
+                sampSendChat(("/me %s Г±ГЇГҐГ¶ГЁГ Г«ГјГ­Г»ГҐ ГЁГЈГ«Гі ГЁ Г­ГЁГІГЁ"):format(cfg.main.male and "ГўГ§ГїГ«" or "ГўГ§ГїГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s кровеносный сосуд и %s пульс"):format(cfg.main.male and "зашил" or "зашила", cfg.main.male and "проверил" or "проверила"))
+                sampSendChat(("/me %s ГЄГ°Г®ГўГҐГ­Г®Г±Г­Г»Г© Г±Г®Г±ГіГ¤ ГЁ %s ГЇГіГ«ГјГ±"):format(cfg.main.male and "Г§Г ГёГЁГ«" or "Г§Г ГёГЁГ«Г ", cfg.main.male and "ГЇГ°Г®ГўГҐГ°ГЁГ«" or "ГЇГ°Г®ГўГҐГ°ГЁГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s кровь и %s место пореза"):format(cfg.main.male and "протер" or "протерла", cfg.main.male and "зашил" or "зашила"))
+                sampSendChat(("/me %s ГЄГ°Г®ГўГј ГЁ %s Г¬ГҐГ±ГІГ® ГЇГ®Г°ГҐГ§Г "):format(cfg.main.male and "ГЇГ°Г®ГІГҐГ°" or "ГЇГ°Г®ГІГҐГ°Г«Г ", cfg.main.male and "Г§Г ГёГЁГ«" or "Г§Г ГёГЁГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s иглу и нити в сторону"):format(cfg.main.male and "отложил" or "отложила"))
+                sampSendChat(("/me %s ГЁГЈГ«Гі ГЁ Г­ГЁГІГЁ Гў Г±ГІГ®Г°Г®Г­Гі"):format(cfg.main.male and "Г®ГІГ«Г®Г¦ГЁГ«" or "Г®ГІГ«Г®Г¦ГЁГ«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s жгут, %s бинты и %s поврежденный участок кожи"):format(cfg.main.male and "снял" or "сняла", cfg.main.male and "взял" or "взяла", cfg.main.male and "перебинтовал" or "перебинтовала"))
+                sampSendChat(("/me %s Г¦ГЈГіГІ, %s ГЎГЁГ­ГІГ» ГЁ %s ГЇГ®ГўГ°ГҐГ¦Г¤ГҐГ­Г­Г»Г© ГіГ·Г Г±ГІГ®ГЄ ГЄГ®Г¦ГЁ"):format(cfg.main.male and "Г±Г­ГїГ«" or "Г±Г­ГїГ«Г ", cfg.main.male and "ГўГ§ГїГ«" or "ГўГ§ГїГ«Г ", cfg.main.male and "ГЇГҐГ°ГҐГЎГЁГ­ГІГ®ГўГ Г«" or "ГЇГҐГ°ГҐГЎГЁГ­ГІГ®ГўГ Г«Г "))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s в отдельный контейнер грязный инструментарий"):format(cfg.main.male and "убрал" or "убрала"))
+                sampSendChat(("/me %s Гў Г®ГІГ¤ГҐГ«ГјГ­Г»Г© ГЄГ®Г­ГІГҐГ©Г­ГҐГ° ГЈГ°ГїГ§Г­Г»Г© ГЁГ­Г±ГІГ°ГіГ¬ГҐГ­ГІГ Г°ГЁГ©"):format(cfg.main.male and "ГіГЎГ°Г Г«" or "ГіГЎГ°Г Г«Г "))
             end
         },
         {
-            title = "Пулевое ранение",
+            title = "ГЏГіГ«ГҐГўГ®ГҐ Г°Г Г­ГҐГ­ГЁГҐ",
             submenu = {
                 {
-                    title = "» Основная отыгровка",
+                    title = "В» ГЋГ±Г­Г®ГўГ­Г Гї Г®ГІГ»ГЈГ°Г®ГўГЄГ ",
                     onclick = function()
-                        sampSendChat(("/me %s осмотр пациента"):format(cfg.main.male and "провел" or "провела"))
+                        sampSendChat(("/me %s Г®Г±Г¬Г®ГІГ° ГЇГ Г¶ГЁГҐГ­ГІГ "):format(cfg.main.male and "ГЇГ°Г®ГўГҐГ«" or "ГЇГ°Г®ГўГҐГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s признаки пулевого ранения у пациента"):format(cfg.main.male and "выявил" or "выявила"))
+                        sampSendChat(("/me %s ГЇГ°ГЁГ§Г­Г ГЄГЁ ГЇГіГ«ГҐГўГ®ГЈГ® Г°Г Г­ГҐГ­ГЁГї Гі ГЇГ Г¶ГЁГҐГ­ГІГ "):format(cfg.main.male and "ГўГ»ГїГўГЁГ«" or "ГўГ»ГїГўГЁГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s из мед. сумки и %s стерильные перчатки"):format(cfg.main.male and "достал" or "достала", cfg.main.male and "надел" or "надела"))
+                        sampSendChat(("/me %s ГЁГ§ Г¬ГҐГ¤. Г±ГіГ¬ГЄГЁ ГЁ %s Г±ГІГҐГ°ГЁГ«ГјГ­Г»ГҐ ГЇГҐГ°Г·Г ГІГЄГЁ"):format(cfg.main.male and "Г¤Г®Г±ГІГ Г«" or "Г¤Г®Г±ГІГ Г«Г ", cfg.main.male and "Г­Г Г¤ГҐГ«" or "Г­Г Г¤ГҐГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s и %s аппарат для наркоза"):format(cfg.main.male and "подкатил" or "подкатила", cfg.main.male and "включил" or "включила"))
+                        sampSendChat(("/me %s ГЁ %s Г ГЇГЇГ Г°Г ГІ Г¤Г«Гї Г­Г Г°ГЄГ®Г§Г "):format(cfg.main.male and "ГЇГ®Г¤ГЄГ ГІГЁГ«" or "ГЇГ®Г¤ГЄГ ГІГЁГ«Г ", cfg.main.male and "ГўГЄГ«ГѕГ·ГЁГ«" or "ГўГЄГ«ГѕГ·ГЁГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s маску для наркоза пациенту"):format(cfg.main.male and "надел" or "надела"))
+                        sampSendChat(("/me %s Г¬Г Г±ГЄГі Г¤Г«Гї Г­Г Г°ГЄГ®Г§Г  ГЇГ Г¶ГЁГҐГ­ГІГі"):format(cfg.main.male and "Г­Г Г¤ГҐГ«" or "Г­Г Г¤ГҐГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat("/do Пациент заснул.")
+                        sampSendChat("/do ГЏГ Г¶ГЁГҐГ­ГІ Г§Г Г±Г­ГіГ«.")
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s хирургические инструменты на столе и %s ватку"):format(cfg.main.male and "разложил" or "разложила", cfg.main.male and "взял" or "взяла"))
+                        sampSendChat(("/me %s ГµГЁГ°ГіГ°ГЈГЁГ·ГҐГ±ГЄГЁГҐ ГЁГ­Г±ГІГ°ГіГ¬ГҐГ­ГІГ» Г­Г  Г±ГІГ®Г«ГҐ ГЁ %s ГўГ ГІГЄГі"):format(cfg.main.male and "Г°Г Г§Г«Г®Г¦ГЁГ«" or "Г°Г Г§Г«Г®Г¦ГЁГ«Г ", cfg.main.male and "ГўГ§ГїГ«" or "ГўГ§ГїГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s рану пациента и %s щипцы"):format(cfg.main.male and "обработал" or "обработала", cfg.main.male and "взял" or "взяла"))
+                        sampSendChat(("/me %s Г°Г Г­Гі ГЇГ Г¶ГЁГҐГ­ГІГ  ГЁ %s Г№ГЁГЇГ¶Г»"):format(cfg.main.male and "Г®ГЎГ°Г ГЎГ®ГІГ Г«" or "Г®ГЎГ°Г ГЎГ®ГІГ Г«Г ", cfg.main.male and "ГўГ§ГїГ«" or "ГўГ§ГїГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/try %s пулю"):format(cfg.main.male and "вытащил" or "вытащила"))
+                        sampSendChat(("/try %s ГЇГіГ«Гѕ"):format(cfg.main.male and "ГўГ»ГІГ Г№ГЁГ«" or "ГўГ»ГІГ Г№ГЁГ«Г "))
                         return true
                     end
                 },
                 {
-                    title = "» Продолжение если {63c600}[Удачно]",
+                    title = "В» ГЏГ°Г®Г¤Г®Г«Г¦ГҐГ­ГЁГҐ ГҐГ±Г«ГЁ {63c600}[Г“Г¤Г Г·Г­Г®]",
                     onclick = function()
-                        sampSendChat(("/me %s пулю, %s мед. иглу и мед. нити и %s рану пациенту"):format(cfg.main.male and "отложил" or "отложила", cfg.main.male and "взял" or "взяла", cfg.main.male and "зашил" or "зашила"))
+                        sampSendChat(("/me %s ГЇГіГ«Гѕ, %s Г¬ГҐГ¤. ГЁГЈГ«Гі ГЁ Г¬ГҐГ¤. Г­ГЁГІГЁ ГЁ %s Г°Г Г­Гі ГЇГ Г¶ГЁГҐГ­ГІГі"):format(cfg.main.male and "Г®ГІГ«Г®Г¦ГЁГ«" or "Г®ГІГ«Г®Г¦ГЁГ«Г ", cfg.main.male and "ГўГ§ГїГ«" or "ГўГ§ГїГ«Г ", cfg.main.male and "Г§Г ГёГЁГ«" or "Г§Г ГёГЁГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s бинты и %s на ранения"):format(cfg.main.male and "достал" or "достала", cfg.main.male and "наложил" or "наложила"))
+                        sampSendChat(("/me %s ГЎГЁГ­ГІГ» ГЁ %s Г­Г  Г°Г Г­ГҐГ­ГЁГї"):format(cfg.main.male and "Г¤Г®Г±ГІГ Г«" or "Г¤Г®Г±ГІГ Г«Г ", cfg.main.male and "Г­Г Г«Г®Г¦ГЁГ«" or "Г­Г Г«Г®Г¦ГЁГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s и %s стерильные перчатки "):format(cfg.main.male and "снял" or "сняла", cfg.main.male and "свернул" or "свернула"))
+                        sampSendChat(("/me %s ГЁ %s Г±ГІГҐГ°ГЁГ«ГјГ­Г»ГҐ ГЇГҐГ°Г·Г ГІГЄГЁ "):format(cfg.main.male and "Г±Г­ГїГ«" or "Г±Г­ГїГ«Г ", cfg.main.male and "Г±ГўГҐГ°Г­ГіГ«" or "Г±ГўГҐГ°Г­ГіГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s аппарат для наркоза и %s маску с пациента"):format(cfg.main.male and "отключил" or "отключила", cfg.main.male and "снял" or "сняла"))
+                        sampSendChat(("/me %s Г ГЇГЇГ Г°Г ГІ Г¤Г«Гї Г­Г Г°ГЄГ®Г§Г  ГЁ %s Г¬Г Г±ГЄГі Г± ГЇГ Г¶ГЁГҐГ­ГІГ "):format(cfg.main.male and "Г®ГІГЄГ«ГѕГ·ГЁГ«" or "Г®ГІГЄГ«ГѕГ·ГЁГ«Г ", cfg.main.male and "Г±Г­ГїГ«" or "Г±Г­ГїГ«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat("/do Пациент проснулся ")
+                        sampSendChat("/do ГЏГ Г¶ГЁГҐГ­ГІ ГЇГ°Г®Г±Г­ГіГ«Г±Гї ")
                         wait(1400)
-                        sampSendChat("Вам положен постельный режим. Выздоравливайте")
+                        sampSendChat("Г‚Г Г¬ ГЇГ®Г«Г®Г¦ГҐГ­ ГЇГ®Г±ГІГҐГ«ГјГ­Г»Г© Г°ГҐГ¦ГЁГ¬. Г‚Г»Г§Г¤Г®Г°Г ГўГ«ГЁГўГ Г©ГІГҐ")
                     end
                 },
                 {
-                    title = "» Продолжение {bf0000}[Неудачно]",
+                    title = "В» ГЏГ°Г®Г¤Г®Г«Г¦ГҐГ­ГЁГҐ {bf0000}[ГЌГҐГіГ¤Г Г·Г­Г®]",
                     onclick = function()
-                        sampSendChat(("/me %s кровь ваткой"):format(cfg.main.male and "вытер" or "вытерла"))
+                        sampSendChat(("/me %s ГЄГ°Г®ГўГј ГўГ ГІГЄГ®Г©"):format(cfg.main.male and "ГўГ»ГІГҐГ°" or "ГўГ»ГІГҐГ°Г«Г "))
                         wait(cfg.commands.zaderjka)
-                        sampSendChat(("/try %s пулю"):format(cfg.main.male and "вытащил" or "вытащила"))
+                        sampSendChat(("/try %s ГЇГіГ«Гѕ"):format(cfg.main.male and "ГўГ»ГІГ Г№ГЁГ«" or "ГўГ»ГІГ Г№ГЁГ«Г "))
                         return true
                     end
                 }
@@ -2964,10 +2964,10 @@ function pkmmenuAS(id)
     return
     {
         {
-            title = "{FFFFFF}Выдать лицензии",
+            title = "{FFFFFF}Г‚Г»Г¤Г ГІГј Г«ГЁГ¶ГҐГ­Г§ГЁГЁ",
             submenu = {
                 {
-                    title = "» Водительские права",
+                    title = "В» Г‚Г®Г¤ГЁГІГҐГ«ГјГ±ГЄГЁГҐ ГЇГ°Г ГўГ ",
                     onclick = function()
                         if sampIsPlayerConnected(id) then
                             giveLicense(id, 0)
@@ -2975,7 +2975,7 @@ function pkmmenuAS(id)
                     end
                 },
                 {
-                    title = "» Воздушний транспорт",
+                    title = "В» Г‚Г®Г§Г¤ГіГёГ­ГЁГ© ГІГ°Г Г­Г±ГЇГ®Г°ГІ",
                     onclick = function()
                         if sampIsPlayerConnected(id) then
                             giveLicense(id, 1)
@@ -2983,7 +2983,7 @@ function pkmmenuAS(id)
                     end
                 },
                 {
-                    title = "» Водный транспорт",
+                    title = "В» Г‚Г®Г¤Г­Г»Г© ГІГ°Г Г­Г±ГЇГ®Г°ГІ",
                     onclick = function()
                         if sampIsPlayerConnected(id) then
                             giveLicense(id, 3)
@@ -2991,7 +2991,7 @@ function pkmmenuAS(id)
                     end
                 },
                 {
-                    title = "» Лицензия на оружие",
+                    title = "В» Г‹ГЁГ¶ГҐГ­Г§ГЁГї Г­Г  Г®Г°ГіГ¦ГЁГҐ",
                     onclick = function()
                         if sampIsPlayerConnected(id) then
                             giveLicense(id, 4)
@@ -2999,7 +2999,7 @@ function pkmmenuAS(id)
                     end
                 },
                 {
-                    title = "» Лицензия на рыболовство",
+                    title = "В» Г‹ГЁГ¶ГҐГ­Г§ГЁГї Г­Г  Г°Г»ГЎГ®Г«Г®ГўГ±ГІГўГ®",
                     onclick = function()
                         if sampIsPlayerConnected(id) then
                             giveLicense(id, 2)
@@ -3007,7 +3007,7 @@ function pkmmenuAS(id)
                     end
                 },
                 {
-                    title = "» Лицензия на бизнес",
+                    title = "В» Г‹ГЁГ¶ГҐГ­Г§ГЁГї Г­Г  ГЎГЁГ§Г­ГҐГ±",
                     onclick = function()
                         if sampIsPlayerConnected(id) then
                             giveLicense(id, 5)
@@ -3017,60 +3017,60 @@ function pkmmenuAS(id)
             }
         },
         {
-            title = "{FFFFFF}Задать вопросы",
+            title = "{FFFFFF}Г‡Г Г¤Г ГІГј ГўГ®ГЇГ°Г®Г±Г»",
             submenu = {
                 {
-                    title = "{FFFFFF}» Максимальная скорость в городе {6495ED}[Ответ: {FFFFFF}50{6495ED}]",
-                    onclick = function() sampSendChat("Какая максимальная скорость разрешена в городе?") end
+                    title = "{FFFFFF}В» ГЊГ ГЄГ±ГЁГ¬Г Г«ГјГ­Г Гї Г±ГЄГ®Г°Г®Г±ГІГј Гў ГЈГ®Г°Г®Г¤ГҐ {6495ED}[ГЋГІГўГҐГІ: {FFFFFF}50{6495ED}]",
+                    onclick = function() sampSendChat("ГЉГ ГЄГ Гї Г¬Г ГЄГ±ГЁГ¬Г Г«ГјГ­Г Гї Г±ГЄГ®Г°Г®Г±ГІГј Г°Г Г§Г°ГҐГёГҐГ­Г  Гў ГЈГ®Г°Г®Г¤ГҐ?") end
                 },
                 {
-                    title = "{FFFFFF}» Максимальная скорость в жилых зонах {6495ED}[Ответ: {FFFFFF}30{6495ED}]",
-                    onclick = function() sampSendChat("Какая максимальная скорость разрешена в жилых зонах?") end
+                    title = "{FFFFFF}В» ГЊГ ГЄГ±ГЁГ¬Г Г«ГјГ­Г Гї Г±ГЄГ®Г°Г®Г±ГІГј Гў Г¦ГЁГ«Г»Гµ Г§Г®Г­Г Гµ {6495ED}[ГЋГІГўГҐГІ: {FFFFFF}30{6495ED}]",
+                    onclick = function() sampSendChat("ГЉГ ГЄГ Гї Г¬Г ГЄГ±ГЁГ¬Г Г«ГјГ­Г Гї Г±ГЄГ®Г°Г®Г±ГІГј Г°Г Г§Г°ГҐГёГҐГ­Г  Гў Г¦ГЁГ«Г»Гµ Г§Г®Г­Г Гµ?") end
                 },
                 {
-                    title = "{FFFFFF}» С какой стороны разрешен обгон {6495ED}[Ответ: {FFFFFF}С левой{6495ED}]",
-                    onclick = function() sampSendChat("С какой стороны разрешен обгон?") end
+                    title = "{FFFFFF}В» Г‘ ГЄГ ГЄГ®Г© Г±ГІГ®Г°Г®Г­Г» Г°Г Г§Г°ГҐГёГҐГ­ Г®ГЎГЈГ®Г­ {6495ED}[ГЋГІГўГҐГІ: {FFFFFF}Г‘ Г«ГҐГўГ®Г©{6495ED}]",
+                    onclick = function() sampSendChat("Г‘ ГЄГ ГЄГ®Г© Г±ГІГ®Г°Г®Г­Г» Г°Г Г§Г°ГҐГёГҐГ­ Г®ГЎГЈГ®Г­?") end
                 },
                 {
-                    title = "{FFFFFF}» Можно ли останавливаться на проезжей части {6495ED}[Ответ: {FFFFFF}Нет{6495ED}]",
-                    onclick = function() sampSendChat("Можно ли останавливаться на проезжей части?") end
+                    title = "{FFFFFF}В» ГЊГ®Г¦Г­Г® Г«ГЁ Г®Г±ГІГ Г­Г ГўГ«ГЁГўГ ГІГјГ±Гї Г­Г  ГЇГ°Г®ГҐГ§Г¦ГҐГ© Г·Г Г±ГІГЁ {6495ED}[ГЋГІГўГҐГІ: {FFFFFF}ГЌГҐГІ{6495ED}]",
+                    onclick = function() sampSendChat("ГЊГ®Г¦Г­Г® Г«ГЁ Г®Г±ГІГ Г­Г ГўГ«ГЁГўГ ГІГјГ±Гї Г­Г  ГЇГ°Г®ГҐГ§Г¦ГҐГ© Г·Г Г±ГІГЁ?") end
                 },
                 {
-                    title = "{FFFFFF}» Цель ношения оружия",
-                    onclick = function() sampSendChat("Зачем вам лицензия на оружие?") end
+                    title = "{FFFFFF}В» Г–ГҐГ«Гј Г­Г®ГёГҐГ­ГЁГї Г®Г°ГіГ¦ГЁГї",
+                    onclick = function() sampSendChat("Г‡Г Г·ГҐГ¬ ГўГ Г¬ Г«ГЁГ¶ГҐГ­Г§ГЁГї Г­Г  Г®Г°ГіГ¦ГЁГҐ?") end
                 },
                 {
-                    title = "{FFFFFF}» Хранение оружия",
-                    onclick = function() sampSendChat("Где вы будете хранить оружие?") end
+                    title = "{FFFFFF}В» Г•Г°Г Г­ГҐГ­ГЁГҐ Г®Г°ГіГ¦ГЁГї",
+                    onclick = function() sampSendChat("ГѓГ¤ГҐ ГўГ» ГЎГіГ¤ГҐГІГҐ ГµГ°Г Г­ГЁГІГј Г®Г°ГіГ¦ГЁГҐ?") end
                 }
             }
         },
         {
-            title = "{FFFFFF}Огласить цену на лизцензию",
+            title = "{FFFFFF}ГЋГЈГ«Г Г±ГЁГІГј Г¶ГҐГ­Гі Г­Г  Г«ГЁГ§Г¶ГҐГ­Г§ГЁГѕ",
             submenu = {
                 {
-                    title = "» Водительские права",
-                    onclick = function() sampSendChat(("Лицензия будет стоить %s$. Оформляем?"):format(getDriveLicenseCount(id))) end
+                    title = "В» Г‚Г®Г¤ГЁГІГҐГ«ГјГ±ГЄГЁГҐ ГЇГ°Г ГўГ ",
+                    onclick = function() sampSendChat(("Г‹ГЁГ¶ГҐГ­Г§ГЁГї ГЎГіГ¤ГҐГІ Г±ГІГ®ГЁГІГј %s$. ГЋГґГ®Г°Г¬Г«ГїГҐГ¬?"):format(getDriveLicenseCount(id))) end
                 },
                 {
-                    title = "» Воздушний транспорт",
-                    onclick = function() sampSendChat("Лицензия будет стоить 10000$. Оформляем?") end
+                    title = "В» Г‚Г®Г§Г¤ГіГёГ­ГЁГ© ГІГ°Г Г­Г±ГЇГ®Г°ГІ",
+                    onclick = function() sampSendChat("Г‹ГЁГ¶ГҐГ­Г§ГЁГї ГЎГіГ¤ГҐГІ Г±ГІГ®ГЁГІГј 10000$. ГЋГґГ®Г°Г¬Г«ГїГҐГ¬?") end
                 },
                 {
-                    title = "» Водный транспорт",
-                    onclick = function() sampSendChat("Лицензия будет стоить 5000$. Оформляем?") end
+                    title = "В» Г‚Г®Г¤Г­Г»Г© ГІГ°Г Г­Г±ГЇГ®Г°ГІ",
+                    onclick = function() sampSendChat("Г‹ГЁГ¶ГҐГ­Г§ГЁГї ГЎГіГ¤ГҐГІ Г±ГІГ®ГЁГІГј 5000$. ГЋГґГ®Г°Г¬Г«ГїГҐГ¬?") end
                 },
                 {
-                    title = "» Лицензия на оружие",
-                    onclick = function() sampSendChat("Лицензия будет стоить 50000$. Оформляем?") end
+                    title = "В» Г‹ГЁГ¶ГҐГ­Г§ГЁГї Г­Г  Г®Г°ГіГ¦ГЁГҐ",
+                    onclick = function() sampSendChat("Г‹ГЁГ¶ГҐГ­Г§ГЁГї ГЎГіГ¤ГҐГІ Г±ГІГ®ГЁГІГј 50000$. ГЋГґГ®Г°Г¬Г«ГїГҐГ¬?") end
                 },
                 {
-                    title = "» Лицензия на рыболовство",
-                    onclick = function() sampSendChat("Лицензия будет стоить 2000$. Оформляем?") end
+                    title = "В» Г‹ГЁГ¶ГҐГ­Г§ГЁГї Г­Г  Г°Г»ГЎГ®Г«Г®ГўГ±ГІГўГ®",
+                    onclick = function() sampSendChat("Г‹ГЁГ¶ГҐГ­Г§ГЁГї ГЎГіГ¤ГҐГІ Г±ГІГ®ГЁГІГј 2000$. ГЋГґГ®Г°Г¬Г«ГїГҐГ¬?") end
                 },
                 {
-                    title = "» Лицензия на бизнес",
-                    onclick = function() sampSendChat("Лицензия будет стоить 100000$. Оформляем?") end
+                    title = "В» Г‹ГЁГ¶ГҐГ­Г§ГЁГї Г­Г  ГЎГЁГ§Г­ГҐГ±",
+                    onclick = function() sampSendChat("Г‹ГЁГ¶ГҐГ­Г§ГЁГї ГЎГіГ¤ГҐГІ Г±ГІГ®ГЁГІГј 100000$. ГЋГґГ®Г°Г¬Г«ГїГҐГ¬?") end
                 }
             }
         }
@@ -3081,68 +3081,68 @@ function pkmmenuPD(id)
 	return
 	{
 		{
-			title = '{ffffff}» Надеть наручники',
+			title = '{ffffff}В» ГЌГ Г¤ГҐГІГј Г­Г Г°ГіГ·Г­ГЁГЄГЁ',
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(string.format('/me %s руки %s и %s наручники', cfg.main.male and 'заломал' or 'заломала', sampGetPlayerNickname(id):gsub("_", " "), cfg.main.male and 'достал' or 'достала'))
+					sampSendChat(string.format('/me %s Г°ГіГЄГЁ %s ГЁ %s Г­Г Г°ГіГ·Г­ГЁГЄГЁ', cfg.main.male and 'Г§Г Г«Г®Г¬Г Г«' or 'Г§Г Г«Г®Г¬Г Г«Г ', sampGetPlayerNickname(id):gsub("_", " "), cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
 					wait(1400)
 					sampSendChat(string.format('/cuff %s', id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}» Вести за собой",
+			title = "{ffffff}В» Г‚ГҐГ±ГІГЁ Г§Г  Г±Г®ГЎГ®Г©",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(string.format('/me %s один из концов наручников к себе, после чего %s за собой %s', cfg.main.male and 'пристегнул' or 'пристегнула', cfg.main.male and 'повел' or 'повела', sampGetPlayerNickname(id):gsub("_", " ")))
+					sampSendChat(string.format('/me %s Г®Г¤ГЁГ­ ГЁГ§ ГЄГ®Г­Г¶Г®Гў Г­Г Г°ГіГ·Г­ГЁГЄГ®Гў ГЄ Г±ГҐГЎГҐ, ГЇГ®Г±Г«ГҐ Г·ГҐГЈГ® %s Г§Г  Г±Г®ГЎГ®Г© %s', cfg.main.male and 'ГЇГ°ГЁГ±ГІГҐГЈГ­ГіГ«' or 'ГЇГ°ГЁГ±ГІГҐГЈГ­ГіГ«Г ', cfg.main.male and 'ГЇГ®ГўГҐГ«' or 'ГЇГ®ГўГҐГ«Г ', sampGetPlayerNickname(id):gsub("_", " ")))
 					wait(1400)
 					sampSendChat(string.format('/follow %s', id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}» Произвести обыск",
+			title = "{ffffff}В» ГЏГ°Г®ГЁГ§ГўГҐГ±ГІГЁ Г®ГЎГ»Г±ГЄ",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(string.format("/me надев перчатки, %s руками по торсу", cfg.main.male and 'провел' or 'провела'))
+					sampSendChat(string.format("/me Г­Г Г¤ГҐГў ГЇГҐГ°Г·Г ГІГЄГЁ, %s Г°ГіГЄГ Г¬ГЁ ГЇГ® ГІГ®Г°Г±Гі", cfg.main.male and 'ГЇГ°Г®ГўГҐГ«' or 'ГЇГ°Г®ГўГҐГ«Г '))
 					wait(cfg.commands.zaderjka)
 					sampSendChat(('/take %s'):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}» Произвести арест",
+			title = "{ffffff}В» ГЏГ°Г®ГЁГ§ГўГҐГ±ГІГЁ Г Г°ГҐГ±ГІ",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					--[[sampSendChat(('/me достав ключи от камеры %s ее'):format(cfg.main.male and 'открыл' or 'открыла'))
+					--[[sampSendChat(('/me Г¤Г®Г±ГІГ Гў ГЄГ«ГѕГ·ГЁ Г®ГІ ГЄГ Г¬ГҐГ°Г» %s ГҐГҐ'):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г '))
 					wait(cfg.commands.zaderjka)
-					sampSendChat(('/me %s %s в камеру'):format(cfg.main.male and 'затолкнул' or 'затолкнула', sampGetPlayerNickname(id):gsub("_", " ")))
+					sampSendChat(('/me %s %s Гў ГЄГ Г¬ГҐГ°Гі'):format(cfg.main.male and 'Г§Г ГІГ®Г«ГЄГ­ГіГ«' or 'Г§Г ГІГ®Г«ГЄГ­ГіГ«Г ', sampGetPlayerNickname(id):gsub("_", " ")))
 					wait(cfg.commands.zaderjka)
 					sampSendChat(('/arrest %s'):format(id))
 					wait(cfg.commands.zaderjka)
-                    sampSendChat(('/me закрыв камеру %s ключи в карман'):format(cfg.main.male and 'убрал' or 'убрала'))]]
-                    sampSendChat("/do Ключи от камеры висят на поясе.")
+                    sampSendChat(('/me Г§Г ГЄГ°Г»Гў ГЄГ Г¬ГҐГ°Гі %s ГЄГ«ГѕГ·ГЁ Гў ГЄГ Г°Г¬Г Г­'):format(cfg.main.male and 'ГіГЎГ°Г Г«' or 'ГіГЎГ°Г Г«Г '))]]
+                    sampSendChat("/do ГЉГ«ГѕГ·ГЁ Г®ГІ ГЄГ Г¬ГҐГ°Г» ГўГЁГ±ГїГІ Г­Г  ГЇГ®ГїГ±ГҐ.")
                     wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format("/me %s ключи с пояса и %s камеру, после %s туда преступника", cfg.main.male and 'снял' or 'сняла', cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула'))
+                    sampSendChat(string.format("/me %s ГЄГ«ГѕГ·ГЁ Г± ГЇГ®ГїГ±Г  ГЁ %s ГЄГ Г¬ГҐГ°Гі, ГЇГ®Г±Г«ГҐ %s ГІГіГ¤Г  ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ ", cfg.main.male and 'Г±Г­ГїГ«' or 'Г±Г­ГїГ«Г ', cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'Г§Г ГІГ®Г«ГЄГ­ГіГ«' or 'Г§Г ГІГ®Г«ГЄГ­ГіГ«Г '))
                     wait(cfg.commands.zaderjka)
                     sampSendChat('/arrest '..id)
                     wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format("/me %s дверь камеры и %s ключи на пояс", cfg.main.male and 'закрыл' or 'закрыла', cfg.main.male and 'повесил' or 'повесила'))
+                    sampSendChat(string.format("/me %s Г¤ГўГҐГ°Гј ГЄГ Г¬ГҐГ°Г» ГЁ %s ГЄГ«ГѕГ·ГЁ Г­Г  ГЇГ®ГїГ±", cfg.main.male and 'Г§Г ГЄГ°Г»Г«' or 'Г§Г ГЄГ°Г»Г«Г ', cfg.main.male and 'ГЇГ®ГўГҐГ±ГЁГ«' or 'ГЇГ®ГўГҐГ±ГЁГ«Г '))
 				end
 			end
 		},
 		{
-			title = '{ffffff}» Снять наручники',
+			title = '{ffffff}В» Г‘Г­ГїГІГј Г­Г Г°ГіГ·Г­ГЁГЄГЁ',
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(('/me %s наручники с %s'):format(cfg.main.male and 'снял' or 'сняла', sampGetPlayerNickname(id):gsub("_", " ")))
+					sampSendChat(('/me %s Г­Г Г°ГіГ·Г­ГЁГЄГЁ Г± %s'):format(cfg.main.male and 'Г±Г­ГїГ«' or 'Г±Г­ГїГ«Г ', sampGetPlayerNickname(id):gsub("_", " ")))
 					wait(1400)
 					sampSendChat(('/uncuff %s'):format(id))
 				end
 			end
         },
         {
-            title = "{ffffff}» Снять маску",
+            title = "{ffffff}В» Г‘Г­ГїГІГј Г¬Г Г±ГЄГі",
             onclick = function()
                 if sampIsPlayerConnected(id) then
                     sampSendChat(("/offmask %s"):format(id))
@@ -3150,57 +3150,57 @@ function pkmmenuPD(id)
             end
         },
 		{
-			title = "{ffffff}» Выдать розыск за проникновение",
+			title = "{ffffff}В» Г‚Г»Г¤Г ГІГј Г°Г®Г§Г»Г±ГЄ Г§Г  ГЇГ°Г®Г­ГЁГЄГ­Г®ГўГҐГ­ГЁГҐ",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(("/su %s 2 Проникновение на охр. территорию"):format(id))
+					sampSendChat(("/su %s 2 ГЏГ°Г®Г­ГЁГЄГ­Г®ГўГҐГ­ГЁГҐ Г­Г  Г®ГµГ°. ГІГҐГ°Г°ГЁГІГ®Г°ГЁГѕ"):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}» Выдать розыск за хранение наркотиков",
+			title = "{ffffff}В» Г‚Г»Г¤Г ГІГј Г°Г®Г§Г»Г±ГЄ Г§Г  ГµГ°Г Г­ГҐГ­ГЁГҐ Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(("/su %s 3 Хранение наркотиков"):format(id))
+					sampSendChat(("/su %s 3 Г•Г°Г Г­ГҐГ­ГЁГҐ Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў"):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}» Выдать розыск за хранение материалов",
+			title = "{ffffff}В» Г‚Г»Г¤Г ГІГј Г°Г®Г§Г»Г±ГЄ Г§Г  ГµГ°Г Г­ГҐГ­ГЁГҐ Г¬Г ГІГҐГ°ГЁГ Г«Г®Гў",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(("/su %s 3 Хранение материалов"):format(id))
+					sampSendChat(("/su %s 3 Г•Г°Г Г­ГҐГ­ГЁГҐ Г¬Г ГІГҐГ°ГЁГ Г«Г®Гў"):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}» Выдать розыск за продажу наркотиков",
+			title = "{ffffff}В» Г‚Г»Г¤Г ГІГј Г°Г®Г§Г»Г±ГЄ Г§Г  ГЇГ°Г®Г¤Г Г¦Гі Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(('/su %s 2 Продажа наркотиков'):format(id))
+					sampSendChat(('/su %s 2 ГЏГ°Г®Г¤Г Г¦Г  Г­Г Г°ГЄГ®ГІГЁГЄГ®Гў'):format(id))
 					wait(1400)
-					sampSendChat(("/me %s руки %s и %s наручники"):format(cfg.main.male and 'заломал' or 'заломала', sampGetPlayerNickname(id):gsub("_", " "), cfg.main.male and 'достал' or 'достала'))
+					sampSendChat(("/me %s Г°ГіГЄГЁ %s ГЁ %s Г­Г Г°ГіГ·Г­ГЁГЄГЁ"):format(cfg.main.male and 'Г§Г Г«Г®Г¬Г Г«' or 'Г§Г Г«Г®Г¬Г Г«Г ', sampGetPlayerNickname(id):gsub("_", " "), cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
 				end
 			end
 		},
 		{
-			title = "{ffffff}» Выдать розыск за продажу ключей от камеры",
+			title = "{ffffff}В» Г‚Г»Г¤Г ГІГј Г°Г®Г§Г»Г±ГЄ Г§Г  ГЇГ°Г®Г¤Г Г¦Гі ГЄГ«ГѕГ·ГҐГ© Г®ГІ ГЄГ Г¬ГҐГ°Г»",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(("/su %s 6 Продажа ключей от камеры"):format(id))
+					sampSendChat(("/su %s 6 ГЏГ°Г®Г¤Г Г¦Г  ГЄГ«ГѕГ·ГҐГ© Г®ГІ ГЄГ Г¬ГҐГ°Г»"):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}» Выдать розыск за вооруженное нападение на ПО",
+			title = "{ffffff}В» Г‚Г»Г¤Г ГІГј Г°Г®Г§Г»Г±ГЄ Г§Г  ГўГ®Г®Г°ГіГ¦ГҐГ­Г­Г®ГҐ Г­Г ГЇГ Г¤ГҐГ­ГЁГҐ Г­Г  ГЏГЋ",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(("/su %s 6 Вооруженное нападение на ПО"):format(id))
+					sampSendChat(("/su %s 6 Г‚Г®Г®Г°ГіГ¦ГҐГ­Г­Г®ГҐ Г­Г ГЇГ Г¤ГҐГ­ГЁГҐ Г­Г  ГЏГЋ"):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}» Выдать розыск",
+			title = "{ffffff}В» Г‚Г»Г¤Г ГІГј Г°Г®Г§Г»Г±ГЄ",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
 					submenus_show(sumenu(id), ('{9966cc}'..script.this.name..' {ffffff}| %s [%s]'):format(sampGetPlayerNickname(id):gsub("_", " "), id))
@@ -3320,16 +3320,16 @@ if limgui then
             imgui.Begin(script.this.name, infbar, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoTitleBar)
             imgui.CentrText(script.this.name)
             imgui.Separator()
-            imgui.Text((u8"Информация:"):format(myname, myid, myping))
+            imgui.Text((u8"Г€Г­ГґГ®Г°Г¬Г Г¶ГЁГї:"):format(myname, myid, myping))
             imgui.SameLine()
             imgui.TextColored(imgui.ImVec4(getColor(myid)), u8('%s [%s]'):format(myname, myid))
             imgui.SameLine()
-            imgui.Text((u8"| Пинг: %s"):format(myping))
-            --imgui.Text((u8 'Оружие: %s [%s]'):format(myweaponname, myweaponammo))
+            imgui.Text((u8"| ГЏГЁГ­ГЈ: %s"):format(myping))
+            --imgui.Text((u8 'ГЋГ°ГіГ¦ГЁГҐ: %s [%s]'):format(myweaponname, myweaponammo))
             if getAmmoInClip() ~= 0 then
-                imgui.Text((u8 "Оружие: %s [%s/%s]"):format(myweaponname, getAmmoInClip(), myweaponammo - getAmmoInClip()))
+                imgui.Text((u8 "ГЋГ°ГіГ¦ГЁГҐ: %s [%s/%s]"):format(myweaponname, getAmmoInClip(), myweaponammo - getAmmoInClip()))
             else
-                imgui.Text((u8 'Оружие: %s'):format(myweaponname))
+                imgui.Text((u8 'ГЋГ°ГіГ¦ГЁГҐ: %s'):format(myweaponname))
             end
             if isCharInAnyCar(playerPed) then
                 local vHandle = storeCarCharIsInNoSave(playerPed)
@@ -3339,25 +3339,25 @@ if limgui then
                 local speed = math.floor(carspeed)
                 local vehName = tCarsName[getCarModel(storeCarCharIsInNoSave(playerPed))-399]
                 local ncspeed = math.floor(carspeed*2)
-                imgui.Text((u8 'Транспорт: %s [%s] | HP: %s | Скорость: %s'):format(vehName, vID, vHP, ncspeed))
+                imgui.Text((u8 'Г’Г°Г Г­Г±ГЇГ®Г°ГІ: %s [%s] | HP: %s | Г‘ГЄГ®Г°Г®Г±ГІГј: %s'):format(vehName, vID, vHP, ncspeed))
             else
-                imgui.Text(u8 'Транспорт: Нет')
+                imgui.Text(u8 'Г’Г°Г Г­Г±ГЇГ®Г°ГІ: ГЌГҐГІ')
             end
             if valid and doesCharExist(ped) then 
                 local result, id = sampGetPlayerIdByCharHandle(ped)
                 if result then
                     local targetname = sampGetPlayerNickname(id)
                     local targetscore = sampGetPlayerScore(id)
-                    imgui.Text((u8 'Цель: %s [%s] | Уровень: %s'):format(targetname, id, targetscore))
+                    imgui.Text((u8 'Г–ГҐГ«Гј: %s [%s] | Г“Г°Г®ГўГҐГ­Гј: %s'):format(targetname, id, targetscore))
                 else
-                    imgui.Text(u8 'Цель: Нет')
+                    imgui.Text(u8 'Г–ГҐГ«Гј: ГЌГҐГІ')
                 end
             else
-                imgui.Text(u8 'Цель: Нет')
+                imgui.Text(u8 'Г–ГҐГ«Гј: ГЌГҐГІ')
             end
-            imgui.Text((u8 'Квадрат: %s'):format(u8(kvadrat())))
-            imgui.Text((u8 'Время: %s'):format(os.date('%H:%M:%S')))
-            if cfg.main.group == "ПД/ФБР" or cfg.main.group == "Мэрия" then imgui.Text((u8 'Tazer: %s'):format(stazer and 'ON' or 'OFF')) end
+            imgui.Text((u8 'ГЉГўГ Г¤Г°Г ГІ: %s'):format(u8(kvadrat())))
+            imgui.Text((u8 'Г‚Г°ГҐГ¬Гї: %s'):format(os.date('%H:%M:%S')))
+            if cfg.main.group == "ГЏГ„/Г”ГЃГђ" or cfg.main.group == "ГЊГЅГ°ГЁГї" then imgui.Text((u8 'Tazer: %s'):format(stazer and 'ON' or 'OFF')) end
             if imgui.IsMouseClicked(0) and changetextpos then
                 changetextpos = false
                 sampToggleCursor(false)
@@ -3372,7 +3372,7 @@ if limgui then
             local btn_size = imgui.ImVec2(-0.1, 0)
             imgui.SetNextWindowSize(imgui.ImVec2(300, 300), imgui.Cond.FirstUseEver)
             imgui.SetNextWindowPos(imgui.ImVec2(x/2+300, y/2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-            imgui.Begin(u8(script.this.name..' | Мегафон'), imegaf, imgui.WindowFlags.NoResize)
+            imgui.Begin(u8(script.this.name..' | ГЊГҐГЈГ ГґГ®Г­'), imegaf, imgui.WindowFlags.NoResize)
             for k, v in ipairs(incar) do
                 local mx, my, mz = getCharCoordinates(PLAYER_PED)
                 if sampIsPlayerConnected(v) then
@@ -3390,15 +3390,15 @@ if limgui then
                                     gmegaflvl = sampGetPlayerScore(v)
                                     gmegaffrak = sampGetFraktionBySkin(v)
                                     gmegafcar = tCarsName[carhm-399]
-                                    sampSendChat(("/m Водитель а/м %s [EVL%sX]"):format(tCarsName[carhm-399], v))
+                                    sampSendChat(("/m Г‚Г®Г¤ГЁГІГҐГ«Гј Г /Г¬ %s [EVL%sX]"):format(tCarsName[carhm-399], v))
                                     wait(1400)
-                                    sampSendChat("/m Прижмитесь к обочине или мы откроем огонь!")
+                                    sampSendChat("/m ГЏГ°ГЁГ¦Г¬ГЁГІГҐГ±Гј ГЄ Г®ГЎГ®Г·ГЁГ­ГҐ ГЁГ«ГЁ Г¬Г» Г®ГІГЄГ°Г®ГҐГ¬ Г®ГЈГ®Г­Гј!")
                                     wait(300)
                                     sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
                                     sampAddChatMessage('', 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}Ник: {9966cc}'..sampGetPlayerNickname(v)..' ['..v..']', 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}Уровень: {9966cc}'..sampGetPlayerScore(v), 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}Фракция: {9966cc}'..sampGetFraktionBySkin(v), 0x9966cc)
+                                    sampAddChatMessage(' {ffffff}ГЌГЁГЄ: {9966cc}'..sampGetPlayerNickname(v)..' ['..v..']', 0x9966cc)
+                                    sampAddChatMessage(' {ffffff}Г“Г°Г®ГўГҐГ­Гј: {9966cc}'..sampGetPlayerScore(v), 0x9966cc)
+                                    sampAddChatMessage(' {ffffff}Г”Г°Г ГЄГ¶ГЁГї: {9966cc}'..sampGetFraktionBySkin(v), 0x9966cc)
                                     sampAddChatMessage('', 0x9966cc)
                                     sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
                                 end)
@@ -3415,8 +3415,8 @@ if limgui then
             local iScreenWidth, iScreenHeight = getScreenResolution()
             imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(700, 290), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | Обновление'), updwindows, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
-            imgui.Text(u8('Вышло обновление скрипта '..script.this.name..'! Что бы обновиться нажмите кнопку внизу. Список изменений:'))
+            imgui.Begin(u8(script.this.name..' | ГЋГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ'), updwindows, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+            imgui.Text(u8('Г‚Г»ГёГ«Г® Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ Г±ГЄГ°ГЁГЇГІГ  '..script.this.name..'! Г—ГІГ® ГЎГ» Г®ГЎГ­Г®ГўГЁГІГјГ±Гї Г­Г Г¦Г¬ГЁГІГҐ ГЄГ­Г®ГЇГЄГі ГўГ­ГЁГ§Гі. Г‘ГЇГЁГ±Г®ГЄ ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГ©:'))
             imgui.Separator()
             imgui.BeginChild("uuupdate", imgui.ImVec2(690, 200))
             for line in ttt:gmatch('[^\r\n]+') do
@@ -3425,14 +3425,14 @@ if limgui then
             imgui.EndChild()
             imgui.Separator()
             imgui.PushItemWidth(305)
-            if imgui.Button(u8("Обновить"), imgui.ImVec2(339, 25)) then
+            if imgui.Button(u8("ГЋГЎГ­Г®ГўГЁГІГј"), imgui.ImVec2(339, 25)) then
                 lua_thread.create(goupdate)
                 updwindows.v = false
             end
             imgui.SameLine()
-            if imgui.Button(u8("Отложить обновление"), imgui.ImVec2(339, 25)) then
+            if imgui.Button(u8("ГЋГІГ«Г®Г¦ГЁГІГј Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ"), imgui.ImVec2(339, 25)) then
                 updwindows.v = false
-                ftext("Если вы захотите установить обновление введите команду {9966CC}/ft")
+                ftext("Г…Г±Г«ГЁ ГўГ» Г§Г ГµГ®ГІГЁГІГҐ ГіГ±ГІГ Г­Г®ГўГЁГІГј Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ ГўГўГҐГ¤ГЁГІГҐ ГЄГ®Г¬Г Г­Г¤Гі {9966CC}/ft")
             end
             imgui.End()
         end
@@ -3442,24 +3442,24 @@ if limgui then
             local btn_size = imgui.ImVec2(-0.1, 0)
             imgui.SetNextWindowSize(imgui.ImVec2(300, 300), imgui.Cond.FirstUseEver)
             imgui.SetNextWindowPos(imgui.ImVec2(x/2, y/2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-            imgui.Begin(u8(script.this.name..' | Главное меню | Версия: '..thisScript().version), mainw, imgui.WindowFlags.NoResize)
-            if imgui.Button(u8'Биндер', btn_size) then
+            imgui.Begin(u8(script.this.name..' | ГѓГ«Г ГўГ­Г®ГҐ Г¬ГҐГ­Гѕ | Г‚ГҐГ°Г±ГЁГї: '..thisScript().version), mainw, imgui.WindowFlags.NoResize)
+            if imgui.Button(u8'ГЃГЁГ­Г¤ГҐГ°', btn_size) then
                 bMainWindow.v = not bMainWindow.v
             end
-            if imgui.Button(u8'Командный биндер', btn_size) then
+            if imgui.Button(u8'ГЉГ®Г¬Г Г­Г¤Г­Г»Г© ГЎГЁГ­Г¤ГҐГ°', btn_size) then
                 vars.mainwindow.v = not vars.mainwindow.v
             end
-            if imgui.Button(u8 'Команды скрипта', btn_size) then cmdwind.v = not cmdwind.v end
-            if imgui.Button(u8'Настройки скрипта', btn_size) then
+            if imgui.Button(u8 'ГЉГ®Г¬Г Г­Г¤Г» Г±ГЄГ°ГЁГЇГІГ ', btn_size) then cmdwind.v = not cmdwind.v end
+            if imgui.Button(u8'ГЌГ Г±ГІГ°Г®Г©ГЄГЁ Г±ГЄГ°ГЁГЇГІГ ', btn_size) then
                 setwindows.v = not setwindows.v
             end
-            if imgui.Button(u8 'Сообщить о ошибке / баге', btn_size) then os.execute('explorer "https://vk.me/fbitools"') end
-            if canupdate then if imgui.Button(u8 '[!] Доступно обновление скрипта [!]', btn_size) then updwindows.v = not updwindows.v end end
-            if imgui.CollapsingHeader(u8 'Действия со скриптом', btn_size) then
-                if imgui.Button(u8'Перезагрузить скрипт', btn_size) then
+            if imgui.Button(u8 'Г‘Г®Г®ГЎГ№ГЁГІГј Г® Г®ГёГЁГЎГЄГҐ / ГЎГ ГЈГҐ', btn_size) then os.execute('explorer "https://vk.me/fbitools"') end
+            if canupdate then if imgui.Button(u8 '[!] Г„Г®Г±ГІГіГЇГ­Г® Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ Г±ГЄГ°ГЁГЇГІГ  [!]', btn_size) then updwindows.v = not updwindows.v end end
+            if imgui.CollapsingHeader(u8 'Г„ГҐГ©Г±ГІГўГЁГї Г±Г® Г±ГЄГ°ГЁГЇГІГ®Г¬', btn_size) then
+                if imgui.Button(u8'ГЏГҐГ°ГҐГ§Г ГЈГ°ГіГ§ГЁГІГј Г±ГЄГ°ГЁГЇГІ', btn_size) then
                     thisScript():reload()
                 end
-                if imgui.Button(u8 'Отключить скрипт', btn_size) then
+                if imgui.Button(u8 'ГЋГІГЄГ«ГѕГ·ГЁГІГј Г±ГЄГ°ГЁГЇГІ', btn_size) then
                     thisScript():unload()
                 end
             end
@@ -3468,11 +3468,11 @@ if limgui then
                 local x, y = getScreenResolution()
                 imgui.SetNextWindowSize(imgui.ImVec2(500, 500), imgui.Cond.FirstUseEver)
                 imgui.SetNextWindowPos(imgui.ImVec2(x/2, y/2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-                imgui.Begin(u8(script.this.name..' | Команды'), cmdwind)
+                imgui.Begin(u8(script.this.name..' | ГЉГ®Г¬Г Г­Г¤Г»'), cmdwind)
                 for k, v in ipairs(fthelp) do
                     if imgui.CollapsingHeader(v['cmd']..'##'..k) then
-                        imgui.TextWrapped(u8('Описание: %s'):format(u8(v['desc'])))
-                        imgui.TextWrapped(u8("Использование: %s"):format(u8(v['use'])))
+                        imgui.TextWrapped(u8('ГЋГЇГЁГ±Г Г­ГЁГҐ: %s'):format(u8(v['desc'])))
+                        imgui.TextWrapped(u8("Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ Г­ГЁГҐ: %s"):format(u8(v['use'])))
                     end
                 end
                 imgui.End()
@@ -3481,7 +3481,7 @@ if limgui then
                 local sX, sY = getScreenResolution()
                 imgui.SetNextWindowPos(imgui.ImVec2(sX/2, sY/2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
                 imgui.SetNextWindowSize(imgui.ImVec2(891, 380), imgui.Cond.FirstUseEver)
-                imgui.Begin(u8(script.this.name.." | Список команд"), vars.mainwindow, imgui.WindowFlags.NoResize)
+                imgui.Begin(u8(script.this.name.." | Г‘ГЇГЁГ±Г®ГЄ ГЄГ®Г¬Г Г­Г¤"), vars.mainwindow, imgui.WindowFlags.NoResize)
                 imgui.BeginChild("##commandlist", imgui.ImVec2(170 ,320), true)
                 for k, v in pairs(commands) do
                     if imgui.Selectable(u8(("%s. /%s##%s"):format(k, v.cmd, k)), vars.menuselect == k) then 
@@ -3496,27 +3496,27 @@ if limgui then
                 imgui.BeginChild("##commandsetting", imgui.ImVec2(700, 320), true)
                 for k, v in pairs(commands) do
                     if vars.menuselect == k then
-                        imgui.InputText(u8 "Введите саму команду", vars.cmdbuf)
-                        imgui.InputInt(u8 "Введите кол-во параметров команды", vars.cmdparams, 0)
+                        imgui.InputText(u8 "Г‚ГўГҐГ¤ГЁГІГҐ Г±Г Г¬Гі ГЄГ®Г¬Г Г­Г¤Гі", vars.cmdbuf)
+                        imgui.InputInt(u8 "Г‚ГўГҐГ¤ГЁГІГҐ ГЄГ®Г«-ГўГ® ГЇГ Г°Г Г¬ГҐГІГ°Г®Гў ГЄГ®Г¬Г Г­Г¤Г»", vars.cmdparams, 0)
                         imgui.InputTextMultiline(u8 "##cmdtext", vars.cmdtext, imgui.ImVec2(678, 200))
-                        imgui.TextWrapped(u8 "Ключи параметров: {param:1}, {param:2} и т.д (Использовать в тексте на месте параметра)\nКлюч задержки: {wait:кол-во миллисекунд} (Использовать на новой строке)")
-                        if imgui.Button(u8 "Сохранить команду") then
+                        imgui.TextWrapped(u8 "ГЉГ«ГѕГ·ГЁ ГЇГ Г°Г Г¬ГҐГІГ°Г®Гў: {param:1}, {param:2} ГЁ ГІ.Г¤ (Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Гў ГІГҐГЄГ±ГІГҐ Г­Г  Г¬ГҐГ±ГІГҐ ГЇГ Г°Г Г¬ГҐГІГ°Г )\nГЉГ«ГѕГ· Г§Г Г¤ГҐГ°Г¦ГЄГЁ: {wait:ГЄГ®Г«-ГўГ® Г¬ГЁГ«Г«ГЁГ±ГҐГЄГіГ­Г¤} (Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г­Г  Г­Г®ГўГ®Г© Г±ГІГ°Г®ГЄГҐ)")
+                        if imgui.Button(u8 "Г‘Г®ГµГ°Г Г­ГЁГІГј ГЄГ®Г¬Г Г­Г¤Гі") then
                             sampUnregisterChatCommand(v.cmd)
                             v.cmd = u8:decode(vars.cmdbuf.v)
                             v.params = vars.cmdparams.v
                             v.text = u8:decode(vars.cmdtext.v)
                             saveData(commands, "moonloader/config/fbitools/cmdbinder.json")
                             registerCommandsBinder()
-                            ftext("Команда сохранена")
+                            ftext("ГЉГ®Г¬Г Г­Г¤Г  Г±Г®ГµГ°Г Г­ГҐГ­Г ")
                         end
                         imgui.SameLine()
-                        if imgui.Button(u8 "Удалить команду") then
-                            imgui.OpenPopup(u8 "Удаление команды##"..k)
+                        if imgui.Button(u8 "Г“Г¤Г Г«ГЁГІГј ГЄГ®Г¬Г Г­Г¤Гі") then
+                            imgui.OpenPopup(u8 "Г“Г¤Г Г«ГҐГ­ГЁГҐ ГЄГ®Г¬Г Г­Г¤Г»##"..k)
                         end
-                        if imgui.BeginPopupModal(u8 "Удаление команды##"..k, _, imgui.WindowFlags.AlwaysAutoResize) then
-                            imgui.SetCursorPosX(imgui.GetWindowWidth()/2 - imgui.CalcTextSize(u8 "Вы действительно хотите удалить команду?").x / 2)
-                            imgui.Text(u8 "Вы действительно хотите удалить команду?")
-                            if imgui.Button(u8 "Удалить##"..k, imgui.ImVec2(170, 20)) then
+                        if imgui.BeginPopupModal(u8 "Г“Г¤Г Г«ГҐГ­ГЁГҐ ГЄГ®Г¬Г Г­Г¤Г»##"..k, _, imgui.WindowFlags.AlwaysAutoResize) then
+                            imgui.SetCursorPosX(imgui.GetWindowWidth()/2 - imgui.CalcTextSize(u8 "Г‚Г» Г¤ГҐГ©Г±ГІГўГЁГІГҐГ«ГјГ­Г® ГµГ®ГІГЁГІГҐ ГіГ¤Г Г«ГЁГІГј ГЄГ®Г¬Г Г­Г¤Гі?").x / 2)
+                            imgui.Text(u8 "Г‚Г» Г¤ГҐГ©Г±ГІГўГЁГІГҐГ«ГјГ­Г® ГµГ®ГІГЁГІГҐ ГіГ¤Г Г«ГЁГІГј ГЄГ®Г¬Г Г­Г¤Гі?")
+                            if imgui.Button(u8 "Г“Г¤Г Г«ГЁГІГј##"..k, imgui.ImVec2(170, 20)) then
                                 sampUnregisterChatCommand(v.cmd)
                                 vars.menuselect     = 0
                                 vars.cmdbuf.v       = ""
@@ -3525,42 +3525,42 @@ if limgui then
                                 table.remove(commands, k)
                                 saveData(commands, "moonloader/config/fbitools/cmdbinder.json")
                                 registerCommandsBinder()
-                                ftext("Команда удалена")
+                                ftext("ГЉГ®Г¬Г Г­Г¤Г  ГіГ¤Г Г«ГҐГ­Г ")
                                 imgui.CloseCurrentPopup()
                             end
                             imgui.SameLine()
-                            if imgui.Button(u8 "Отмена##"..k, imgui.ImVec2(170, 20)) then
+                            if imgui.Button(u8 "ГЋГІГ¬ГҐГ­Г ##"..k, imgui.ImVec2(170, 20)) then
                                 imgui.CloseCurrentPopup()
                             end
                             imgui.EndPopup()
                         end
                         imgui.SameLine()
-                        if imgui.Button(u8 'Ключи', imgui.ImVec2(170, 20)) then imgui.OpenPopup('##bindkey') end
+                        if imgui.Button(u8 'ГЉГ«ГѕГ·ГЁ', imgui.ImVec2(170, 20)) then imgui.OpenPopup('##bindkey') end
                         if imgui.BeginPopup('##bindkey') then
-                            imgui.Text(u8 'Используйте ключи биндера для более удобного использования биндера')
-                            imgui.Text(u8 'Пример: /su {targetid} 6 Вооруженное нападение на ПО')
+                            imgui.Text(u8 'Г€Г±ГЇГ®Г«ГјГ§ГіГ©ГІГҐ ГЄГ«ГѕГ·ГЁ ГЎГЁГ­Г¤ГҐГ°Г  Г¤Г«Гї ГЎГ®Г«ГҐГҐ ГіГ¤Г®ГЎГ­Г®ГЈГ® ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ Г­ГЁГї ГЎГЁГ­Г¤ГҐГ°Г ')
+                            imgui.Text(u8 'ГЏГ°ГЁГ¬ГҐГ°: /su {targetid} 6 Г‚Г®Г®Г°ГіГ¦ГҐГ­Г­Г®ГҐ Г­Г ГЇГ Г¤ГҐГ­ГЁГҐ Г­Г  ГЏГЋ')
                             imgui.Separator()
-                            imgui.Text(u8 '{myid} - ID вашего персонажа | '..select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
-                            imgui.Text(u8 '{myrpnick} - РП ник вашего персонажа | '..sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' '))
-                            imgui.Text(u8 ('{naparnik} - Ваши напарники | '..naparnik()))
-                            imgui.Text(u8 ('{kv} - Ваш текущий квадрат | '..kvadrat()))
-                            imgui.Text(u8 '{targetid} - ID игрока на которого вы целитесь | '..targetid)
-                            imgui.Text(u8 '{targetrpnick} - РП ник игрока на которого вы целитесь | '..sampGetPlayerNicknameForBinder(targetid):gsub('_', ' '))
-                            imgui.Text(u8 '{smsid} - Последний ID того, кто вам написал в SMS | '..smsid)
-                            imgui.Text(u8 '{smstoid} - Последний ID того, кому вы написали в SMS | '..smstoid)
-                            imgui.Text(u8 '{megafid} - ID игрока, за которым была начата погоня | '..gmegafid)
-                            imgui.Text(u8 '{rang} - Ваше звание | '..u8(rang))
-                            imgui.Text(u8 '{frak} - Ваша фракция | '..u8(frak))
-                            imgui.Text(u8 '{dl} - ID авто, в котором вы сидите | '..mcid)
-                            imgui.Text(u8 '{noe} - Оставить сообщение в полле ввода а не отправлять его в чат (использовать в самом начале)')
-                            imgui.Text(u8 '{wait:sek} - Задержка между строками, где sek - кол-во миллисекунд. Пример: {wait:2000} - задержка 2 секунды. (использовать отдельно на новой строчке)')
-                            imgui.Text(u8 '{screen} - Сделать скриншот экрана (использовать отдельно на новой строчке)')
+                            imgui.Text(u8 '{myid} - ID ГўГ ГёГҐГЈГ® ГЇГҐГ°Г±Г®Г­Г Г¦Г  | '..select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
+                            imgui.Text(u8 '{myrpnick} - ГђГЏ Г­ГЁГЄ ГўГ ГёГҐГЈГ® ГЇГҐГ°Г±Г®Г­Г Г¦Г  | '..sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' '))
+                            imgui.Text(u8 ('{naparnik} - Г‚Г ГёГЁ Г­Г ГЇГ Г°Г­ГЁГЄГЁ | '..naparnik()))
+                            imgui.Text(u8 ('{kv} - Г‚Г Гё ГІГҐГЄГіГ№ГЁГ© ГЄГўГ Г¤Г°Г ГІ | '..kvadrat()))
+                            imgui.Text(u8 '{targetid} - ID ГЁГЈГ°Г®ГЄГ  Г­Г  ГЄГ®ГІГ®Г°Г®ГЈГ® ГўГ» Г¶ГҐГ«ГЁГІГҐГ±Гј | '..targetid)
+                            imgui.Text(u8 '{targetrpnick} - ГђГЏ Г­ГЁГЄ ГЁГЈГ°Г®ГЄГ  Г­Г  ГЄГ®ГІГ®Г°Г®ГЈГ® ГўГ» Г¶ГҐГ«ГЁГІГҐГ±Гј | '..sampGetPlayerNicknameForBinder(targetid):gsub('_', ' '))
+                            imgui.Text(u8 '{smsid} - ГЏГ®Г±Г«ГҐГ¤Г­ГЁГ© ID ГІГ®ГЈГ®, ГЄГІГ® ГўГ Г¬ Г­Г ГЇГЁГ±Г Г« Гў SMS | '..smsid)
+                            imgui.Text(u8 '{smstoid} - ГЏГ®Г±Г«ГҐГ¤Г­ГЁГ© ID ГІГ®ГЈГ®, ГЄГ®Г¬Гі ГўГ» Г­Г ГЇГЁГ±Г Г«ГЁ Гў SMS | '..smstoid)
+                            imgui.Text(u8 '{megafid} - ID ГЁГЈГ°Г®ГЄГ , Г§Г  ГЄГ®ГІГ®Г°Г»Г¬ ГЎГ»Г«Г  Г­Г Г·Г ГІГ  ГЇГ®ГЈГ®Г­Гї | '..gmegafid)
+                            imgui.Text(u8 '{rang} - Г‚Г ГёГҐ Г§ГўГ Г­ГЁГҐ | '..u8(rang))
+                            imgui.Text(u8 '{frak} - Г‚Г ГёГ  ГґГ°Г ГЄГ¶ГЁГї | '..u8(frak))
+                            imgui.Text(u8 '{dl} - ID Г ГўГІГ®, Гў ГЄГ®ГІГ®Г°Г®Г¬ ГўГ» Г±ГЁГ¤ГЁГІГҐ | '..mcid)
+                            imgui.Text(u8 '{noe} - ГЋГ±ГІГ ГўГЁГІГј Г±Г®Г®ГЎГ№ГҐГ­ГЁГҐ Гў ГЇГ®Г«Г«ГҐ ГўГўГ®Г¤Г  Г  Г­ГҐ Г®ГІГЇГ°Г ГўГ«ГїГІГј ГҐГЈГ® Гў Г·Г ГІ (ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Гў Г±Г Г¬Г®Г¬ Г­Г Г·Г Г«ГҐ)')
+                            imgui.Text(u8 '{wait:sek} - Г‡Г Г¤ГҐГ°Г¦ГЄГ  Г¬ГҐГ¦Г¤Гі Г±ГІГ°Г®ГЄГ Г¬ГЁ, ГЈГ¤ГҐ sek - ГЄГ®Г«-ГўГ® Г¬ГЁГ«Г«ГЁГ±ГҐГЄГіГ­Г¤. ГЏГ°ГЁГ¬ГҐГ°: {wait:2000} - Г§Г Г¤ГҐГ°Г¦ГЄГ  2 Г±ГҐГЄГіГ­Г¤Г». (ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г®ГІГ¤ГҐГ«ГјГ­Г® Г­Г  Г­Г®ГўГ®Г© Г±ГІГ°Г®Г·ГЄГҐ)')
+                            imgui.Text(u8 '{screen} - Г‘Г¤ГҐГ«Г ГІГј Г±ГЄГ°ГЁГ­ГёГ®ГІ ГЅГЄГ°Г Г­Г  (ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г®ГІГ¤ГҐГ«ГјГ­Г® Г­Г  Г­Г®ГўГ®Г© Г±ГІГ°Г®Г·ГЄГҐ)')
                             imgui.EndPopup()
                         end
                     end
                 end
                 imgui.EndChild()
-                if imgui.Button(u8 "Добавить команду", imgui.ImVec2(170, 20)) then
+                if imgui.Button(u8 "Г„Г®ГЎГ ГўГЁГІГј ГЄГ®Г¬Г Г­Г¤Гі", imgui.ImVec2(170, 20)) then
                     table.insert(commands, {cmd = "", params = 0, text = ""})
                     saveData(commands, "moonloader/config/fbitools/cmdbinder.json")
                 end
@@ -3571,7 +3571,7 @@ if limgui then
                 local iScreenWidth, iScreenHeight = getScreenResolution()
                 imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
                 imgui.SetNextWindowSize(imgui.ImVec2(1000, 510), imgui.Cond.FirstUseEver)
-                imgui.Begin(u8(script.this.name.." | Биндер##main"), bMainWindow, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+                imgui.Begin(u8(script.this.name.." | ГЃГЁГ­Г¤ГҐГ°##main"), bMainWindow, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
                 imgui.BeginChild("##bindlist", imgui.ImVec2(995, 442))
                 for k, v in ipairs(tBindList) do
                     if imadd.HotKey("##HK" .. k, v, tLastKeys, 100) then
@@ -3586,49 +3586,49 @@ if limgui then
                     imgui.SameLine()
                     imgui.CentrText(u8(v.name))
                     imgui.SameLine(850)
-                    if imgui.Button(u8 'Редактировать бинд##'..k) then imgui.OpenPopup(u8 "Редактирование биндера##editbind"..k) 
+                    if imgui.Button(u8 'ГђГҐГ¤Г ГЄГІГЁГ°Г®ГўГ ГІГј ГЎГЁГ­Г¤##'..k) then imgui.OpenPopup(u8 "ГђГҐГ¤Г ГЄГІГЁГ°Г®ГўГ Г­ГЁГҐ ГЎГЁГ­Г¤ГҐГ°Г ##editbind"..k) 
                         bindname.v = u8(v.name) 
                         bindtext.v = u8(v.text)
                     end
-                    if imgui.BeginPopupModal(u8 'Редактирование биндера##editbind'..k, _, imgui.WindowFlags.NoResize) then
-                        imgui.Text(u8 "Введите название биндера:")
-                        imgui.InputText("##Введите название биндера", bindname)
-                        imgui.Text(u8 "Введите текст биндера:")
-                        imgui.InputTextMultiline("##Введите текст биндера", bindtext, imgui.ImVec2(500, 200))
+                    if imgui.BeginPopupModal(u8 'ГђГҐГ¤Г ГЄГІГЁГ°Г®ГўГ Г­ГЁГҐ ГЎГЁГ­Г¤ГҐГ°Г ##editbind'..k, _, imgui.WindowFlags.NoResize) then
+                        imgui.Text(u8 "Г‚ГўГҐГ¤ГЁГІГҐ Г­Г Г§ГўГ Г­ГЁГҐ ГЎГЁГ­Г¤ГҐГ°Г :")
+                        imgui.InputText("##Г‚ГўГҐГ¤ГЁГІГҐ Г­Г Г§ГўГ Г­ГЁГҐ ГЎГЁГ­Г¤ГҐГ°Г ", bindname)
+                        imgui.Text(u8 "Г‚ГўГҐГ¤ГЁГІГҐ ГІГҐГЄГ±ГІ ГЎГЁГ­Г¤ГҐГ°Г :")
+                        imgui.InputTextMultiline("##Г‚ГўГҐГ¤ГЁГІГҐ ГІГҐГЄГ±ГІ ГЎГЁГ­Г¤ГҐГ°Г ", bindtext, imgui.ImVec2(500, 200))
                         imgui.Separator()
-                        if imgui.Button(u8 'Ключи', imgui.ImVec2(90, 20)) then imgui.OpenPopup('##bindkey') end
+                        if imgui.Button(u8 'ГЉГ«ГѕГ·ГЁ', imgui.ImVec2(90, 20)) then imgui.OpenPopup('##bindkey') end
                         if imgui.BeginPopup('##bindkey') then
-                            imgui.Text(u8 'Используйте ключи биндера для более удобного использования биндера')
-                            imgui.Text(u8 'Пример: /su {targetid} 6 Вооруженное нападение на ПО')
+                            imgui.Text(u8 'Г€Г±ГЇГ®Г«ГјГ§ГіГ©ГІГҐ ГЄГ«ГѕГ·ГЁ ГЎГЁГ­Г¤ГҐГ°Г  Г¤Г«Гї ГЎГ®Г«ГҐГҐ ГіГ¤Г®ГЎГ­Г®ГЈГ® ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ Г­ГЁГї ГЎГЁГ­Г¤ГҐГ°Г ')
+                            imgui.Text(u8 'ГЏГ°ГЁГ¬ГҐГ°: /su {targetid} 6 Г‚Г®Г®Г°ГіГ¦ГҐГ­Г­Г®ГҐ Г­Г ГЇГ Г¤ГҐГ­ГЁГҐ Г­Г  ГЏГЋ')
                             imgui.Separator()
-                            imgui.Text(u8 '{myid} - ID вашего персонажа | '..select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
-                            imgui.Text(u8 '{myrpnick} - РП ник вашего персонажа | '..sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' '))
-                            imgui.Text(u8 ('{naparnik} - Ваши напарники | '..naparnik()))
-                            imgui.Text(u8 ('{kv} - Ваш текущий квадрат | '..kvadrat()))
-                            imgui.Text(u8 '{targetid} - ID игрока на которого вы целитесь | '..targetid)
-                            imgui.Text(u8 '{targetrpnick} - РП ник игрока на которого вы целитесь | '..sampGetPlayerNicknameForBinder(targetid):gsub('_', ' '))
-                            imgui.Text(u8 '{smsid} - Последний ID того, кто вам написал в SMS | '..smsid)
-                            imgui.Text(u8 '{smstoid} - Последний ID того, кому вы написали в SMS | '..smstoid)
-                            imgui.Text(u8 '{megafid} - ID игрока, за которым была начата погоня | '..gmegafid)
-                            imgui.Text(u8 '{rang} - Ваше звание | '..u8(rang))
-                            imgui.Text(u8 '{frak} - Ваша фракция | '..u8(frak))
-                            imgui.Text(u8 '{dl} - ID авто, в котором вы сидите | '..mcid)
-                            imgui.Text(u8 '{f6} - Отправить сообщение в чат через эмуляцию чата (использовать в самом начале)')
-                            imgui.Text(u8 '{noe} - Оставить сообщение в полле ввода а не отправлять его в чат (использовать в самом начале)')
-                            imgui.Text(u8 '{wait:sek} - Задержка между строками, где sek - кол-во миллисекунд. Пример: {wait:2000} - задержка 2 секунды. (использовать отдельно на новой строчке)')
-                            imgui.Text(u8 '{screen} - Сделать скриншот экрана (использовать отдельно на новой строчке)')
+                            imgui.Text(u8 '{myid} - ID ГўГ ГёГҐГЈГ® ГЇГҐГ°Г±Г®Г­Г Г¦Г  | '..select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
+                            imgui.Text(u8 '{myrpnick} - ГђГЏ Г­ГЁГЄ ГўГ ГёГҐГЈГ® ГЇГҐГ°Г±Г®Г­Г Г¦Г  | '..sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' '))
+                            imgui.Text(u8 ('{naparnik} - Г‚Г ГёГЁ Г­Г ГЇГ Г°Г­ГЁГЄГЁ | '..naparnik()))
+                            imgui.Text(u8 ('{kv} - Г‚Г Гё ГІГҐГЄГіГ№ГЁГ© ГЄГўГ Г¤Г°Г ГІ | '..kvadrat()))
+                            imgui.Text(u8 '{targetid} - ID ГЁГЈГ°Г®ГЄГ  Г­Г  ГЄГ®ГІГ®Г°Г®ГЈГ® ГўГ» Г¶ГҐГ«ГЁГІГҐГ±Гј | '..targetid)
+                            imgui.Text(u8 '{targetrpnick} - ГђГЏ Г­ГЁГЄ ГЁГЈГ°Г®ГЄГ  Г­Г  ГЄГ®ГІГ®Г°Г®ГЈГ® ГўГ» Г¶ГҐГ«ГЁГІГҐГ±Гј | '..sampGetPlayerNicknameForBinder(targetid):gsub('_', ' '))
+                            imgui.Text(u8 '{smsid} - ГЏГ®Г±Г«ГҐГ¤Г­ГЁГ© ID ГІГ®ГЈГ®, ГЄГІГ® ГўГ Г¬ Г­Г ГЇГЁГ±Г Г« Гў SMS | '..smsid)
+                            imgui.Text(u8 '{smstoid} - ГЏГ®Г±Г«ГҐГ¤Г­ГЁГ© ID ГІГ®ГЈГ®, ГЄГ®Г¬Гі ГўГ» Г­Г ГЇГЁГ±Г Г«ГЁ Гў SMS | '..smstoid)
+                            imgui.Text(u8 '{megafid} - ID ГЁГЈГ°Г®ГЄГ , Г§Г  ГЄГ®ГІГ®Г°Г»Г¬ ГЎГ»Г«Г  Г­Г Г·Г ГІГ  ГЇГ®ГЈГ®Г­Гї | '..gmegafid)
+                            imgui.Text(u8 '{rang} - Г‚Г ГёГҐ Г§ГўГ Г­ГЁГҐ | '..u8(rang))
+                            imgui.Text(u8 '{frak} - Г‚Г ГёГ  ГґГ°Г ГЄГ¶ГЁГї | '..u8(frak))
+                            imgui.Text(u8 '{dl} - ID Г ГўГІГ®, Гў ГЄГ®ГІГ®Г°Г®Г¬ ГўГ» Г±ГЁГ¤ГЁГІГҐ | '..mcid)
+                            imgui.Text(u8 '{f6} - ГЋГІГЇГ°Г ГўГЁГІГј Г±Г®Г®ГЎГ№ГҐГ­ГЁГҐ Гў Г·Г ГІ Г·ГҐГ°ГҐГ§ ГЅГ¬ГіГ«ГїГ¶ГЁГѕ Г·Г ГІГ  (ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Гў Г±Г Г¬Г®Г¬ Г­Г Г·Г Г«ГҐ)')
+                            imgui.Text(u8 '{noe} - ГЋГ±ГІГ ГўГЁГІГј Г±Г®Г®ГЎГ№ГҐГ­ГЁГҐ Гў ГЇГ®Г«Г«ГҐ ГўГўГ®Г¤Г  Г  Г­ГҐ Г®ГІГЇГ°Г ГўГ«ГїГІГј ГҐГЈГ® Гў Г·Г ГІ (ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Гў Г±Г Г¬Г®Г¬ Г­Г Г·Г Г«ГҐ)')
+                            imgui.Text(u8 '{wait:sek} - Г‡Г Г¤ГҐГ°Г¦ГЄГ  Г¬ГҐГ¦Г¤Гі Г±ГІГ°Г®ГЄГ Г¬ГЁ, ГЈГ¤ГҐ sek - ГЄГ®Г«-ГўГ® Г¬ГЁГ«Г«ГЁГ±ГҐГЄГіГ­Г¤. ГЏГ°ГЁГ¬ГҐГ°: {wait:2000} - Г§Г Г¤ГҐГ°Г¦ГЄГ  2 Г±ГҐГЄГіГ­Г¤Г». (ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г®ГІГ¤ГҐГ«ГјГ­Г® Г­Г  Г­Г®ГўГ®Г© Г±ГІГ°Г®Г·ГЄГҐ)')
+                            imgui.Text(u8 '{screen} - Г‘Г¤ГҐГ«Г ГІГј Г±ГЄГ°ГЁГ­ГёГ®ГІ ГЅГЄГ°Г Г­Г  (ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г®ГІГ¤ГҐГ«ГјГ­Г® Г­Г  Г­Г®ГўГ®Г© Г±ГІГ°Г®Г·ГЄГҐ)')
                             imgui.EndPopup()
                         end
                         imgui.SameLine()
                         imgui.SetCursorPosX((imgui.GetWindowWidth() - 90 - imgui.GetStyle().ItemSpacing.x))
-                        if imgui.Button(u8 "Удалить бинд##"..k, imgui.ImVec2(90, 20)) then
+                        if imgui.Button(u8 "Г“Г¤Г Г«ГЁГІГј ГЎГЁГ­Г¤##"..k, imgui.ImVec2(90, 20)) then
                             table.remove(tBindList, k)
                             saveData(tBindList, fileb)
                             imgui.CloseCurrentPopup()
                         end
                         imgui.SameLine()
                         imgui.SetCursorPosX((imgui.GetWindowWidth() - 180 + imgui.GetStyle().ItemSpacing.x) / 2)
-                        if imgui.Button(u8 "Сохранить##"..k, imgui.ImVec2(90, 20)) then
+                        if imgui.Button(u8 "Г‘Г®ГµГ°Г Г­ГЁГІГј##"..k, imgui.ImVec2(90, 20)) then
                             v.name = u8:decode(bindname.v)
                             v.text = u8:decode(bindtext.v)
                             bindname.v = ''
@@ -3637,14 +3637,14 @@ if limgui then
                             imgui.CloseCurrentPopup()
                         end
                         imgui.SameLine()
-                        if imgui.Button(u8 "Закрыть##"..k, imgui.ImVec2(90, 20)) then imgui.CloseCurrentPopup() end
+                        if imgui.Button(u8 "Г‡Г ГЄГ°Г»ГІГј##"..k, imgui.ImVec2(90, 20)) then imgui.CloseCurrentPopup() end
                         imgui.EndPopup()
                     end
                 end
                 imgui.EndChild()
                 imgui.Separator()
-                if imgui.Button(u8"Добавить клавишу") then
-                    tBindList[#tBindList + 1] = {text = "", v = {}, time = 0, name = "Бинд"..#tBindList + 1}
+                if imgui.Button(u8"Г„Г®ГЎГ ГўГЁГІГј ГЄГ«Г ГўГЁГёГі") then
+                    tBindList[#tBindList + 1] = {text = "", v = {}, time = 0, name = "ГЃГЁГ­Г¤"..#tBindList + 1}
                     saveData(tBindList, fileb)
                 end
                 imgui.End()
@@ -3695,266 +3695,266 @@ if limgui then
                 local iScreenWidth, iScreenHeight = getScreenResolution()
                 imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
                 imgui.SetNextWindowSize(imgui.ImVec2(1161, 436), imgui.Cond.FirstUseEver)
-                imgui.Begin(u8'Настройки##1', setwindows, imgui.WindowFlags.NoResize)
+                imgui.Begin(u8'ГЌГ Г±ГІГ°Г®Г©ГЄГЁ##1', setwindows, imgui.WindowFlags.NoResize)
                 --ftext(("w: %s / h: %s"):format(imgui.GetWindowWidth(), imgui.GetWindowHeight()))
                 if cfg.main.group ~= 'unknown' then
                     imgui.BeginChild('##set', imgui.ImVec2(140, 400), true)
-                    if imgui.Selectable(u8'Основные', show == 1) then show = 1 end
-                    if cfg.main.group == 'ПД/ФБР' then if imgui.Selectable(u8'Команды', show == 2) then show = 2 end end
-                    if imgui.Selectable(u8'Клавиши', show == 3) then show = 3 end
-                    if cfg.main.group == 'ПД/ФБР' then if imgui.Selectable(u8'Авто-БП', show == 4) then show = 4 end end
+                    if imgui.Selectable(u8'ГЋГ±Г­Г®ГўГ­Г»ГҐ', show == 1) then show = 1 end
+                    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then if imgui.Selectable(u8'ГЉГ®Г¬Г Г­Г¤Г»', show == 2) then show = 2 end end
+                    if imgui.Selectable(u8'ГЉГ«Г ГўГЁГёГЁ', show == 3) then show = 3 end
+                    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then if imgui.Selectable(u8'ГЂГўГІГ®-ГЃГЏ', show == 4) then show = 4 end end
                     imgui.EndChild()
                     imgui.SameLine()
                     imgui.BeginChild('##set1', imgui.ImVec2(1000, 400), true)
                     if show == 1 then
-                        if imadd.ToggleButton(u8 'Инфобар', infbarb) then cfg.main.hud = infbarb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine() imgui.Text(u8 "Инфо-бар")
+                        if imadd.ToggleButton(u8 'Г€Г­ГґГ®ГЎГ Г°', infbarb) then cfg.main.hud = infbarb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine() imgui.Text(u8 "Г€Г­ГґГ®-ГЎГ Г°")
                         if infbarb.v then
                             imgui.SameLine()
-                            if imgui.Button(u8 'Изменить местоположение') then
+                            if imgui.Button(u8 'Г€Г§Г¬ГҐГ­ГЁГІГј Г¬ГҐГ±ГІГ®ГЇГ®Г«Г®Г¦ГҐГ­ГЁГҐ') then
                                 mainw.v = false
                                 changetextpos = true
-                                ftext('По завешению нажмите левую кнопку мыши')
+                                ftext('ГЏГ® Г§Г ГўГҐГёГҐГ­ГЁГѕ Г­Г Г¦Г¬ГЁГІГҐ Г«ГҐГўГіГѕ ГЄГ­Г®ГЇГЄГі Г¬Г»ГёГЁ')
                             end
                         end
-                        if cfg.main.group == 'ПД/ФБР' then
-                            if imadd.ToggleButton(u8'Скрывать сообщения о начале преследования', offptrlb) then cfg.main.offptrl = offptrlb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Скрывать сообщения о начале преследования')
-                            if imadd.ToggleButton(u8'Скрывать сообщения о выдаче розыска', offwntdb) then cfg.main.offwntd = offwntdb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Скрывать сообщения о выдаче розыска')
-                            if imadd.ToggleButton(u8'Новый wanted', nwantedb) then cfg.main.nwanted = nwantedb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Обновленный Wanted')
-                            if imadd.ToggleButton(u8'допclear', nclearb) then cfg.main.nclear = nclearb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Дополненый Clear')
+                        if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
+                            if imadd.ToggleButton(u8'Г‘ГЄГ°Г»ГўГ ГІГј Г±Г®Г®ГЎГ№ГҐГ­ГЁГї Г® Г­Г Г·Г Г«ГҐ ГЇГ°ГҐГ±Г«ГҐГ¤Г®ГўГ Г­ГЁГї', offptrlb) then cfg.main.offptrl = offptrlb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Г‘ГЄГ°Г»ГўГ ГІГј Г±Г®Г®ГЎГ№ГҐГ­ГЁГї Г® Г­Г Г·Г Г«ГҐ ГЇГ°ГҐГ±Г«ГҐГ¤Г®ГўГ Г­ГЁГї')
+                            if imadd.ToggleButton(u8'Г‘ГЄГ°Г»ГўГ ГІГј Г±Г®Г®ГЎГ№ГҐГ­ГЁГї Г® ГўГ»Г¤Г Г·ГҐ Г°Г®Г§Г»Г±ГЄГ ', offwntdb) then cfg.main.offwntd = offwntdb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Г‘ГЄГ°Г»ГўГ ГІГј Г±Г®Г®ГЎГ№ГҐГ­ГЁГї Г® ГўГ»Г¤Г Г·ГҐ Г°Г®Г§Г»Г±ГЄГ ')
+                            if imadd.ToggleButton(u8'ГЌГ®ГўГ»Г© wanted', nwantedb) then cfg.main.nwanted = nwantedb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'ГЋГЎГ­Г®ГўГ«ГҐГ­Г­Г»Г© Wanted')
+                            if imadd.ToggleButton(u8'Г¤Г®ГЇclear', nclearb) then cfg.main.nclear = nclearb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Г„Г®ГЇГ®Г«Г­ГҐГ­Г»Г© Clear')
                         end
-                        if imadd.ToggleButton(u8'Мужские отыгровки', stateb) then cfg.main.male = stateb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Мужские отыгровки')
-                        if imadd.ToggleButton(u8'Использовать автотег', tagb) then cfg.main.tarb = tagb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Использовать автотег')
+                        if imadd.ToggleButton(u8'ГЊГіГ¦Г±ГЄГЁГҐ Г®ГІГ»ГЈГ°Г®ГўГЄГЁ', stateb) then cfg.main.male = stateb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'ГЊГіГ¦Г±ГЄГЁГҐ Г®ГІГ»ГЈГ°Г®ГўГЄГЁ')
+                        if imadd.ToggleButton(u8'Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г ГўГІГ®ГІГҐГЈ', tagb) then cfg.main.tarb = tagb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г ГўГІГ®ГІГҐГЈ')
                         if tagb.v then
-                            if imgui.InputText(u8'Введите ваш Тег.', tagf) then cfg.main.tar = u8:decode(tagf.v) saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                            if imgui.InputText(u8'Г‚ГўГҐГ¤ГЁГІГҐ ГўГ Гё Г’ГҐГЈ.', tagf) then cfg.main.tar = u8:decode(tagf.v) saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         end
-                        if imadd.ToggleButton(u8'Использовать авто логин', parolb) then cfg.main.parolb = parolb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Использовать авто логин')
+                        if imadd.ToggleButton(u8'Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г ГўГІГ® Г«Г®ГЈГЁГ­', parolb) then cfg.main.parolb = parolb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г ГўГІГ® Г«Г®ГЈГЁГ­')
                         if parolb.v then
-                            if imgui.InputText(u8'Введите ваш пароль.', parolf, imgui.InputTextFlags.Password) then cfg.main.parol = u8:decode(parolf.v) saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                            if imgui.Button(u8'Узнать пароль') then ftext('Ваш пароль: {9966cc}'..cfg.main.parol) end
+                            if imgui.InputText(u8'Г‚ГўГҐГ¤ГЁГІГҐ ГўГ Гё ГЇГ Г°Г®Г«Гј.', parolf, imgui.InputTextFlags.Password) then cfg.main.parol = u8:decode(parolf.v) saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                            if imgui.Button(u8'Г“Г§Г­Г ГІГј ГЇГ Г°Г®Г«Гј') then ftext('Г‚Г Гё ГЇГ Г°Г®Г«Гј: {9966cc}'..cfg.main.parol) end
                         end
-                        if imadd.ToggleButton(u8'Использовать авто g-auth', googlecodebb) then cfg.main.googlecodeb = googlecodebb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Использовать авто g-auth')
+                        if imadd.ToggleButton(u8'Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г ГўГІГ® g-auth', googlecodebb) then cfg.main.googlecodeb = googlecodebb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г ГўГІГ® g-auth')
                         if googlecodebb.v then
-                            if imgui.InputText(u8'Введите ваш гугл код(который пришел вам на почту).', googlecodeb, imgui.InputTextFlags.Password) then cfg.main.googlecode = googlecodeb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                            if imgui.Button(u8'Узнать гугл код') then ftext('Ваш гугл код: {9966cc}'..cfg.main.googlecode) end
-                            if #tostring(cfg.main.googlecode) == 16 then imgui.SameLine() imgui.Text(u8(("Сгенерированый код: %s"):format(genCode(tostring(cfg.main.googlecode))))) end
+                            if imgui.InputText(u8'Г‚ГўГҐГ¤ГЁГІГҐ ГўГ Гё ГЈГіГЈГ« ГЄГ®Г¤(ГЄГ®ГІГ®Г°Г»Г© ГЇГ°ГЁГёГҐГ« ГўГ Г¬ Г­Г  ГЇГ®Г·ГІГі).', googlecodeb, imgui.InputTextFlags.Password) then cfg.main.googlecode = googlecodeb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                            if imgui.Button(u8'Г“Г§Г­Г ГІГј ГЈГіГЈГ« ГЄГ®Г¤') then ftext('Г‚Г Гё ГЈГіГЈГ« ГЄГ®Г¤: {9966cc}'..cfg.main.googlecode) end
+                            if #tostring(cfg.main.googlecode) == 16 then imgui.SameLine() imgui.Text(u8(("Г‘ГЈГҐГ­ГҐГ°ГЁГ°Г®ГўГ Г­Г»Г© ГЄГ®Г¤: %s"):format(genCode(tostring(cfg.main.googlecode))))) end
                         end
-                        if imadd.ToggleButton(u8'Использовать автоклист', clistb) then cfg.main.clistb = clistb.v end; imgui.SameLine() saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.Text(u8 'Использовать автоклист')
+                        if imadd.ToggleButton(u8'Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г ГўГІГ®ГЄГ«ГЁГ±ГІ', clistb) then cfg.main.clistb = clistb.v end; imgui.SameLine() saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.Text(u8 'Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј Г ГўГІГ®ГЄГ«ГЁГ±ГІ')
                         if clistb.v then
-                            if imgui.SliderInt(u8"Выберите значение клиста", clistbuffer, 0, 33) then cfg.main.clist = clistbuffer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                            if imgui.SliderInt(u8"Г‚Г»ГЎГҐГ°ГЁГІГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ ГЄГ«ГЁГ±ГІГ ", clistbuffer, 0, 33) then cfg.main.clist = clistbuffer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         end
-                        if imadd.ToggleButton(u8'Открывать чат на T', tchatb) then cfg.main.tchat = tchatb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Открывать чат на T')
-                        if imadd.ToggleButton(u8 'Автоматически заводить авто', carb) then cfg.main.autocar = carb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Автоматически заводить авто')
-                        if cfg.main.group == 'ПД/ФБР' then
-                            if imadd.ToggleButton(u8 'Стробоскопы', strobbsb) then cfg.main.strobs = strobbsb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Стробоскопы')
-                            if imadd.ToggleButton(u8 'Расширенный мегафон', megafb) then cfg.main.megaf = megafb.v end saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.SameLine(); imgui.Text(u8 'Расширенный мегафон')
+                        if imadd.ToggleButton(u8'ГЋГІГЄГ°Г»ГўГ ГІГј Г·Г ГІ Г­Г  T', tchatb) then cfg.main.tchat = tchatb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'ГЋГІГЄГ°Г»ГўГ ГІГј Г·Г ГІ Г­Г  T')
+                        if imadd.ToggleButton(u8 'ГЂГўГІГ®Г¬Г ГІГЁГ·ГҐГ±ГЄГЁ Г§Г ГўГ®Г¤ГЁГІГј Г ГўГІГ®', carb) then cfg.main.autocar = carb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'ГЂГўГІГ®Г¬Г ГІГЁГ·ГҐГ±ГЄГЁ Г§Г ГўГ®Г¤ГЁГІГј Г ГўГІГ®')
+                        if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
+                            if imadd.ToggleButton(u8 'Г‘ГІГ°Г®ГЎГ®Г±ГЄГ®ГЇГ»', strobbsb) then cfg.main.strobs = strobbsb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Г‘ГІГ°Г®ГЎГ®Г±ГЄГ®ГЇГ»')
+                            if imadd.ToggleButton(u8 'ГђГ Г±ГёГЁГ°ГҐГ­Г­Г»Г© Г¬ГҐГЈГ ГґГ®Г­', megafb) then cfg.main.megaf = megafb.v end saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.SameLine(); imgui.Text(u8 'ГђГ Г±ГёГЁГ°ГҐГ­Г­Г»Г© Г¬ГҐГЈГ ГґГ®Г­')
                         end
-                        if imgui.InputInt(u8'Задержка в отыгровках', waitbuffer) then cfg.commands.zaderjka = waitbuffer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                        if imgui.InputInt(u8'Г‡Г Г¤ГҐГ°Г¦ГЄГ  Гў Г®ГІГ»ГЈГ°Г®ГўГЄГ Гµ', waitbuffer) then cfg.commands.zaderjka = waitbuffer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         imgui.Separator()
-                        if imgui.Button(u8 'Сбросить группу') then imgui.OpenPopup(u8 'Сбросс группы') end
+                        if imgui.Button(u8 'Г‘ГЎГ°Г®Г±ГЁГІГј ГЈГ°ГіГЇГЇГі') then imgui.OpenPopup(u8 'Г‘ГЎГ°Г®Г±Г± ГЈГ°ГіГЇГЇГ»') end
                         imgui.SameLine()
-                        imgui.Text(u8 'Текущая группа фракций: '..u8(cfg.main.group))
-                        if imgui.BeginPopupModal(u8 'Сбросс группы', _, imgui.WindowFlags.NoResize) then
-                            imgui.CentrText(u8 'Вы действительно хотите сбросить группу фракций?')
-                            if imgui.Button(u8 'Да##группа', imgui.ImVec2(170, 20)) then cfg.main.group = 'unknown'
+                        imgui.Text(u8 'Г’ГҐГЄГіГ№Г Гї ГЈГ°ГіГЇГЇГ  ГґГ°Г ГЄГ¶ГЁГ©: '..u8(cfg.main.group))
+                        if imgui.BeginPopupModal(u8 'Г‘ГЎГ°Г®Г±Г± ГЈГ°ГіГЇГЇГ»', _, imgui.WindowFlags.NoResize) then
+                            imgui.CentrText(u8 'Г‚Г» Г¤ГҐГ©Г±ГІГўГЁГІГҐГ«ГјГ­Г® ГµГ®ГІГЁГІГҐ Г±ГЎГ°Г®Г±ГЁГІГј ГЈГ°ГіГЇГЇГі ГґГ°Г ГЄГ¶ГЁГ©?')
+                            if imgui.Button(u8 'Г„Г ##ГЈГ°ГіГЇГЇГ ', imgui.ImVec2(170, 20)) then cfg.main.group = 'unknown'
                                 saveData(cfg, 'moonloader/config/fbitools/config.json')
                                 registerCommands()
                                 imgui.CloseCurrentPopup()
                             end
                             imgui.SameLine()
-                            if imgui.Button(u8 'Нет##группа', imgui.ImVec2(170, 20)) then imgui.CloseCurrentPopup() end
+                            if imgui.Button(u8 'ГЌГҐГІ##ГЈГ°ГіГЇГЇГ ', imgui.ImVec2(170, 20)) then imgui.CloseCurrentPopup() end
                             imgui.EndPopup()
                         end
                     end
                     if show == 2 then
-                        if cfg.main.group == 'ПД/ФБР' then
-                            if imadd.ToggleButton(u8('Отыгровка /cput'), cput) then cfg.commands.cput = cput.v end; imgui.SameLine(); imgui.Text(u8 'Отыгровка /cput')
-                            if imadd.ToggleButton(u8('Отыгровка /ceject'), ceject) then cfg.commands.ceject = ceject.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Отыгровка /ceject')
-                            if imadd.ToggleButton(u8('Отыгровка /ftazer'), ftazer) then cfg.commands.ftazer = ftazer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Отыгровка /ftazer')
-                            if imadd.ToggleButton(u8('Отыгровка /deject'), deject) then cfg.commands.deject = deject.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Отыгровка /deject')
-                            if imadd.ToggleButton(u8('Отыгровка /ticket'), ticketb) then cfg.commands.ticket = ticketb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Отыгровка /ticket')
-                            if imadd.ToggleButton(u8('Использовать /time F8 при /kmdc'), kmdcb) then cfg.commands.kmdctime = kmdcb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Использовать /time F8 при /kmdc')
+                        if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
+                            if imadd.ToggleButton(u8('ГЋГІГ»ГЈГ°Г®ГўГЄГ  /cput'), cput) then cfg.commands.cput = cput.v end; imgui.SameLine(); imgui.Text(u8 'ГЋГІГ»ГЈГ°Г®ГўГЄГ  /cput')
+                            if imadd.ToggleButton(u8('ГЋГІГ»ГЈГ°Г®ГўГЄГ  /ceject'), ceject) then cfg.commands.ceject = ceject.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'ГЋГІГ»ГЈГ°Г®ГўГЄГ  /ceject')
+                            if imadd.ToggleButton(u8('ГЋГІГ»ГЈГ°Г®ГўГЄГ  /ftazer'), ftazer) then cfg.commands.ftazer = ftazer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'ГЋГІГ»ГЈГ°Г®ГўГЄГ  /ftazer')
+                            if imadd.ToggleButton(u8('ГЋГІГ»ГЈГ°Г®ГўГЄГ  /deject'), deject) then cfg.commands.deject = deject.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'ГЋГІГ»ГЈГ°Г®ГўГЄГ  /deject')
+                            if imadd.ToggleButton(u8('ГЋГІГ»ГЈГ°Г®ГўГЄГ  /ticket'), ticketb) then cfg.commands.ticket = ticketb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'ГЋГІГ»ГЈГ°Г®ГўГЄГ  /ticket')
+                            if imadd.ToggleButton(u8('Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј /time F8 ГЇГ°ГЁ /kmdc'), kmdcb) then cfg.commands.kmdctime = kmdcb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Г€Г±ГЇГ®Г«ГјГ§Г®ГўГ ГІГј /time F8 ГЇГ°ГЁ /kmdc')
                         end
                     end
                     if show == 3 then
-                        if cfg.main.group ~= "Мэрия" then
-                            if imadd.HotKey(u8'##Клавиша взаимодействия с игроком', config_keys.vzaimkey, tLastKeys, 100) then
+                        if cfg.main.group ~= "ГЊГЅГ°ГЁГї" then
+                            if imadd.HotKey(u8'##ГЉГ«Г ГўГЁГёГ  ГўГ§Г ГЁГ¬Г®Г¤ГҐГ©Г±ГІГўГЁГї Г± ГЁГЈГ°Г®ГЄГ®Г¬', config_keys.vzaimkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(vzaimbind, config_keys.vzaimkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.vzaimkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.vzaimkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8 'Клавиша взаимодействия с игроком (срабатывает после прицеливания на игрока)')
+                            imgui.Text(u8 'ГЉГ«Г ГўГЁГёГ  ГўГ§Г ГЁГ¬Г®Г¤ГҐГ©Г±ГІГўГЁГї Г± ГЁГЈГ°Г®ГЄГ®Г¬ (Г±Г°Г ГЎГ ГІГ»ГўГ ГҐГІ ГЇГ®Г±Г«ГҐ ГЇГ°ГЁГ¶ГҐГ«ГЁГўГ Г­ГЁГї Г­Г  ГЁГЈГ°Г®ГЄГ )')
                             if imadd.HotKey('##fastmenu', config_keys.fastmenukey, tLastKeys, 100) then
                                 rkeys.changeHotKey(fastmenubind, config_keys.fastmenukey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.fastmenukey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.fastmenukey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Клавиша быстрого меню'))
+                            imgui.Text(u8('ГЉГ«Г ГўГЁГёГ  ГЎГ»Г±ГІГ°Г®ГЈГ® Г¬ГҐГ­Гѕ'))
                         end
-                        if cfg.main.group == 'ПД/ФБР' or cfg.main.group == 'Мэрия' then
-                            if imadd.HotKey(u8'##Клавиша быстрого тазера', config_keys.tazerkey, tLastKeys, 100) then
+                        if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' or cfg.main.group == 'ГЊГЅГ°ГЁГї' then
+                            if imadd.HotKey(u8'##ГЉГ«Г ГўГЁГёГ  ГЎГ»Г±ГІГ°Г®ГЈГ® ГІГ Г§ГҐГ°Г ', config_keys.tazerkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(tazerbind, config_keys.tazerkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.tazerkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.tazerkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8'Клавиша быстрого тазера')
+                            imgui.Text(u8'ГЉГ«Г ГўГЁГёГ  ГЎГ»Г±ГІГ°Г®ГЈГ® ГІГ Г§ГҐГ°Г ')
                         end
-                        if cfg.main.group == 'ПД/ФБР' then
+                        if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
                             if imadd.HotKey('##oopda', config_keys.oopda, tLastKeys, 100) then
                                 rkeys.changeHotKey(oopdabind, config_keys.oopda.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.oopda.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.oopda.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Клавиша подтверждения'))
+                            imgui.Text(u8('ГЉГ«Г ГўГЁГёГ  ГЇГ®Г¤ГІГўГҐГ°Г¦Г¤ГҐГ­ГЁГї'))
                             if imadd.HotKey('##oopnet', config_keys.oopnet, tLastKeys, 100) then
                                 rkeys.changeHotKey(oopnetbind, config_keys.oopnet.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Клавиша отмены'))
+                            imgui.Text(u8('ГЉГ«Г ГўГЁГёГ  Г®ГІГ¬ГҐГ­Г»'))
                             if imadd.HotKey('##megaf', config_keys.megafkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(megafbind, config_keys.megafkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.megafkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.megafkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Клавиша мегафона'))
+                            imgui.Text(u8('ГЉГ«Г ГўГЁГёГ  Г¬ГҐГЈГ ГґГ®Г­Г '))
                             if imadd.HotKey('##dkld', config_keys.dkldkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(dkldbind, config_keys.dkldkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.dkldkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.dkldkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Клавиша доклада'))
+                            imgui.Text(u8('ГЉГ«Г ГўГЁГёГ  Г¤Г®ГЄГ«Г Г¤Г '))
                             if imadd.HotKey('##cuff', config_keys.cuffkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(cuffbind, config_keys.cuffkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.cuffkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.cuffkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Надеть наручники на преступника'))
+                            imgui.Text(u8('ГЌГ Г¤ГҐГІГј Г­Г Г°ГіГ·Г­ГЁГЄГЁ Г­Г  ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ '))
                             if imadd.HotKey('##uncuff', config_keys.uncuffkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(uncuffbind, config_keys.uncuffkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.uncuffkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.uncuffkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Снять наручники'))
+                            imgui.Text(u8('Г‘Г­ГїГІГј Г­Г Г°ГіГ·Г­ГЁГЄГЁ'))
                             if imadd.HotKey('##follow', config_keys.followkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(followbind, config_keys.followkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.followkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.followkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Вести преступника за собой'))
+                            imgui.Text(u8('Г‚ГҐГ±ГІГЁ ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Г§Г  Г±Г®ГЎГ®Г©'))
                             if imadd.HotKey('##cput', config_keys.cputkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(cputbind, config_keys.cputkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.cputkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.cputkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Посадить преступника в авто'))
+                            imgui.Text(u8('ГЏГ®Г±Г Г¤ГЁГІГј ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Гў Г ГўГІГ®'))
                             if imadd.HotKey('##ceject', config_keys.cejectkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(cejectbind, config_keys.cejectkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.cejectkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.cejectkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Высадить преступника в участок'))
+                            imgui.Text(u8('Г‚Г»Г±Г Г¤ГЁГІГј ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Гў ГіГ·Г Г±ГІГ®ГЄ'))
                             if imadd.HotKey('##take', config_keys.takekey, tLastKeys, 100) then
                                 rkeys.changeHotKey(takebind, config_keys.takekey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.takekey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.takekey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Обыскать преступника'))
+                            imgui.Text(u8('ГЋГЎГ»Г±ГЄГ ГІГј ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ '))
                             if imadd.HotKey('##arrest', config_keys.arrestkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(arrestbind, config_keys.arrestkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.arrestkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.arrestkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Арестовать преступника'))
+                            imgui.Text(u8('ГЂГ°ГҐГ±ГІГ®ГўГ ГІГј ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ '))
                             if imadd.HotKey('##deject', config_keys.dejectkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(dejectbind, config_keys.dejectkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.dejectkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.dejectkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Вытащить преступника из авто'))
+                            imgui.Text(u8('Г‚Г»ГІГ Г№ГЁГІГј ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  ГЁГ§ Г ГўГІГ®'))
                             if imadd.HotKey('##siren', config_keys.sirenkey, tLastKeys, 100) then
                                 rkeys.changeHotKey(sirenbind, config_keys.sirenkey.v)
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.sirenkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.sirenkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
                             end
                             imgui.SameLine()
-                            imgui.Text(u8('Включить / выключить сирену на авто'))
+                            imgui.Text(u8('Г‚ГЄГ«ГѕГ·ГЁГІГј / ГўГ»ГЄГ«ГѕГ·ГЁГІГј Г±ГЁГ°ГҐГ­Гі Г­Г  Г ГўГІГ®'))
                         end
-                        if cfg.main.group == 'Мэрия' then
+                        if cfg.main.group == 'ГЊГЅГ°ГЁГї' then
                             if imadd.HotKey('##hik', config_keys.hikey, tLastKeys, 100) then 
                                 rkeys.changeHotKey(hibind, config_keys.hikey.v) 
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.hikey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.hikey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end imgui.SameLine() imgui.Text(u8 'Приветствие')
+                            end imgui.SameLine() imgui.Text(u8 'ГЏГ°ГЁГўГҐГІГ±ГІГўГЁГҐ')
                             if imadd.HotKey('##sumk', config_keys.summakey, tLastKeys, 100) then 
                                 rkeys.changeHotKey(summabind, config_keys.summakey.v) 
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.summakey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.summakey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end imgui.SameLine() imgui.Text(u8 'Огласить сумму')
+                            end imgui.SameLine() imgui.Text(u8 'ГЋГЈГ«Г Г±ГЁГІГј Г±ГіГ¬Г¬Гі')
                             if imadd.HotKey('##freenk', config_keys.freenalkey, tLastKeys, 100) then 
                                 rkeys.changeHotKey(freenalbind, config_keys.freenalkey.v) 
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.freenalkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.freenalkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end imgui.SameLine() imgui.Text(u8 'Выпустить наличными')
+                            end imgui.SameLine() imgui.Text(u8 'Г‚Г»ГЇГіГ±ГІГЁГІГј Г­Г Г«ГЁГ·Г­Г»Г¬ГЁ')
                             if imadd.HotKey('##freebk', config_keys.freebankkey, tLastKeys, 100) then 
                                 rkeys.changeHotKey(freebankbind, config_keys.freebankkey.v) 
-                                ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.freebankkey.v), " + "))
+                                ftext('ГЉГ«Г ГўГЁГёГ  ГіГ±ГЇГҐГёГ­Г® ГЁГ§Г¬ГҐГ­ГҐГ­Г . Г‘ГІГ Г°Г®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | ГЌГ®ГўГ®ГҐ Г§Г­Г Г·ГҐГ­ГЁГҐ: '.. table.concat(rkeys.getKeysName(config_keys.freebankkey.v), " + "))
                                 saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end imgui.SameLine() imgui.Text(u8 'Выпустить через банк')
+                            end imgui.SameLine() imgui.Text(u8 'Г‚Г»ГЇГіГ±ГІГЁГІГј Г·ГҐГ°ГҐГ§ ГЎГ Г­ГЄ')
                         end
                     elseif show == 4 then
-                        if imadd.ToggleButton(u8 'Автобп', autobpb) then cfg.main.autobp = autobpb.v end saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.SameLine(); imgui.Text(u8 'Автоматически брать боеприпасы')
+                        if imadd.ToggleButton(u8 'ГЂГўГІГ®ГЎГЇ', autobpb) then cfg.main.autobp = autobpb.v end saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.SameLine(); imgui.Text(u8 'ГЂГўГІГ®Г¬Г ГІГЁГ·ГҐГ±ГЄГЁ ГЎГ°Г ГІГј ГЎГ®ГҐГЇГ°ГЁГЇГ Г±Г»')
                         if imgui.Checkbox(u8 "Desert Eagle", deagleb) then cfg.autobp.deagle = deagleb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         if deagleb.v then
                             imgui.SameLine(110)
-                            if imgui.Checkbox(u8 'Два компекта##1', dvadeagleb) then cfg.autobp.dvadeagle = dvadeagleb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                            if imgui.Checkbox(u8 'Г„ГўГ  ГЄГ®Г¬ГЇГҐГЄГІГ ##1', dvadeagleb) then cfg.autobp.dvadeagle = dvadeagleb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         end
                         if imgui.Checkbox(u8 "Shotgun", shotb) then cfg.autobp.shot = shotb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         if shotb.v then
                             imgui.SameLine(110)
-                            if imgui.Checkbox(u8 'Два компекта##2', dvashotb) then cfg.autobp.dvashot = dvashotb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                            if imgui.Checkbox(u8 'Г„ГўГ  ГЄГ®Г¬ГЇГҐГЄГІГ ##2', dvashotb) then cfg.autobp.dvashot = dvashotb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         end
                         if imgui.Checkbox(u8 "SMG", smgb) then cfg.autobp.smg = smgb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         if smgb.v then
                             imgui.SameLine(110)
-                            if imgui.Checkbox(u8 'Два компекта##3', dvasmgb) then cfg.autobp.dvasmg = dvasmgb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                            if imgui.Checkbox(u8 'Г„ГўГ  ГЄГ®Г¬ГЇГҐГЄГІГ ##3', dvasmgb) then cfg.autobp.dvasmg = dvasmgb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         end
                         if imgui.Checkbox(u8 "M4A1", m4b) then cfg.autobp.m4 = m4b.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         if m4b.v then
                             imgui.SameLine(110)
-                            if imgui.Checkbox(u8 'Два компекта##4', dvam4b) then cfg.autobp.dvam4 = dvam4b.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                            if imgui.Checkbox(u8 'Г„ГўГ  ГЄГ®Г¬ГЇГҐГЄГІГ ##4', dvam4b) then cfg.autobp.dvam4 = dvam4b.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         end
                         if imgui.Checkbox(u8 "Rifle", rifleb) then cfg.autobp.rifle = rifleb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         if rifleb.v then
                             imgui.SameLine(110)
-                            if imgui.Checkbox(u8 'Два компекта##5', dvarifleb) then cfg.autobp.dvarifle = dvarifleb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                            if imgui.Checkbox(u8 'Г„ГўГ  ГЄГ®Г¬ГЇГҐГЄГІГ ##5', dvarifleb) then cfg.autobp.dvarifle = dvarifleb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                         end
-                        if imgui.Checkbox(u8 "Броня", armourb) then cfg.autobp.armour = armourb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end 
-                        if imgui.Checkbox(u8 "Спец. оружие", specb)then cfg.autobp.spec = specb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                        if imgui.Checkbox(u8 "ГЃГ°Г®Г­Гї", armourb) then cfg.autobp.armour = armourb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end 
+                        if imgui.Checkbox(u8 "Г‘ГЇГҐГ¶. Г®Г°ГіГ¦ГЁГҐ", specb)then cfg.autobp.spec = specb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                     end
                     imgui.EndChild()
                 else
-                    imgui.SetCursorPosX( imgui.GetWindowWidth()/2 - imgui.CalcTextSize(u8 "Выберите вашу группу фракций").x/2 - 50 )
+                    imgui.SetCursorPosX( imgui.GetWindowWidth()/2 - imgui.CalcTextSize(u8 "Г‚Г»ГЎГҐГ°ГЁГІГҐ ГўГ ГёГі ГЈГ°ГіГЇГЇГі ГґГ°Г ГЄГ¶ГЁГ©").x/2 - 50 )
                     imgui.SetCursorPosY( imgui.GetWindowHeight()/2 )
                     imgui.PushItemWidth(100)
-                    imgui.Combo(u8 'Выберите вашу группу фракций', groupInt, groupNames)
+                    imgui.Combo(u8 'Г‚Г»ГЎГҐГ°ГЁГІГҐ ГўГ ГёГі ГЈГ°ГіГЇГЇГі ГґГ°Г ГЄГ¶ГЁГ©', groupInt, groupNames)
                     imgui.SetCursorPosX( imgui.GetWindowWidth()/2 - 50 )
-                    if imgui.Button(u8 'Подтвердить') then
-                        ftext(("Вы выбрали группу: {9966CC}%s"):format(u8:decode(groupNames[groupInt.v + 1])))
+                    if imgui.Button(u8 'ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј') then
+                        ftext(("Г‚Г» ГўГ»ГЎГ°Г Г«ГЁ ГЈГ°ГіГЇГЇГі: {9966CC}%s"):format(u8:decode(groupNames[groupInt.v + 1])))
                         cfg.main.group = u8:decode(groupNames[groupInt.v + 1])
                         saveData(cfg, 'moonloader/config/fbitools/config.json')
                         registerCommands()
@@ -3968,7 +3968,7 @@ if limgui then
             local iScreenWidth, iScreenHeight = getScreenResolution()
             imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(iScreenWidth/2, iScreenHeight / 2), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | Шпора'), shpwindow)
+            imgui.Begin(u8(script.this.name..' | ГГЇГ®Г°Г '), shpwindow)
             for line in io.lines('moonloader\\fbitools\\shp.txt') do
                 imgui.TextWrapped(u8(line))
             end
@@ -3979,7 +3979,7 @@ if limgui then
             local iScreenWidth, iScreenHeight = getScreenResolution()
             imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(iScreenWidth/2, iScreenHeight / 2), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | Административный кодекс'), akwindow)
+            imgui.Begin(u8(script.this.name..' | ГЂГ¤Г¬ГЁГ­ГЁГ±ГІГ°Г ГІГЁГўГ­Г»Г© ГЄГ®Г¤ГҐГЄГ±'), akwindow)
             for line in io.lines('moonloader\\fbitools\\ak.txt') do
                 imgui.TextWrapped(u8(line))
             end
@@ -3990,7 +3990,7 @@ if limgui then
             local iScreenWidth, iScreenHeight = getScreenResolution()
             imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(iScreenWidth/2, iScreenHeight / 2), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | Федеральное постановление'), fpwindow)
+            imgui.Begin(u8(script.this.name..' | Г”ГҐГ¤ГҐГ°Г Г«ГјГ­Г®ГҐ ГЇГ®Г±ГІГ Г­Г®ГўГ«ГҐГ­ГЁГҐ'), fpwindow)
             for line in io.lines('moonloader\\fbitools\\fp.txt') do
                 imgui.TextWrapped(u8(line))
             end
@@ -4001,7 +4001,7 @@ if limgui then
             local iScreenWidth, iScreenHeight = getScreenResolution()
             imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(iScreenWidth/2, iScreenHeight / 2), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | Уголовный кодекс'), ykwindow)
+            imgui.Begin(u8(script.this.name..' | Г“ГЈГ®Г«Г®ГўГ­Г»Г© ГЄГ®Г¤ГҐГЄГ±'), ykwindow)
             for line in io.lines('moonloader\\fbitools\\yk.txt') do
                 imgui.TextWrapped(u8(line))
             end
@@ -4014,13 +4014,13 @@ if limgui then
             --imgui.SetWindowSize('##' .. thisScript().name, imgui.ImVec2(670, 500))
             imgui.SetNextWindowPos(imgui.ImVec2(sw / 2, sh / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(670, 330), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | Список сотрудников [Всего: %s]'):format(#tMembers), memw, imgui.WindowFlags.NoResize)
+            imgui.Begin(u8(script.this.name..' | Г‘ГЇГЁГ±Г®ГЄ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ®Гў [Г‚Г±ГҐГЈГ®: %s]'):format(#tMembers), memw, imgui.WindowFlags.NoResize)
             imgui.BeginChild('##1', imgui.ImVec2(670, 300))
             imgui.Columns(5, _)
-            imgui.SetColumnWidth(-1, 180) imgui.Text(u8 'Ник игрока'); imgui.NextColumn()
-            imgui.SetColumnWidth(-1, 190) imgui.Text(u8 'Должность');  imgui.NextColumn()
-            imgui.SetColumnWidth(-1, 80) imgui.Text(u8 'Статус') imgui.NextColumn()
-            imgui.SetColumnWidth(-1, 120) imgui.Text(u8 'Дата приема') imgui.NextColumn() 
+            imgui.SetColumnWidth(-1, 180) imgui.Text(u8 'ГЌГЁГЄ ГЁГЈГ°Г®ГЄГ '); imgui.NextColumn()
+            imgui.SetColumnWidth(-1, 190) imgui.Text(u8 'Г„Г®Г«Г¦Г­Г®Г±ГІГј');  imgui.NextColumn()
+            imgui.SetColumnWidth(-1, 80) imgui.Text(u8 'Г‘ГІГ ГІГіГ±') imgui.NextColumn()
+            imgui.SetColumnWidth(-1, 120) imgui.Text(u8 'Г„Г ГІГ  ГЇГ°ГЁГҐГ¬Г ') imgui.NextColumn() 
             imgui.SetColumnWidth(-1, 70) imgui.Text(u8 'AFK') imgui.NextColumn() 
             imgui.Separator()
             for _, v in ipairs(tMembers) do
@@ -4028,14 +4028,14 @@ if limgui then
                 if imgui.IsItemHovered() then
                     imgui.BeginTooltip();
                     imgui.PushTextWrapPos(450.0);
-                    imgui.TextColored(imgui.ImVec4(getColor(v.id)), u8("%s\nУровень: %s"):format(v.nickname, sampGetPlayerScore(v.id)))
+                    imgui.TextColored(imgui.ImVec4(getColor(v.id)), u8("%s\nГ“Г°Г®ГўГҐГ­Гј: %s"):format(v.nickname, sampGetPlayerScore(v.id)))
                     imgui.PopTextWrapPos();
                     imgui.EndTooltip();
                 end
                 imgui.NextColumn()
                 imgui.Text(('%s [%s]'):format(v.sRang, v.iRang))
                 imgui.NextColumn()
-                if v.status ~= u8("На работе") then
+                if v.status ~= u8("ГЌГ  Г°Г ГЎГ®ГІГҐ") then
                     imgui.TextColored(imgui.ImVec4(0.80, 0.00, 0.00, 1.00), v.status);
                 else
                     imgui.TextColored(imgui.ImVec4(0.00, 0.80, 0.00, 1.00), v.status);
@@ -4045,12 +4045,12 @@ if limgui then
                 imgui.NextColumn()
                 if v.sec ~= 0 then
                     if v.sec < 360 then 
-                        imgui.TextColored(getColorForSeconds(v.sec), tostring(v.sec .. u8(' сек.')));
+                        imgui.TextColored(getColorForSeconds(v.sec), tostring(v.sec .. u8(' Г±ГҐГЄ.')));
                     else
-                        imgui.TextColored(getColorForSeconds(v.sec), tostring("360+" .. u8(' сек.')));
+                        imgui.TextColored(getColorForSeconds(v.sec), tostring("360+" .. u8(' Г±ГҐГЄ.')));
                     end
                 else
-                    imgui.TextColored(imgui.ImVec4(0.00, 0.80, 0.00, 1.00), u8("Нет"));
+                    imgui.TextColored(imgui.ImVec4(0.00, 0.80, 0.00, 1.00), u8("ГЌГҐГІ"));
                 end
                 imgui.NextColumn()
             end
@@ -4066,10 +4066,10 @@ if lsampev then
         if gmegafhandle ~= -1 and id == gmegafid then
             sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
             sampAddChatMessage('', 0x9966cc)
-            sampAddChatMessage(' {ffffff}Игрок: {9966cc}'..sampGetPlayerNickname(gmegafid)..'['..gmegafid..'] {ffffff}вышел из игры', 0x9966cc)
-            sampAddChatMessage(' {ffffff}Уровень: {9966cc}'..gmegaflvl, 0x9966cc)
-            sampAddChatMessage(' {ffffff}Фракция: {9966cc}'..gmegaffrak, 0x9966cc)
-            sampAddChatMessage(' {ffffff}Причина выхода: {9966cc}'..quitReason[reason], 0x9966CC)
+            sampAddChatMessage(' {ffffff}Г€ГЈГ°Г®ГЄ: {9966cc}'..sampGetPlayerNickname(gmegafid)..'['..gmegafid..'] {ffffff}ГўГ»ГёГҐГ« ГЁГ§ ГЁГЈГ°Г»', 0x9966cc)
+            sampAddChatMessage(' {ffffff}Г“Г°Г®ГўГҐГ­Гј: {9966cc}'..gmegaflvl, 0x9966cc)
+            sampAddChatMessage(' {ffffff}Г”Г°Г ГЄГ¶ГЁГї: {9966cc}'..gmegaffrak, 0x9966cc)
+            sampAddChatMessage(' {ffffff}ГЏГ°ГЁГ·ГЁГ­Г  ГўГ»ГµГ®Г¤Г : {9966cc}'..quitReason[reason], 0x9966CC)
             sampAddChatMessage('', 0x9966cc)
             sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
             gmegafid = -1
@@ -4083,29 +4083,29 @@ if lsampev then
         if cfg.main.clistb and rabden then
             lua_thread.create(function()
                 wait(1400)
-                ftext('Цвет ника сменен на: {9966cc}' .. cfg.main.clist)
+                ftext('Г–ГўГҐГІ Г­ГЁГЄГ  Г±Г¬ГҐГ­ГҐГ­ Г­Г : {9966cc}' .. cfg.main.clist)
                 sampSendChat('/clist '..cfg.main.clist)
             end)
         end
     end
 
     function sp.onServerMessage(color, text)
-        if text:find("У данного игрока уже есть") and ins.isLicense then
+        if text:find("Г“ Г¤Г Г­Г­Г®ГЈГ® ГЁГЈГ°Г®ГЄГ  ГіГ¦ГҐ ГҐГ±ГІГј") and ins.isLicense then
             ins.isLicense = false
             ins.list = nil
         end
-        if text:match(" ^Вы начали преследование за преступником %S!$") then
-            local nick = text:match(" ^Вы начали преследование за преступником (%S)!$")
+        if text:match(" ^Г‚Г» Г­Г Г·Г Г«ГЁ ГЇГ°ГҐГ±Г«ГҐГ¤Г®ГўГ Г­ГЁГҐ Г§Г  ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ®Г¬ %S!$") then
+            local nick = text:match(" ^Г‚Г» Г­Г Г·Г Г«ГЁ ГЇГ°ГҐГ±Г«ГҐГ¤Г®ГўГ Г­ГЁГҐ Г§Г  ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ®Г¬ (%S)!$")
             local id = sampGetPlayerIdByNickname(nick)
             gmegafid = id
             gmegaflvl = sampGetPlayerScore(id)
             gmegaffrak = sampGetFraktionBySkin(id)
         end
         if nazhaloop then
-            if text:match('Посылать сообщение в /d можно раз в 10 секунд!') then
+            if text:match('ГЏГ®Г±Г»Г«Г ГІГј Г±Г®Г®ГЎГ№ГҐГ­ГЁГҐ Гў /d Г¬Г®Г¦Г­Г® Г°Г Г§ Гў 10 Г±ГҐГЄГіГ­Г¤!') then
                 zaproop = true
-                ftext('Не удалось подать в ООП игрока {9966cc}'..nikk..'{ffffff}. Повторить попытку?')
-                ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "))
+                ftext('ГЌГҐ ГіГ¤Г Г«Г®Г±Гј ГЇГ®Г¤Г ГІГј Гў ГЋГЋГЏ ГЁГЈГ°Г®ГЄГ  {9966cc}'..nikk..'{ffffff}. ГЏГ®ГўГІГ®Г°ГЁГІГј ГЇГ®ГЇГ»ГІГЄГі?')
+                ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "))
             end
             if nikk == nil then
                 dmoop = false
@@ -4122,11 +4122,11 @@ if lsampev then
                 nazhaloop = false
             end
         end
-        if (text:match('дело на имя .+ рассмотрению не подлежит, ООП') or text:match('дело .+ рассмотрению не подлежит %- ООП.')) and color == -8224086 then
+        if (text:match('Г¤ГҐГ«Г® Г­Г  ГЁГ¬Гї .+ Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ') or text:match('Г¤ГҐГ«Г® .+ Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ %- ГЋГЋГЏ.')) and color == -8224086 then
             local ooptext = text:match('Mayor, (.+)')
             table.insert(ooplistt, ooptext)
         end
-        if text:find('{00AB06}Чтобы завести двигатель, нажмите клавишу {FFFFFF}"2"{00AB06} или введите команду {FFFFFF}"/en"') then
+        if text:find('{00AB06}Г—ГІГ®ГЎГ» Г§Г ГўГҐГ±ГІГЁ Г¤ГўГЁГЈГ ГІГҐГ«Гј, Г­Г Г¦Г¬ГЁГІГҐ ГЄГ«Г ГўГЁГёГі {FFFFFF}"2"{00AB06} ГЁГ«ГЁ ГўГўГҐГ¤ГЁГІГҐ ГЄГ®Г¬Г Г­Г¤Гі {FFFFFF}"/en"') then
             if cfg.main.autocar then
                 lua_thread.create(function()
                     while not isCharInAnyCar(PLAYER_PED) do wait(0) end
@@ -4147,42 +4147,42 @@ if lsampev then
             local colors = ("{%06X}"):format(bit.rshift(color, 8))
             table.insert(radio, os.date(colors.."[%H:%M:%S] ") .. text)
         end
-        if color == -3669760 and text:match('%[Wanted %d+: .+%] %[Сообщает%: .+%] %[.+%]') then
+        if color == -3669760 and text:match('%[Wanted %d+: .+%] %[Г‘Г®Г®ГЎГ№Г ГҐГІ%: .+%] %[.+%]') then
             local colors = ("{%06X}"):format(bit.rshift(color, 8))
             table.insert(wanted, os.date(colors.."[%H:%M:%S] ") .. text)
         end
-        if color == -65366 and (text:match('SMS%: .+. Отправитель%: .+') or text:match('SMS%: .+. Получатель%: .+')) then
-            if text:match('SMS%: .+. Отправитель%: .+%[%d+%]') then smsid = text:match('SMS%: .+. Отправитель%: .+%[(%d+)%]') elseif text:match('SMS%: .+. Получатель%: .+%[%d+%]') then smstoid = text:match('SMS%: .+. Получатель%: .+%[(%d+)%]') end
+        if color == -65366 and (text:match('SMS%: .+. ГЋГІГЇГ°Г ГўГЁГІГҐГ«Гј%: .+') or text:match('SMS%: .+. ГЏГ®Г«ГіГ·Г ГІГҐГ«Гј%: .+')) then
+            if text:match('SMS%: .+. ГЋГІГЇГ°Г ГўГЁГІГҐГ«Гј%: .+%[%d+%]') then smsid = text:match('SMS%: .+. ГЋГІГЇГ°Г ГўГЁГІГҐГ«Гј%: .+%[(%d+)%]') elseif text:match('SMS%: .+. ГЏГ®Г«ГіГ·Г ГІГҐГ«Гј%: .+%[%d+%]') then smstoid = text:match('SMS%: .+. ГЏГ®Г«ГіГ·Г ГІГҐГ«Гј%: .+%[(%d+)%]') end
             local colors = ("{%06X}"):format(bit.rshift(color, 8))
             table.insert(sms, os.date(colors.."[%H:%M:%S] ") .. text)
         end
         if mcheckb then
-            if text:find('---======== МОБИЛЬНЫЙ КОМПЬЮТЕР ДАННЫХ ========---') then
+            if text:find('---======== ГЊГЋГЃГ€Г‹ГњГЌГ›Г‰ ГЉГЋГЊГЏГњГћГ’Г…Гђ Г„ГЂГЌГЌГ›Г• ========---') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
             end
-            if text:find('Имя:') then
+            if text:find('Г€Г¬Гї:') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
             end
-            if text:find('Организация:') then
+            if text:find('ГЋГ°ГЈГ Г­ГЁГ§Г Г¶ГЁГї:') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
             end
-            if text:find('Преступление:') then
+            if text:find('ГЏГ°ГҐГ±ГІГіГЇГ«ГҐГ­ГЁГҐ:') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
             end
-            if text:find('Сообщил:') then
+            if text:find('Г‘Г®Г®ГЎГ№ГЁГ«:') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
             end
-            if text:find('Уровень розыска:') then
+            if text:find('Г“Г°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ :') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
@@ -4194,27 +4194,27 @@ if lsampev then
                 open:close()
             end
         end
-        if text:find('Вы посадили в тюрьму') then
-            local nik, sek = text:match('Вы посадили в тюрьму (%S+) на (%d+) секунд')
+        if text:find('Г‚Г» ГЇГ®Г±Г Г¤ГЁГ«ГЁ Гў ГІГѕГ°ГјГ¬Гі') then
+            local nik, sek = text:match('Г‚Г» ГЇГ®Г±Г Г¤ГЁГ«ГЁ Гў ГІГѕГ°ГјГ¬Гі (%S+) Г­Г  (%d+) Г±ГҐГЄГіГ­Г¤')
             if sek == '3600' or sek == '3000'  then
                 lua_thread.create(function()
                     nikk = nik:gsub('_', ' ')
                     aroop = true
                     wait(3000)
-                    ftext(string.format("Запретить рассмотр дела на имя {9966cc}%s", nikk), -1)
-                    ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                    ftext(string.format("Г‡Г ГЇГ°ГҐГІГЁГІГј Г°Г Г±Г±Г¬Г®ГІГ° Г¤ГҐГ«Г  Г­Г  ГЁГ¬Гї {9966cc}%s", nikk), -1)
+                    ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                 end)
             end
         end
-        if text:find('Вы посадили преступника на') then
-            local sekk = text:match('Вы посадили преступника на (.+) секунд!')
+        if text:find('Г‚Г» ГЇГ®Г±Г Г¤ГЁГ«ГЁ ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Г­Г ') then
+            local sekk = text:match('Г‚Г» ГЇГ®Г±Г Г¤ГЁГ«ГЁ ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Г­Г  (.+) Г±ГҐГЄГіГ­Г¤!')
             if sekk == '3000' or sekk == '3600' then
                 lua_thread.create(function()
                     nikk = sampGetPlayerNickname(tdmg)
                     dmoop = true
                     wait(50)
-                    ftext(string.format("Запретить рассмотр дела на имя {9966cc}%s", nikk:gsub('_', ' ')), -1)
-                    ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                    ftext(string.format("Г‡Г ГЇГ°ГҐГІГЁГІГј Г°Г Г±Г±Г¬Г®ГІГ° Г¤ГҐГ«Г  Г­Г  ГЁГ¬Гї {9966cc}%s", nikk:gsub('_', ' ')), -1)
+                    ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                 end)
             end
         end
@@ -4232,14 +4232,14 @@ if lsampev then
             if text:find("ID: %d+ | .+ | %g+: .+%[%d+%]") then
                 if not text:find("AFK") then
                     local id, invDate, nickname, sRang, iRang = text:match("ID: (%d+) | (.+) | (%g+): (.+)%[(%d+)%]")
-                    table.insert(tMembers, Player:new(id, sRang, iRang, "Недоступно", invDate, false, 0, nickname))
+                    table.insert(tMembers, Player:new(id, sRang, iRang, "ГЌГҐГ¤Г®Г±ГІГіГЇГ­Г®", invDate, false, 0, nickname))
                 else
                     local id, invDate, nickname, sRang, iRang, sec = text:match("ID: (%d+) | (.+) | (%g+): (.+)%[(%d+)%] | %{.+%}%[AFK%]: (%d+).+")
-                    table.insert(tMembers, Player:new(id, sRang, iRang, "Недоступно", invDate, true, sec, nickname))
+                    table.insert(tMembers, Player:new(id, sRang, iRang, "ГЌГҐГ¤Г®Г±ГІГіГЇГ­Г®", invDate, true, sec, nickname))
                 end
                 return false
             end
-            if text:match('Всего: %d+ человек') then
+            if text:match('Г‚Г±ГҐГЈГ®: %d+ Г·ГҐГ«Г®ГўГҐГЄ') then
                 gotovo = true
                 return false
             end
@@ -4252,12 +4252,12 @@ if lsampev then
         end
         if fnrstatus then
             if text:match("^ ID: %d+") then 
-                if text:find("Выходной") then
+                if text:find("Г‚Г»ГµГ®Г¤Г­Г®Г©") then
                     table.insert(vixodid, tonumber(text:match("ID: (%d+)")))
                 end
                 return false
             end
-            if text:match('Всего: %d+ человек') then
+            if text:match('Г‚Г±ГҐГЈГ®: %d+ Г·ГҐГ«Г®ГўГҐГЄ') then
                 gotovo = true
                 return false
             end
@@ -4269,44 +4269,44 @@ if lsampev then
             end
         end
         if warnst then
-            if text:find('Организация:') then
-                local wcfrac = text:match('Организация: (.+)')
+            if text:find('ГЋГ°ГЈГ Г­ГЁГ§Г Г¶ГЁГї:') then
+                local wcfrac = text:match('ГЋГ°ГЈГ Г­ГЁГ§Г Г¶ГЁГї: (.+)')
                 wfrac = wcfrac
-                if wcfrac == 'Армия СФ' or wcfrac == 'Армия ЛВ' or wcfrac == 'ФБР' then
+                if wcfrac == 'ГЂГ°Г¬ГЁГї Г‘Г”' or wcfrac == 'ГЂГ°Г¬ГЁГї Г‹Г‚' or wcfrac == 'Г”ГЃГђ' then
                     wfrac = longtoshort(wcfrac)
                 end
             end
         end
-        if text:find('Рабочий день начат') and color ~= -1 then
+        if text:find('ГђГ ГЎГ®Г·ГЁГ© Г¤ГҐГ­Гј Г­Г Г·Г ГІ') and color ~= -1 then
             if cfg.main.clistb then
                 lua_thread.create(function()
                     wait(100)
-                    ftext('Цвет ника сменен на: {9966cc}'..cfg.main.clist)
+                    ftext('Г–ГўГҐГІ Г­ГЁГЄГ  Г±Г¬ГҐГ­ГҐГ­ Г­Г : {9966cc}'..cfg.main.clist)
                     sampSendChat('/clist '..tonumber(cfg.main.clist))
                     rabden = true
                 end)
             end
         end
-        if text:find('Рабочий день окончен') and color ~= -1 then
+        if text:find('ГђГ ГЎГ®Г·ГЁГ© Г¤ГҐГ­Гј Г®ГЄГ®Г­Г·ГҐГ­') and color ~= -1 then
             rabden = false
         end
-        if text:find('Вы поменяли пули на резиновые') then
+        if text:find('Г‚Г» ГЇГ®Г¬ГҐГ­ГїГ«ГЁ ГЇГіГ«ГЁ Г­Г  Г°ГҐГ§ГЁГ­Г®ГўГ»ГҐ') then
             stazer = true
         end
-        if text:find('Вы поменяли пули на обычные') then
+        if text:find('Г‚Г» ГЇГ®Г¬ГҐГ­ГїГ«ГЁ ГЇГіГ«ГЁ Г­Г  Г®ГЎГ»Г·Г­Г»ГҐ') then
             stazer = false
         end
         if cfg.main.nclear then
-            if text:find('удалил из розыскиваемых') then
-                local chist, jertva = text:match('%[Clear%] (.+) удалил из розыскиваемых (.+)')
+            if text:find('ГіГ¤Г Г«ГЁГ« ГЁГ§ Г°Г®Г§Г»Г±ГЄГЁГўГ ГҐГ¬Г»Гµ') then
+                local chist, jertva = text:match('%[Clear%] (.+) ГіГ¤Г Г«ГЁГ« ГЁГ§ Г°Г®Г§Г»Г±ГЄГЁГўГ ГҐГ¬Г»Гµ (.+)')
                 printStringNow(chist..' cleared '..jertva..' from BD', 3000)
             end
         end
-        if text:find('Wanted') and text:find('Сообщает') then
-            local id, prestp, police, prichin = text:match('%[Wanted (%d+): (.+)%] %[Сообщает: (.+)%] %[(.+)%]')
+        if text:find('Wanted') and text:find('Г‘Г®Г®ГЎГ№Г ГҐГІ') then
+            local id, prestp, police, prichin = text:match('%[Wanted (%d+): (.+)%] %[Г‘Г®Г®ГЎГ№Г ГҐГІ: (.+)%] %[(.+)%]')
             if not cfg.main.offwntd then
                 if cfg.main.nwanted then
-                    return {0x9966CCFF, ' [{ffffff}Wanted '..id..': '..prestp..'{9966cc}] [{ffffff}Сообщает: '..police..'{9966cc}] [{ffffff}'..prichin..'{9966cc}]'}
+                    return {0x9966CCFF, ' [{ffffff}Wanted '..id..': '..prestp..'{9966cc}] [{ffffff}Г‘Г®Г®ГЎГ№Г ГҐГІ: '..police..'{9966cc}] [{ffffff}'..prichin..'{9966cc}]'}
                 end
             else
                 local mynick = sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
@@ -4314,16 +4314,16 @@ if lsampev then
                     return false
                 else
                     if cfg.main.nwanted then
-                        return {0x9966CCFF, ' [{ffffff}Wanted '..id..': '..prestp..'{9966cc}] [{ffffff}Сообщает: '..police..'{9966cc}] [{ffffff}'..prichin..'{9966cc}]'}
+                        return {0x9966CCFF, ' [{ffffff}Wanted '..id..': '..prestp..'{9966cc}] [{ffffff}Г‘Г®Г®ГЎГ№Г ГҐГІ: '..police..'{9966cc}] [{ffffff}'..prichin..'{9966cc}]'}
                     end
                 end
             end
         end
-        if text:find('начал преследование за преступником') then
-            local polic, prest, yrvn = text:match('Полицейский (.+) начал преследование за преступником (.+) %(Уровень розыска: (.+)%)')
+        if text:find('Г­Г Г·Г Г« ГЇГ°ГҐГ±Г«ГҐГ¤Г®ГўГ Г­ГЁГҐ Г§Г  ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ®Г¬') then
+            local polic, prest, yrvn = text:match('ГЏГ®Г«ГЁГ¶ГҐГ©Г±ГЄГЁГ© (.+) Г­Г Г·Г Г« ГЇГ°ГҐГ±Г«ГҐГ¤Г®ГўГ Г­ГЁГҐ Г§Г  ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ®Г¬ (.+) %(Г“Г°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ : (.+)%)')
             if not cfg.main.offptrl then
                 if cfg.main.nwanted then
-                    return {0xFFFFFFFF, ' Полицейский {9966cc}'..polic..' {ffffff}начал преследование за {9966cc}'..prest..' {ffffff}(Уровень розыска: {9966cc}'..yrvn..'{ffffff})'}
+                    return {0xFFFFFFFF, ' ГЏГ®Г«ГЁГ¶ГҐГ©Г±ГЄГЁГ© {9966cc}'..polic..' {ffffff}Г­Г Г·Г Г« ГЇГ°ГҐГ±Г«ГҐГ¤Г®ГўГ Г­ГЁГҐ Г§Г  {9966cc}'..prest..' {ffffff}(Г“Г°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ : {9966cc}'..yrvn..'{ffffff})'}
                 end
             else
                 local mynick = sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
@@ -4331,27 +4331,27 @@ if lsampev then
                     return false
                 else
                     if cfg.main.nwanted then
-                        return {0xFFFFFFFF, ' Полицейский {9966cc}'..polic..' {ffffff}начал преследование за {9966cc}'..prest..' {ffffff}(Уровень розыска: {9966cc}'..yrvn..'{ffffff})'}
+                        return {0xFFFFFFFF, ' ГЏГ®Г«ГЁГ¶ГҐГ©Г±ГЄГЁГ© {9966cc}'..polic..' {ffffff}Г­Г Г·Г Г« ГЇГ°ГҐГ±Г«ГҐГ¤Г®ГўГ Г­ГЁГҐ Г§Г  {9966cc}'..prest..' {ffffff}(Г“Г°Г®ГўГҐГ­Гј Г°Г®Г§Г»Г±ГЄГ : {9966cc}'..yrvn..'{ffffff})'}
                     end
                 end
             end
         end
         if cfg.main.nwanted then
-            if text:find('удалил из розыскиваемых') then
-                local chist, jertva = text:match('%[Clear%] (.+) удалил из розыскиваемых (.+)')
-                return {0x9966CCFF, ' [{ffffff}Clear{9966cc}] '..chist..'{ffffff} удалил из розыскиваемых {9966cc}'..jertva}
+            if text:find('ГіГ¤Г Г«ГЁГ« ГЁГ§ Г°Г®Г§Г»Г±ГЄГЁГўГ ГҐГ¬Г»Гµ') then
+                local chist, jertva = text:match('%[Clear%] (.+) ГіГ¤Г Г«ГЁГ« ГЁГ§ Г°Г®Г§Г»Г±ГЄГЁГўГ ГҐГ¬Г»Гµ (.+)')
+                return {0x9966CCFF, ' [{ffffff}Clear{9966cc}] '..chist..'{ffffff} ГіГ¤Г Г«ГЁГ« ГЁГ§ Г°Г®Г§Г»Г±ГЄГЁГўГ ГҐГ¬Г»Гµ {9966cc}'..jertva}
             end
-            if text:find('<<') and text:find('Офицер') and text:find('арестовал') and text:find('>>') then
-                local arr, arre = text:match('<< Офицер (.+) арестовал (.+) >>')
-                return {0xFFFFFFFF, ' « Офицер {9966CC}'..arr..' {ffffff}арестовал {9966cc}'..arre..' {ffffff}»'}
+            if text:find('<<') and text:find('ГЋГґГЁГ¶ГҐГ°') and text:find('Г Г°ГҐГ±ГІГ®ГўГ Г«') and text:find('>>') then
+                local arr, arre = text:match('<< ГЋГґГЁГ¶ГҐГ° (.+) Г Г°ГҐГ±ГІГ®ГўГ Г« (.+) >>')
+                return {0xFFFFFFFF, ' В« ГЋГґГЁГ¶ГҐГ° {9966CC}'..arr..' {ffffff}Г Г°ГҐГ±ГІГ®ГўГ Г« {9966cc}'..arre..' {ffffff}В»'}
             end
-            if text:find('<<') and text:find('Агент FBI') and text:find('арестовал') and text:find('>>') then
-                local arrr, arrre = text:match('<< Агент FBI (.+) арестовал (.+) >>')
-                return {0xFFFFFFFF, ' « Агент FBI {9966CC}'..arrr..' {ffffff}арестовал {9966cc}'..arrre..' {ffffff}»'}
+            if text:find('<<') and text:find('ГЂГЈГҐГ­ГІ FBI') and text:find('Г Г°ГҐГ±ГІГ®ГўГ Г«') and text:find('>>') then
+                local arrr, arrre = text:match('<< ГЂГЈГҐГ­ГІ FBI (.+) Г Г°ГҐГ±ГІГ®ГўГ Г« (.+) >>')
+                return {0xFFFFFFFF, ' В« ГЂГЈГҐГ­ГІ FBI {9966CC}'..arrr..' {ffffff}Г Г°ГҐГ±ГІГ®ГўГ Г« {9966cc}'..arrre..' {ffffff}В»'}
             end
-            if text:find('Вы посадили преступника на') then
-                local sekund = text:match('Вы посадили преступника на (%d+) секунд!')
-                return {0xFFFFFFFF, ' Вы посадили преступника на {9966cc}'..sekund..' {ffffff}секунд!'}
+            if text:find('Г‚Г» ГЇГ®Г±Г Г¤ГЁГ«ГЁ ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Г­Г ') then
+                local sekund = text:match('Г‚Г» ГЇГ®Г±Г Г¤ГЁГ«ГЁ ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Г­Г  (%d+) Г±ГҐГЄГіГ­Г¤!')
+                return {0xFFFFFFFF, ' Г‚Г» ГЇГ®Г±Г Г¤ГЁГ«ГЁ ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ  Г­Г  {9966cc}'..sekund..' {ffffff}Г±ГҐГЄГіГ­Г¤!'}
             end
         end
     end
@@ -4381,8 +4381,8 @@ if lsampev then
             end
         end
         if id == 0 and checkstat then
-            frak = text:match('.+Организация%:%s+(.+)%s+Ранг')
-            rang = text:match('.+Ранг%:%s+(.+)%s+Работа')
+            frak = text:match('.+ГЋГ°ГЈГ Г­ГЁГ§Г Г¶ГЁГї%:%s+(.+)%s+ГђГ Г­ГЈ')
+            rang = text:match('.+ГђГ Г­ГЈ%:%s+(.+)%s+ГђГ ГЎГ®ГІГ ')
             print(frak)
             print(rang)
             checkstat = false
@@ -4495,7 +4495,7 @@ function registerCommands()
     if sampIsChatCommandDefined('z') then sampUnregisterChatCommand('z') end
     if sampIsChatCommandDefined('pr') then sampUnregisterChatCommand('pr') end
     if isSampfuncsConsoleCommandDefined('gppc') then sampfuncsUnregisterConsoleCommand('gppc') end
-    if cfg.main.group == 'ПД/ФБР' then
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
         sampRegisterChatCommand('fkv', fkv)
         sampRegisterChatCommand('ticket', ticket)
         sampRegisterChatCommand('sulog', sulog)
@@ -4528,7 +4528,7 @@ function registerCommands()
         sampRegisterChatCommand('z', ssuz)
         sampRegisterChatCommand("pr", pr)
     end
-    if cfg.main.group == 'ПД/ФБР' or cfg.main.group == 'Мэрия' then sampRegisterChatCommand('ooplist', ooplist) end
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' or cfg.main.group == 'ГЊГЅГ°ГЁГї' then sampRegisterChatCommand('ooplist', ooplist) end
     sampRegisterChatCommand('fnr', fnr)
     sampRegisterChatCommand('yk', function() ykwindow.v = not ykwindow.v end)
     sampRegisterChatCommand('fp', function() fpwindow.v = not fpwindow.v end)
@@ -4553,41 +4553,41 @@ function registerCommands()
 end
 
 function registerSphere()
-    Sphere.createSphere(-1984.6375732422, 106.85540008545, 27.42943572998, 50.0)-- -1984.6375732422 106.85540008545 27.42943572998 -- АВСФ [1]
-    Sphere.createSphere(-2055.283203125, -84.472702026367, 35.064281463623, 50.0)-- -2055.283203125 -84.472702026367 35.064281463623 -- АШ [2]
-    Sphere.createSphere(-1521.4412841797, 503.20678710938, 6.7215604782104, 40.0)-- -1521.4412841797 503.20678710938 6.7215604782104 -- СФа [3]
-    Sphere.createSphere(-1702.3824462891, 684.79150390625, 25.01790618896, 30.0)-- -1702.3824462891 684.79150390625 25.017906188965 -- Пост В СФПД [4]
-    Sphere.createSphere(-1574.4406738281, 662.24047851563, 7.3254537582397, 20.0)-- -1574.4406738281 662.24047851563 7.3254537582397 Пост А СФПД [5]
-    Sphere.createSphere(-2013.1629638672, 464.77380371094, 35.313331604004, 30.0)-- -2013.1629638672 464.77380371094 35.313331604004 -- СФн [6]
-    Sphere.createSphere(-1749.7822265625, -591.34033203125, 16.62273979187, 100.0)-- -1749.7822265625 -591.34033203125 16.62273979187 -- Тоннель [7]
-    Sphere.createSphere(1481.77734375, -1739.9536132813, 13.546875, 70.0)-- 1481.77734375 -1739.9536132813 13.546875 -- Мэрия [8]
-    Sphere.createSphere(-2448.3591308594, 725.09326171875, 34.756977081299, 70.0)-- -2448.3591308594 725.09326171875 34.756977081299 -- Хот-Доги [9]
-    Sphere.createSphere(1186.5642089844, -1322.2257080078,13.098788261414, 50.0)-- 1186.5642089844 -1322.2257080078 13.098788261414 -- Больница ЛС [10]
-    Sphere.createSphere(1195.8181152344, -1741.1024169922, 13.131011962891, 70.0)-- 1195.8181152344 -1741.1024169922 13.131011962891 -- АВ ЛС [11]
-    Sphere.createSphere(1667.1462402344, -768.31890869141, 54.092594146729, 70.0)-- 1667.1462402344 -768.31890869141 54.092594146729 -- Мост ЛС-ЛВ [12]
-    Sphere.createSphere(1766.12109375,   874.89379882813,   10.887091636658, 70.0)-- 1820.5036621094 816.41632080078 10.8203125 -- Перекросток LVPD [13]
-    Sphere.createSphere(1155.6971435547, 831.9443359375, 10.409364700317, 80.0)-- 1155.6971435547 831.9443359375 10.409364700317 Развилка LVPD [14]
-    Sphere.createSphere(2033.3028564453, 1007.163269043, 10.8203125, 50.0)-- 2033.3028564453 1007.163269043 10.8203125 Постовой В LVPD [4 Дракона] [15]
-    Sphere.createSphere(2824.7353515625, 1292.9085693359, 10.764576911926, 50.0)-- 2824.7353515625 1292.9085693359 10.764576911926 Постовой А LVPD [АВЛВ] [16]
-    Sphere.createSphere(2180.99609375, 1676.2248535156, 11.060985565186, 50.0)-- 2180.99609375 1676.2248535156 11.060985565186 Постовой В LVPD [Каллигула] [17]
-    Sphere.createSphere(1727.3302001953, 1618.9171142578, 9.8169927597046, 50.0)-- 1727.3302001953 1618.9171142578 9.8169927597046 -- Пост С LVPD [18]
-    Sphere.createSphere(1545.6296386719, -1631.2828369141, 13.3828125, 50.0)-- 1545.6296386719 -1631.2828369141 13.3828125 -- КПП ЛСПД [19]
-    Sphere.createSphere(2753.5388183594, -2432.2268066406, 13.64318561554, 80.0)-- 2753.5388183594 -2432.2268066406 13.64318561554 -- Порт ЛС[20]
-    Sphere.createSphere(2293.4145507813, -1584.8774414063, 3.5703411102295, 670.0)--  2293.4145507813 -1584.8774414063 3.5703411102295 -- Патруль гетто [21]
-    Sphere.createSphere(186.95843505859, 1901.0294189453, 17.640625, 300.0)-- 186.95843505859 1901.0294189453 17.640625 -- Патруль ЛВа [22]
-    Sphere.createSphere(-422, -1195, 60, 500.0)-- -422 -1195 60 --Юрисдикция ЛС - СФ [23]
-    Sphere.createSphere(1644, -25, 36, 300.0)-- 1644 -25 36 --Юрисдикция ЛС - ЛВ [24]
-    Sphere.createSphere(413, 625, 18, 300.0)-- 413 625 18 Юрисдикция ЛС- ЛВ 2 [25]
-    Sphere.createSphere(-129, 518, 8, 300.0)-- -129 518 8 Юрисдикция ЛС - ЛВ 3 [26]
-    Sphere.createSphere(-1003, 1285, 40, 300.0)-- -1003 1285 40 Юрисдикция СФ - ЛВ [27]
-    Sphere.createSphere(-2126, 2654, 53, 300.0)-- -2126 2654 53 Юрисдикция СФ - ЛВ 2 [28]
-    Sphere.createSphere(-1006, -442, 36, 300.0)-- -1006 -442 36 Юрисдикция ЛС - СФ 2 [29]
-    Sphere.createSphere(-1126, -2574, 72, 300.0)-- -1126 -2574 72 Юрисдикция ЛС - СФ 3 [30]
-    Sphere.createSphere(-1248, -2867, 64, 300.0)-- -1248 -2867 64 Юрисдикция ЛС- СФ 4 [31]
-    Sphere.createSphere(2238.6533203125,   2449.4895019531,   11.037217140198, 10.0) -- 2238.6533203125   2449.4895019531   11.037217140198 -- КПП ЛВПД [32]
+    Sphere.createSphere(-1984.6375732422, 106.85540008545, 27.42943572998, 50.0)-- -1984.6375732422 106.85540008545 27.42943572998 -- ГЂГ‚Г‘Г” [1]
+    Sphere.createSphere(-2055.283203125, -84.472702026367, 35.064281463623, 50.0)-- -2055.283203125 -84.472702026367 35.064281463623 -- ГЂГ [2]
+    Sphere.createSphere(-1521.4412841797, 503.20678710938, 6.7215604782104, 40.0)-- -1521.4412841797 503.20678710938 6.7215604782104 -- Г‘Г”Г  [3]
+    Sphere.createSphere(-1702.3824462891, 684.79150390625, 25.01790618896, 30.0)-- -1702.3824462891 684.79150390625 25.017906188965 -- ГЏГ®Г±ГІ Г‚ Г‘Г”ГЏГ„ [4]
+    Sphere.createSphere(-1574.4406738281, 662.24047851563, 7.3254537582397, 20.0)-- -1574.4406738281 662.24047851563 7.3254537582397 ГЏГ®Г±ГІ ГЂ Г‘Г”ГЏГ„ [5]
+    Sphere.createSphere(-2013.1629638672, 464.77380371094, 35.313331604004, 30.0)-- -2013.1629638672 464.77380371094 35.313331604004 -- Г‘Г”Г­ [6]
+    Sphere.createSphere(-1749.7822265625, -591.34033203125, 16.62273979187, 100.0)-- -1749.7822265625 -591.34033203125 16.62273979187 -- Г’Г®Г­Г­ГҐГ«Гј [7]
+    Sphere.createSphere(1481.77734375, -1739.9536132813, 13.546875, 70.0)-- 1481.77734375 -1739.9536132813 13.546875 -- ГЊГЅГ°ГЁГї [8]
+    Sphere.createSphere(-2448.3591308594, 725.09326171875, 34.756977081299, 70.0)-- -2448.3591308594 725.09326171875 34.756977081299 -- Г•Г®ГІ-Г„Г®ГЈГЁ [9]
+    Sphere.createSphere(1186.5642089844, -1322.2257080078,13.098788261414, 50.0)-- 1186.5642089844 -1322.2257080078 13.098788261414 -- ГЃГ®Г«ГјГ­ГЁГ¶Г  Г‹Г‘ [10]
+    Sphere.createSphere(1195.8181152344, -1741.1024169922, 13.131011962891, 70.0)-- 1195.8181152344 -1741.1024169922 13.131011962891 -- ГЂГ‚ Г‹Г‘ [11]
+    Sphere.createSphere(1667.1462402344, -768.31890869141, 54.092594146729, 70.0)-- 1667.1462402344 -768.31890869141 54.092594146729 -- ГЊГ®Г±ГІ Г‹Г‘-Г‹Г‚ [12]
+    Sphere.createSphere(1766.12109375,   874.89379882813,   10.887091636658, 70.0)-- 1820.5036621094 816.41632080078 10.8203125 -- ГЏГҐГ°ГҐГЄГ°Г®Г±ГІГ®ГЄ LVPD [13]
+    Sphere.createSphere(1155.6971435547, 831.9443359375, 10.409364700317, 80.0)-- 1155.6971435547 831.9443359375 10.409364700317 ГђГ Г§ГўГЁГ«ГЄГ  LVPD [14]
+    Sphere.createSphere(2033.3028564453, 1007.163269043, 10.8203125, 50.0)-- 2033.3028564453 1007.163269043 10.8203125 ГЏГ®Г±ГІГ®ГўГ®Г© Г‚ LVPD [4 Г„Г°Г ГЄГ®Г­Г ] [15]
+    Sphere.createSphere(2824.7353515625, 1292.9085693359, 10.764576911926, 50.0)-- 2824.7353515625 1292.9085693359 10.764576911926 ГЏГ®Г±ГІГ®ГўГ®Г© ГЂ LVPD [ГЂГ‚Г‹Г‚] [16]
+    Sphere.createSphere(2180.99609375, 1676.2248535156, 11.060985565186, 50.0)-- 2180.99609375 1676.2248535156 11.060985565186 ГЏГ®Г±ГІГ®ГўГ®Г© Г‚ LVPD [ГЉГ Г«Г«ГЁГЈГіГ«Г ] [17]
+    Sphere.createSphere(1727.3302001953, 1618.9171142578, 9.8169927597046, 50.0)-- 1727.3302001953 1618.9171142578 9.8169927597046 -- ГЏГ®Г±ГІ Г‘ LVPD [18]
+    Sphere.createSphere(1545.6296386719, -1631.2828369141, 13.3828125, 50.0)-- 1545.6296386719 -1631.2828369141 13.3828125 -- ГЉГЏГЏ Г‹Г‘ГЏГ„ [19]
+    Sphere.createSphere(2753.5388183594, -2432.2268066406, 13.64318561554, 80.0)-- 2753.5388183594 -2432.2268066406 13.64318561554 -- ГЏГ®Г°ГІ Г‹Г‘[20]
+    Sphere.createSphere(2293.4145507813, -1584.8774414063, 3.5703411102295, 670.0)--  2293.4145507813 -1584.8774414063 3.5703411102295 -- ГЏГ ГІГ°ГіГ«Гј ГЈГҐГІГІГ® [21]
+    Sphere.createSphere(186.95843505859, 1901.0294189453, 17.640625, 300.0)-- 186.95843505859 1901.0294189453 17.640625 -- ГЏГ ГІГ°ГіГ«Гј Г‹Г‚Г  [22]
+    Sphere.createSphere(-422, -1195, 60, 500.0)-- -422 -1195 60 --ГћГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГї Г‹Г‘ - Г‘Г” [23]
+    Sphere.createSphere(1644, -25, 36, 300.0)-- 1644 -25 36 --ГћГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГї Г‹Г‘ - Г‹Г‚ [24]
+    Sphere.createSphere(413, 625, 18, 300.0)-- 413 625 18 ГћГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГї Г‹Г‘- Г‹Г‚ 2 [25]
+    Sphere.createSphere(-129, 518, 8, 300.0)-- -129 518 8 ГћГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГї Г‹Г‘ - Г‹Г‚ 3 [26]
+    Sphere.createSphere(-1003, 1285, 40, 300.0)-- -1003 1285 40 ГћГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГї Г‘Г” - Г‹Г‚ [27]
+    Sphere.createSphere(-2126, 2654, 53, 300.0)-- -2126 2654 53 ГћГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГї Г‘Г” - Г‹Г‚ 2 [28]
+    Sphere.createSphere(-1006, -442, 36, 300.0)-- -1006 -442 36 ГћГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГї Г‹Г‘ - Г‘Г” 2 [29]
+    Sphere.createSphere(-1126, -2574, 72, 300.0)-- -1126 -2574 72 ГћГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГї Г‹Г‘ - Г‘Г” 3 [30]
+    Sphere.createSphere(-1248, -2867, 64, 300.0)-- -1248 -2867 64 ГћГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГї Г‹Г‘- Г‘Г” 4 [31]
+    Sphere.createSphere(2238.6533203125,   2449.4895019531,   11.037217140198, 10.0) -- 2238.6533203125   2449.4895019531   11.037217140198 -- ГЉГЏГЏ Г‹Г‚ГЏГ„ [32]
     Sphere.createSphere(2458.4575195313,   1340.5772705078,   10.9765625, 30) -- 2458.4575195313   1340.5772705078   10.9765625 -- LVPD D [33]
-    Sphere.createSphere(373.66720581055,   173.75173950195,   1008.3893432617, 30) -- 373.66720581055,   173.75173950195,   1008.3893432617 -- Холл мэрии [34]
-    Sphere.createSphere(361.3515, -1785.0653, 5.4350, 30) -- 361.3515,-1785.0653,5.4350 -- Автоярмарка [35]
+    Sphere.createSphere(373.66720581055,   173.75173950195,   1008.3893432617, 30) -- 373.66720581055,   173.75173950195,   1008.3893432617 -- Г•Г®Г«Г« Г¬ГЅГ°ГЁГЁ [34]
+    Sphere.createSphere(361.3515, -1785.0653, 5.4350, 30) -- 361.3515,-1785.0653,5.4350 -- ГЂГўГІГ®ГїГ°Г¬Г Г°ГЄГ  [35]
 end
 
 function registerHotKey()
@@ -4595,22 +4595,22 @@ function registerHotKey()
     vzaimbind = rkeys.registerHotKey(config_keys.vzaimkey.v, true, vzaimk)
     --pd/fbi
     tazerbind = rkeys.registerHotKey(config_keys.tazerkey.v, true, function() 
-        if cfg.main.group == 'ПД/ФБР' or cfg.main.group == 'Мэрия' then
+        if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' or cfg.main.group == 'ГЊГЅГ°ГЁГї' then
             sampSendChat('/tazer')
         end
     end)
     fastmenubind = rkeys.registerHotKey(config_keys.fastmenukey.v, true, function() 
-        if cfg.main.group == 'ПД/ФБР' then
+        if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
             lua_thread.create(function() 
-                submenus_show(fthmenuPD, '{9966cc}'..script.this.name.." {FFFFFF}| Быстрое меню") 
+                submenus_show(fthmenuPD, '{9966cc}'..script.this.name.." {FFFFFF}| ГЃГ»Г±ГІГ°Г®ГҐ Г¬ГҐГ­Гѕ") 
             end) 
-        elseif cfg.main.group == 'Автошкола' then
+        elseif cfg.main.group == 'ГЂГўГІГ®ГёГЄГ®Г«Г ' then
             lua_thread.create(function() 
-                submenus_show(fthmenuAS, '{9966cc}'..script.this.name.." {FFFFFF}| Быстрое меню") 
+                submenus_show(fthmenuAS, '{9966cc}'..script.this.name.." {FFFFFF}| ГЃГ»Г±ГІГ°Г®ГҐ Г¬ГҐГ­Гѕ") 
             end)
-        elseif cfg.main.group == "Медики" then
+        elseif cfg.main.group == "ГЊГҐГ¤ГЁГЄГЁ" then
             lua_thread.create(function() 
-                submenus_show(fthmenuMOH, '{9966cc}'..script.this.name.." {FFFFFF}| Быстрое меню") 
+                submenus_show(fthmenuMOH, '{9966cc}'..script.this.name.." {FFFFFF}| ГЃГ»Г±ГІГ°Г®ГҐ Г¬ГҐГ­Гѕ") 
             end)
         end
     end)
@@ -4637,7 +4637,7 @@ end
 function oopchat()
 	while true do wait(0)
         stext, sprefix, scolor, spcolor = sampGetChatString(99)
-        if cfg.main.group == 'ПД/ФБР' then
+        if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
             if zaproop then
                 if nikk ~= nil then
                     if stext:find(nikk) and scolor == 4294935170 then
@@ -4647,100 +4647,100 @@ function oopchat()
                             zaproop = false
                             nikk = nil
                             wait(100)
-                            ftext('Команду выполнил другой сотрудник.', -1)
+                            ftext('ГЉГ®Г¬Г Г­Г¤Гі ГўГ»ГЇГ®Г«Г­ГЁГ« Г¤Г°ГіГЈГ®Г© Г±Г®ГІГ°ГіГ¤Г­ГЁГЄ.', -1)
                         end
                     end
                 end
             end
             --if scolor == 4287467007 or scolor == 9276927 then
                 if frak == 'FBI' then
-                    if rang == 'Глава DEA' or rang == 'Глава CID' or rang == 'Инспектор FBI' or rang == 'Зам.Директора FBI' or rang == 'Директор FBI' then
-                        if stext:match('Переоделся в костюм агента') then
-                            local msrang, msnick = stext:match('(.+) (.+): Переоделся в костюм агента')
+                    if rang == 'ГѓГ«Г ГўГ  DEA' or rang == 'ГѓГ«Г ГўГ  CID' or rang == 'Г€Г­Г±ГЇГҐГЄГІГ®Г° FBI' or rang == 'Г‡Г Г¬.Г„ГЁГ°ГҐГЄГІГ®Г°Г  FBI' or rang == 'Г„ГЁГ°ГҐГЄГІГ®Г° FBI' then
+                        if stext:match('ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г±Гї Гў ГЄГ®Г±ГІГѕГ¬ Г ГЈГҐГ­ГІГ ') then
+                            local msrang, msnick = stext:match('(.+) (.+): ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г±Гї Гў ГЄГ®Г±ГІГѕГ¬ Г ГЈГҐГ­ГІГ ')
                             if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
                                 mssnyat = true
                                 msoffid = sampGetPlayerIdByNickname(msnick)
-                                ftext(('Агент {9966cc}%s {ffffff}хочет cнять маскировку'):format(msnick:gsub('_', ' ')))
-                                ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                                ftext(('ГЂГЈГҐГ­ГІ {9966cc}%s {ffffff}ГµГ®Г·ГҐГІ cГ­ГїГІГј Г¬Г Г±ГЄГЁГ°Г®ГўГЄГі'):format(msnick:gsub('_', ' ')))
+                                ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                             end
                         end
-                        if stext:match('Переоделась в костюм агента') then
-                            local msrang, msnick = stext:match('(.+) (.+): Переоделась в костюм агента')
+                        if stext:match('ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г Г±Гј Гў ГЄГ®Г±ГІГѕГ¬ Г ГЈГҐГ­ГІГ ') then
+                            local msrang, msnick = stext:match('(.+) (.+): ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г Г±Гј Гў ГЄГ®Г±ГІГѕГ¬ Г ГЈГҐГ­ГІГ ')
                             if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
                                 mssnyat = true
                                 msoffid = sampGetPlayerIdByNickname(msnick)
-                                ftext(('Агент {9966cc}%s {ffffff}хочет cнять маскировку'):format(msnick:gsub('_', ' ')))
-                                ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                                ftext(('ГЂГЈГҐГ­ГІ {9966cc}%s {ffffff}ГµГ®Г·ГҐГІ cГ­ГїГІГј Г¬Г Г±ГЄГЁГ°Г®ГўГЄГі'):format(msnick:gsub('_', ' ')))
+                                ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                             end
                         end
-                        if stext:match('Переоделся в сотрудника лаборатории') then
-                            local msrang, msnick = stext:match('(.+) (.+): Переоделся в сотрудника лаборатории')
+                        if stext:match('ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г±Гї Гў Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  Г«Г ГЎГ®Г°Г ГІГ®Г°ГЁГЁ') then
+                            local msrang, msnick = stext:match('(.+) (.+): ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г±Гї Гў Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  Г«Г ГЎГ®Г°Г ГІГ®Г°ГЁГЁ')
                             if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
                                 msid = sampGetPlayerIdByNickname(msnick)
-                                msvidat = "лаборатория"
-                                ftext(('Агент {9966cc}%s {ffffff}хочет взять форму {9966cc}сотрудника лаборатории{ffffff}'):format(msnick:gsub('_', ' ')))
-                                ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                                msvidat = "Г«Г ГЎГ®Г°Г ГІГ®Г°ГЁГї"
+                                ftext(('ГЂГЈГҐГ­ГІ {9966cc}%s {ffffff}ГµГ®Г·ГҐГІ ГўГ§ГїГІГј ГґГ®Г°Г¬Гі {9966cc}Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  Г«Г ГЎГ®Г°Г ГІГ®Г°ГЁГЁ{ffffff}'):format(msnick:gsub('_', ' ')))
+                                ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                             end
                         end
-                        if stext:match('Переоделась в сотрудника лаборатории') then
-                            local msrang, msnick = stext:match('(.+) (.+): Переоделась в сотрудника лаборатории')
+                        if stext:match('ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г Г±Гј Гў Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  Г«Г ГЎГ®Г°Г ГІГ®Г°ГЁГЁ') then
+                            local msrang, msnick = stext:match('(.+) (.+): ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г Г±Гј Гў Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  Г«Г ГЎГ®Г°Г ГІГ®Г°ГЁГЁ')
                             if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
                                 msid = sampGetPlayerIdByNickname(msnick)
-                                msvidat = "лаборатория"
-                                ftext(('Агент {9966cc}%s {ffffff}хочет взять форму {9966cc}сотрудника лаборатории{ffffff}'):format(msnick:gsub('_', ' ')))
-                                ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                                msvidat = "Г«Г ГЎГ®Г°Г ГІГ®Г°ГЁГї"
+                                ftext(('ГЂГЈГҐГ­ГІ {9966cc}%s {ffffff}ГµГ®Г·ГҐГІ ГўГ§ГїГІГј ГґГ®Г°Г¬Гі {9966cc}Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  Г«Г ГЎГ®Г°Г ГІГ®Г°ГЁГЁ{ffffff}'):format(msnick:gsub('_', ' ')))
+                                ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                             end
                         end
-                        if stext:match('Переоделся в форму .+. Причина: .+') then
-                            local msrang, msnick, msforma, msreason = stext:match('(.+) (.+): Переоделся в форму (.+). Причина: (.+)')
+                        if stext:match('ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г±Гї Гў ГґГ®Г°Г¬Гі .+. ГЏГ°ГЁГ·ГЁГ­Г : .+') then
+                            local msrang, msnick, msforma, msreason = stext:match('(.+) (.+): ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г±Гї Гў ГґГ®Г°Г¬Гі (.+). ГЏГ°ГЁГ·ГЁГ­Г : (.+)')
                             if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
                                 msid = sampGetPlayerIdByNickname(msnick)
                                 msvidat = msforma
-                                ftext(('Агент {9966cc}%s {ffffff}хочет взять маскировку {9966cc}%s{ffffff}. Причина: {9966cc}%s'):format(msnick:gsub('_', ' '), msforma, msreason))
-                                ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                                ftext(('ГЂГЈГҐГ­ГІ {9966cc}%s {ffffff}ГµГ®Г·ГҐГІ ГўГ§ГїГІГј Г¬Г Г±ГЄГЁГ°Г®ГўГЄГі {9966cc}%s{ffffff}. ГЏГ°ГЁГ·ГЁГ­Г : {9966cc}%s'):format(msnick:gsub('_', ' '), msforma, msreason))
+                                ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                             end
                         end
-                        if stext:match('Переоделась в форму .+. Причина: .+') then
-                            local msrang, msnick, msforma, msreason = stext:match('(.+) (.+): Переоделась в форму (.+). Причина: (.+)')
+                        if stext:match('ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г Г±Гј Гў ГґГ®Г°Г¬Гі .+. ГЏГ°ГЁГ·ГЁГ­Г : .+') then
+                            local msrang, msnick, msforma, msreason = stext:match('(.+) (.+): ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г Г±Гј Гў ГґГ®Г°Г¬Гі (.+). ГЏГ°ГЁГ·ГЁГ­Г : (.+)')
                             if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
                                 msid = sampGetPlayerIdByNickname(msnick)
                                 msvidat = forma
-                                ftext(('Агент {9966cc}%s {ffffff}хочет взять маскировку {9966cc}%s{ffffff}. Причина: {9966cc}%s'):format(msnick:gsub('_', ' '), msforma, msreason))
-                                ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                                ftext(('ГЂГЈГҐГ­ГІ {9966cc}%s {ffffff}ГµГ®Г·ГҐГІ ГўГ§ГїГІГј Г¬Г Г±ГЄГЁГ°Г®ГўГЄГі {9966cc}%s{ffffff}. ГЏГ°ГЁГ·ГЁГ­Г : {9966cc}%s'):format(msnick:gsub('_', ' '), msforma, msreason))
+                                ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                             end
                         end
                     end
                 end
-                if rang ~= 'Кадет' and rang ~= 'Офицер' and rang ~= 'Мл.Сержант' and  rang ~= 'Сержант' and  rang ~= 'Прапорщик' then
-                    if stext:find('Дело на имя .+ %(%d+%) рассмотрению не подлежит, ООП, объявите.') then
-                        local name, id = stext:match('Дело на имя (.+) %((%d+)%) рассмотрению не подлежит, ООП, объявите.')
+                if rang ~= 'ГЉГ Г¤ГҐГІ' and rang ~= 'ГЋГґГЁГ¶ГҐГ°' and rang ~= 'ГЊГ«.Г‘ГҐГ°Г¦Г Г­ГІ' and  rang ~= 'Г‘ГҐГ°Г¦Г Г­ГІ' and  rang ~= 'ГЏГ°Г ГЇГ®Г°Г№ГЁГЄ' then
+                    if stext:find('Г„ГҐГ«Г® Г­Г  ГЁГ¬Гї .+ %(%d+%) Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ, Г®ГЎГєГїГўГЁГІГҐ.') then
+                        local name, id = stext:match('Г„ГҐГ«Г® Г­Г  ГЁГ¬Гї (.+) %((%d+)%) Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ, Г®ГЎГєГїГўГЁГІГҐ.')
                         zaproop = true
                         nikk = name
                         if nikk ~= nil then
-                            ftext(string.format("Поступил запрос на объявление ООП игрока {9966cc}%s", nikk:gsub('_', ' ')), -1)
-                            ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                            ftext(string.format("ГЏГ®Г±ГІГіГЇГЁГ« Г§Г ГЇГ°Г®Г± Г­Г  Г®ГЎГєГїГўГ«ГҐГ­ГЁГҐ ГЋГЋГЏ ГЁГЈГ°Г®ГЄГ  {9966cc}%s", nikk:gsub('_', ' ')), -1)
+                            ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                         else
                             zaproop = false
                         end
                     end
-                    if stext:match('Дело .+ рассмотрению не подлежит %- ООП.') then
-                        local name = stext:match('Дело (.+) рассмотрению не подлежит %- ООП.')
+                    if stext:match('Г„ГҐГ«Г® .+ Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ %- ГЋГЋГЏ.') then
+                        local name = stext:match('Г„ГҐГ«Г® (.+) Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ %- ГЋГЋГЏ.')
                         zaproop = true
                         nikk = name
                         if nikk ~= nil then
-                            ftext(string.format("Поступил запрос на объявление ООП игрока {9966cc}%s", nikk:gsub('_', ' ')), -1)
-                            ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                            ftext(string.format("ГЏГ®Г±ГІГіГЇГЁГ« Г§Г ГЇГ°Г®Г± Г­Г  Г®ГЎГєГїГўГ«ГҐГ­ГЁГҐ ГЋГЋГЏ ГЁГЈГ°Г®ГЄГ  {9966cc}%s", nikk:gsub('_', ' ')), -1)
+                            ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                         else
                             zaproop = false
                         end
                     end
-                    if stext:match('Дело на имя .+ рассмотрению не подлежит, ООП.') then
-                        local name = stext:match('Дело на имя (.+) рассмотрению не подлежит, ООП.')
+                    if stext:match('Г„ГҐГ«Г® Г­Г  ГЁГ¬Гї .+ Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ.') then
+                        local name = stext:match('Г„ГҐГ«Г® Г­Г  ГЁГ¬Гї (.+) Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ.')
                         zaproop = true
                         nikk = name
                         if nikk ~= nil then
-                            ftext(string.format("Поступил запрос на объявление ООП игрока {9966cc}%s", nikk:gsub('_', ' ')), -1)
-                            ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                            ftext(string.format("ГЏГ®Г±ГІГіГЇГЁГ« Г§Г ГЇГ°Г®Г± Г­Г  Г®ГЎГєГїГўГ«ГҐГ­ГЁГҐ ГЋГЋГЏ ГЁГЈГ°Г®ГЄГ  {9966cc}%s", nikk:gsub('_', ' ')), -1)
+                            ftext('ГЏГ®Г¤ГІГўГҐГ°Г¤ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | ГЋГІГ¬ГҐГ­ГЁГІГј: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                         else
                             zaproop = false
                         end
@@ -4757,7 +4757,7 @@ function oopchat()
 end
 
 function oopdakey()
-    if cfg.main.group == 'ПД/ФБР' then
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
         if msvidat then
             msda = true
             sampSendChat('/spy '..msid)
@@ -4772,22 +4772,22 @@ function oopdakey()
             opyatstat = false
         end
         if zaproop then
-            sampSendChat(string.format('/d Mayor, дело на имя %s рассмотрению не подлежит, ООП', nikk:gsub('_', ' ')))
+            sampSendChat(string.format('/d Mayor, Г¤ГҐГ«Г® Г­Г  ГЁГ¬Гї %s Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ', nikk:gsub('_', ' ')))
             zaproop = false
             nazhaloop = true
         end
         if dmoop then
             if frak == 'FBI' or frak == 'LSPD' or frak == 'SFPD' or frak == 'LVPD' then
-                if rang == 'Кадет' or rang == 'Офицер' or rang == 'Мл.Сержант' or  rang == 'Сержант' or  rang == 'Прапорщик' then
+                if rang == 'ГЉГ Г¤ГҐГІ' or rang == 'ГЋГґГЁГ¶ГҐГ°' or rang == 'ГЊГ«.Г‘ГҐГ°Г¦Г Г­ГІ' or  rang == 'Г‘ГҐГ°Г¦Г Г­ГІ' or  rang == 'ГЏГ°Г ГЇГ®Г°Г№ГЁГЄ' then
                     if not cfg.main.tarb then
-                        sampSendChat(string.format('/r Дело на имя %s рассмотрению не подлежит, ООП.', nikk:gsub('_', ' ')))
+                        sampSendChat(string.format('/r Г„ГҐГ«Г® Г­Г  ГЁГ¬Гї %s Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ.', nikk:gsub('_', ' ')))
                         dmoop = false
                     else
-                        sampSendChat(string.format('/r [%s]: Дело на имя %s рассмотрению не подлежит, ООП.', cfg.main.tar, nikk:gsub('_', ' ')))
+                        sampSendChat(string.format('/r [%s]: Г„ГҐГ«Г® Г­Г  ГЁГ¬Гї %s Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ.', cfg.main.tar, nikk:gsub('_', ' ')))
                         dmoop = false
                     end
                 else
-                    sampSendChat(string.format('/d Mayor, дело на имя %s рассмотрению не подлежит, ООП КПЗ LSPD.', nikk:gsub('_', ' ')))
+                    sampSendChat(string.format('/d Mayor, Г¤ГҐГ«Г® Г­Г  ГЁГ¬Гї %s Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ ГЉГЏГ‡ LSPD.', nikk:gsub('_', ' ')))
                     dmoop = false
                     nazhaloop = true
                 end
@@ -4795,18 +4795,18 @@ function oopdakey()
         end
         if aroop then
             if frak == 'FBI' or frak == 'LSPD' or frak == 'SFPD' or frak == 'LVPD' then
-                if rang == 'Кадет' or rang == 'Офицер' or rang == 'Мл.Сержант' or  rang == 'Сержант' or  rang == 'Прапорщик' then
+                if rang == 'ГЉГ Г¤ГҐГІ' or rang == 'ГЋГґГЁГ¶ГҐГ°' or rang == 'ГЊГ«.Г‘ГҐГ°Г¦Г Г­ГІ' or  rang == 'Г‘ГҐГ°Г¦Г Г­ГІ' or  rang == 'ГЏГ°Г ГЇГ®Г°Г№ГЁГЄ' then
                     if not cfg.main.tarb then
-                        sampSendChat(string.format('/r Дело на имя %s рассмотрению не подлежит, ООП.', nikk:gsub('_', ' ')))
+                        sampSendChat(string.format('/r Г„ГҐГ«Г® Г­Г  ГЁГ¬Гї %s Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ.', nikk:gsub('_', ' ')))
                         aroop = false
                         nikk = nil
                     else
-                        sampSendChat(string.format('/r [%s]: Дело на имя %s рассмотрению не подлежит, ООП.', cfg.main.tar, nikk:gsub('_', ' ')))
+                        sampSendChat(string.format('/r [%s]: Г„ГҐГ«Г® Г­Г  ГЁГ¬Гї %s Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ.', cfg.main.tar, nikk:gsub('_', ' ')))
                         aroop = false
                         nikk = nil
                     end
                 else
-                    sampSendChat(string.format("/d Mayor, дело на имя %s рассмотрению не подлежит, ООП.", nikk:gsub('_', ' ')))
+                    sampSendChat(string.format("/d Mayor, Г¤ГҐГ«Г® Г­Г  ГЁГ¬Гї %s Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ.", nikk:gsub('_', ' ')))
                     aroop = false
                     --nikk = nil
                     nazhaloop = true
@@ -4817,7 +4817,7 @@ function oopdakey()
 end
 
 function oopnetkey()
-    if cfg.main.group == 'ПД/ФБР' then
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
         msid = nil
         msda = false
         msvidat = nil
@@ -4829,17 +4829,17 @@ function oopnetkey()
         if dmoop == true then
             dmoop = false
             nikk = nil
-            ftext("Рассмотр дела отменен.", -1)
+            ftext("ГђГ Г±Г±Г¬Г®ГІГ° Г¤ГҐГ«Г  Г®ГІГ¬ГҐГ­ГҐГ­.", -1)
         end
         if zaproop == true then
             zaproop = false
             nikk = nil
-            ftext("Рассмотр дела отменен.", -1)
+            ftext("ГђГ Г±Г±Г¬Г®ГІГ° Г¤ГҐГ«Г  Г®ГІГ¬ГҐГ­ГҐГ­.", -1)
         end
         if aroop == true then
             aroop = false
             nikk = nil
-            ftext("Рассмотр дела отменен.", -1)
+            ftext("ГђГ Г±Г±Г¬Г®ГІГ° Г¤ГҐГ«Г  Г®ГІГ¬ГҐГ­ГҐГ­.", -1)
         end
     end
 end
@@ -4914,34 +4914,34 @@ function main()
             [1] = {
                 text = "",
                 v = {},
-                name = 'Бинд1'
+                name = 'ГЃГЁГ­Г¤1'
             },
             [2] = {
                 text = "",
                 v = {},
-                name = 'Бинд2'
+                name = 'ГЃГЁГ­Г¤2'
             },
             [3] = {
                 text = "",
                 v = {},
-                name = 'Бинд3'
+                name = 'ГЃГЁГ­Г¤3'
             }
         }
     end
     saveData(tBindList, fileb)
     repeat wait(0) until isSampAvailable()
-    ftext(script.this.name..' успешно загружен. Введите: /ft что бы получить дополнительную информацию.')
-    ftext('Авторы: '..table.concat(script.this.authors))
-    print(("%s v%s: Успешно загружен"):format(script.this.name, script.this.version))
+    ftext(script.this.name..' ГіГ±ГЇГҐГёГ­Г® Г§Г ГЈГ°ГіГ¦ГҐГ­. Г‚ГўГҐГ¤ГЁГІГҐ: /ft Г·ГІГ® ГЎГ» ГЇГ®Г«ГіГ·ГЁГІГј Г¤Г®ГЇГ®Г«Г­ГЁГІГҐГ«ГјГ­ГіГѕ ГЁГ­ГґГ®Г°Г¬Г Г¶ГЁГѕ.')
+    ftext('ГЂГўГІГ®Г°Г»: '..table.concat(script.this.authors))
+    print(("%s v%s: Г“Г±ГЇГҐГёГ­Г® Г§Г ГЈГ°ГіГ¦ГҐГ­"):format(script.this.name, script.this.version))
     libs()
     registerCommands()
     registerSphere()
     registerHotKey()
     registerCommandsBinder()
-    if cfg.main.group == 'unknown' then ftext("Сейчас у вас не выбрана группа фракций. Большинство функций скрипта недоступны.")
-        ftext("Настроить группу можно в настройках скрипта.") 
+    if cfg.main.group == 'unknown' then ftext("Г‘ГҐГ©Г·Г Г± Гі ГўГ Г± Г­ГҐ ГўГ»ГЎГ°Г Г­Г  ГЈГ°ГіГЇГЇГ  ГґГ°Г ГЄГ¶ГЁГ©. ГЃГ®Г«ГјГёГЁГ­Г±ГІГўГ® ГґГіГ­ГЄГ¶ГЁГ© Г±ГЄГ°ГЁГЇГІГ  Г­ГҐГ¤Г®Г±ГІГіГЇГ­Г».")
+        ftext("ГЌГ Г±ГІГ°Г®ГЁГІГј ГЈГ°ГіГЇГЇГі Г¬Г®Г¦Г­Г® Гў Г­Г Г±ГІГ°Г®Г©ГЄГ Гµ Г±ГЄГ°ГЁГЇГІГ .") 
     else 
-        ftext("Загружены настройки для группы: {9966CC}"..cfg.main.group) 
+        ftext("Г‡Г ГЈГ°ГіГ¦ГҐГ­Г» Г­Г Г±ГІГ°Г®Г©ГЄГЁ Г¤Г«Гї ГЈГ°ГіГЇГЇГ»: {9966CC}"..cfg.main.group) 
     end
     update()
     mcheckf()
@@ -4956,7 +4956,7 @@ function main()
     for k, v in pairs(tBindList) do
         rkeys.registerHotKey(v.v, true, onHotKey)
         if v.time ~= nil then v.time = nil end
-        if v.name == nil then v.name = "Бинд"..k end
+        if v.name == nil then v.name = "ГЃГЁГ­Г¤"..k end
         v.text = v.text:gsub("%[enter%]", ""):gsub("{noenter}", "{noe}")
     end
     saveData(tBindList, fileb)
@@ -5005,10 +5005,10 @@ function main()
         if myskin == 280 or myskin == 265 or myskin == 266 or myskin == 267 or myskin == 281 or myskin == 282 or myskin == 288 or myskin == 284 or myskin == 285 or myskin == 304 or myskin == 305 or myskin == 306 or myskin == 307 or myskin == 309 or myskin == 283 or myskin == 286 or myskin == 287 or myskin == 252 or myskin == 279 or myskin == 163 or myskin == 164 or myskin == 165 or myskin == 166 then
             rabden = true
         end
-        if cfg.main.group == 'ПД/ФБР' then if sampGetFraktionBySkin(myid) == 'Полиция' or sampGetFraktionBySkin(myid) == 'FBI' or sampGetFraktionBySkin(myid) == 'Army' then rabden = true end
-        elseif cfg.main.group == 'Автошкола' then if sampGetFraktionBySkin(myid) == 'Автошкола' then rabden = true end
-        elseif cfg.main.group == 'МОН' then if sampGetFraktionBySkin(myid) == 'Медики' then rabden = true end
-        elseif cfg.main.group == 'Мэрия' then if sampGetFraktionBySkin(myid) == 'Мэрия' then rabden = true end
+        if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then if sampGetFraktionBySkin(myid) == 'ГЏГ®Г«ГЁГ¶ГЁГї' or sampGetFraktionBySkin(myid) == 'FBI' or sampGetFraktionBySkin(myid) == 'Army' then rabden = true end
+        elseif cfg.main.group == 'ГЂГўГІГ®ГёГЄГ®Г«Г ' then if sampGetFraktionBySkin(myid) == 'ГЂГўГІГ®ГёГЄГ®Г«Г ' then rabden = true end
+        elseif cfg.main.group == 'ГЊГЋГЌ' then if sampGetFraktionBySkin(myid) == 'ГЊГҐГ¤ГЁГЄГЁ' then rabden = true end
+        elseif cfg.main.group == 'ГЊГЅГ°ГЁГї' then if sampGetFraktionBySkin(myid) == 'ГЊГЅГ°ГЁГї' then rabden = true end
         end
         if sampIsDialogActive() == false and not isPauseMenuActive() and isPlayerPlaying(playerHandle) and sampIsChatInputActive() == false then
             if coordX ~= nil and coordY ~= nil then
@@ -5016,14 +5016,14 @@ function main()
                 cX = math.ceil(cX)
                 cY = math.ceil(cY)
                 cZ = math.ceil(cZ)
-                ftext('Метка установлена на '..kvadY..'-'..kvadX)
+                ftext('ГЊГҐГІГЄГ  ГіГ±ГІГ Г­Г®ГўГ«ГҐГ­Г  Г­Г  '..kvadY..'-'..kvadX)
                 placeWaypoint(coordX, coordY, 0)
                 coordX = nil
                 coordY = nil
             end
         end
         if not doesCharExist(gmegafhandle) and gmegafhandle ~= nil then
-            ftext(string.format('Игрок {9966cc}%s [%s] {ffffff}потерян из поля зрения', sampGetPlayerNickname(gmegafid), gmegafid))
+            ftext(string.format('Г€ГЈГ°Г®ГЄ {9966cc}%s [%s] {ffffff}ГЇГ®ГІГҐГ°ГїГ­ ГЁГ§ ГЇГ®Г«Гї Г§Г°ГҐГ­ГЁГї', sampGetPlayerNickname(gmegafid), gmegafid))
             gmegafid = -1
 			gmegaflvl = nil
 			gmegaffrak = nil
@@ -5063,20 +5063,20 @@ function main()
                         oopi = oopi + 1
                     end
                 end
-                ftext('Игрок {9966cc}'..oopdelnick..'{ffffff} был удален из списка ООП')
+                ftext('Г€ГЈГ°Г®ГЄ {9966cc}'..oopdelnick..'{ffffff} ГЎГ»Г« ГіГ¤Г Г«ГҐГ­ ГЁГ§ Г±ГЇГЁГ±ГЄГ  ГЋГЋГЏ')
             elseif button == 0 then
-                sampShowDialog(2458, '{9966cc}'..script.this.name.. '| {ffffff}Список ООП', table.concat(ooplistt, '\n'), '»', "x", 2)
+                sampShowDialog(2458, '{9966cc}'..script.this.name.. '| {ffffff}Г‘ГЇГЁГ±Г®ГЄ ГЋГЋГЏ', table.concat(ooplistt, '\n'), 'В»', "x", 2)
             end
         end
         if ooplresult then
             if button == 1 then
                 local ltext = sampGetListboxItemText(list)
-                if ltext:match("дело на имя .+ рассмотрению не подлежит, ООП") then
-                    oopdelnick = ltext:match("дело на имя (.+) рассмотрению не подлежит, ООП")
-                    sampShowDialog(2459, '{9966cc}'..script.this.name..' | {ffffff}Удаление из ООП', "{ffffff}Вы действительно желаете удалить {9966cc}"..oopdelnick.."\n{ffffff}Из списка ООП?", "»", "«", 0)
-                elseif ltext:match("дело .+ рассмотрению не подлежит %- ООП.") then
-                    oopdelnick = ltext:match("дело (.+) рассмотрению не подлежит %- ООП.")
-                    sampShowDialog(2459, '{9966cc}'..script.this.name..' | {ffffff}Удаление из ООП', "{ffffff}Вы действительно желаете удалить {9966cc}"..oopdelnick.."\n{ffffff}Из списка ООП?", "»", "«", 0)
+                if ltext:match("Г¤ГҐГ«Г® Г­Г  ГЁГ¬Гї .+ Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ") then
+                    oopdelnick = ltext:match("Г¤ГҐГ«Г® Г­Г  ГЁГ¬Гї (.+) Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ")
+                    sampShowDialog(2459, '{9966cc}'..script.this.name..' | {ffffff}Г“Г¤Г Г«ГҐГ­ГЁГҐ ГЁГ§ ГЋГЋГЏ', "{ffffff}Г‚Г» Г¤ГҐГ©Г±ГІГўГЁГІГҐГ«ГјГ­Г® Г¦ГҐГ«Г ГҐГІГҐ ГіГ¤Г Г«ГЁГІГј {9966cc}"..oopdelnick.."\n{ffffff}Г€Г§ Г±ГЇГЁГ±ГЄГ  ГЋГЋГЏ?", "В»", "В«", 0)
+                elseif ltext:match("Г¤ГҐГ«Г® .+ Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ %- ГЋГЋГЏ.") then
+                    oopdelnick = ltext:match("Г¤ГҐГ«Г® (.+) Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ %- ГЋГЋГЏ.")
+                    sampShowDialog(2459, '{9966cc}'..script.this.name..' | {ffffff}Г“Г¤Г Г«ГҐГ­ГЁГҐ ГЁГ§ ГЋГЋГЏ', "{ffffff}Г‚Г» Г¤ГҐГ©Г±ГІГўГЁГІГҐГ«ГјГ­Г® Г¦ГҐГ«Г ГҐГІГҐ ГіГ¤Г Г«ГЁГІГј {9966cc}"..oopdelnick.."\n{ffffff}Г€Г§ Г±ГЇГЁГ±ГЄГ  ГЋГЋГЏ?", "В»", "В«", 0)
                 end
             end
         end
@@ -5091,22 +5091,22 @@ function main()
                         end
                     end
                 else
-                    ftext('Вы не выбрали номер статьи.')
+                    ftext('Г‚Г» Г­ГҐ ГўГ»ГЎГ°Г Г«ГЁ Г­Г®Г¬ГҐГ° Г±ГІГ ГІГјГЁ.')
                 end
             end
         end
         if result16 then
             if input ~= '' and button == 1 then
                 if cfg.main.tarb then
-                    sampSendChat(string.format('/r [%s]: Запрашиваю эвакуацию в квадрат %s на %s', cfg.main.tar, kvadrat(), input))
+                    sampSendChat(string.format('/r [%s]: Г‡Г ГЇГ°Г ГёГЁГўГ Гѕ ГЅГўГ ГЄГіГ Г¶ГЁГѕ Гў ГЄГўГ Г¤Г°Г ГІ %s Г­Г  %s', cfg.main.tar, kvadrat(), input))
                 else
-                    sampSendChat(string.format('/r Запрашиваю эвакуацию в квадрат %s на %s', kvadrat(), input))
+                    sampSendChat(string.format('/r Г‡Г ГЇГ°Г ГёГЁГўГ Гѕ ГЅГўГ ГЄГіГ Г¶ГЁГѕ Гў ГЄГўГ Г¤Г°Г ГІ %s Г­Г  %s', kvadrat(), input))
                 end
             end
         end
         if result then
             if button == 1 then
-				sampSendChat(("/r %s в форму %s. Причина: %s"):format(cfg.main.male and 'Переоделся' or 'Переоделась', mstype, input))
+				sampSendChat(("/r %s Гў ГґГ®Г°Г¬Гі %s. ГЏГ°ГЁГ·ГЁГ­Г : %s"):format(cfg.main.male and 'ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г±Гї' or 'ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г Г±Гј', mstype, input))
 				wait(1400)
 				sampSendChat("/rb "..myid)
 				mstype = ''
@@ -5120,23 +5120,23 @@ function oop(pam)
     if frak == 'FBI' or frak == 'LSPD' or frak == 'SFPD' or frak == 'LVPD' then
         if pID ~= nil then
             if sampIsPlayerConnected(pID) then
-                if rang == 'Кадет' or rang == 'Офицер' or rang == 'Мл.Сержант' or  rang == 'Сержант' or  rang == 'Прапорщик' then
+                if rang == 'ГЉГ Г¤ГҐГІ' or rang == 'ГЋГґГЁГ¶ГҐГ°' or rang == 'ГЊГ«.Г‘ГҐГ°Г¦Г Г­ГІ' or  rang == 'Г‘ГҐГ°Г¦Г Г­ГІ' or  rang == 'ГЏГ°Г ГЇГ®Г°Г№ГЁГЄ' then
                     if not cfg.main.tarb then
-                        sampSendChat("/r Дело на имя "..sampGetPlayerNickname(pID):gsub('_', ' ').." рассмотрению не подлежит, ООП.")
+                        sampSendChat("/r Г„ГҐГ«Г® Г­Г  ГЁГ¬Гї "..sampGetPlayerNickname(pID):gsub('_', ' ').." Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ.")
                     else
-                        sampSendChat("/r ["..cfg.main.tar.."]: Дело на имя "..sampGetPlayerNickname(pID):gsub('_', ' ').." рассмотрению не подлежит, ООП.")
+                        sampSendChat("/r ["..cfg.main.tar.."]: Г„ГҐГ«Г® Г­Г  ГЁГ¬Гї "..sampGetPlayerNickname(pID):gsub('_', ' ').." Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ.")
                     end
                 else
-                    sampSendChat("/d Mayor, дело на имя "..sampGetPlayerNickname(pID):gsub('_', ' ').." рассмотрению не подлежит, ООП.")
+                    sampSendChat("/d Mayor, Г¤ГҐГ«Г® Г­Г  ГЁГ¬Гї "..sampGetPlayerNickname(pID):gsub('_', ' ').." Г°Г Г±Г±Г¬Г®ГІГ°ГҐГ­ГЁГѕ Г­ГҐ ГЇГ®Г¤Г«ГҐГ¦ГЁГІ, ГЋГЋГЏ.")
                 end
             else
-                ftext("Игрок с ID: "..pID.." не подключен к серверу")
+                ftext("Г€ГЈГ°Г®ГЄ Г± ID: "..pID.." Г­ГҐ ГЇГ®Г¤ГЄГ«ГѕГ·ГҐГ­ ГЄ Г±ГҐГ°ГўГҐГ°Гі")
             end
         else
-            ftext("Введите: /oop [id]")
+            ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /oop [id]")
         end
     else
-        ftext("Вы не сотрудник ПД/FBI")
+        ftext("Г‚Г» Г­ГҐ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄ ГЏГ„/FBI")
     end
 end
 
@@ -5144,7 +5144,7 @@ function tazer()
     lua_thread.create(function()
         sampSendChat("/tazer")
         wait(1400)
-        sampSendChat(('/me %s тип патронов'):format(cfg.main.male and 'сменил' or 'сменила'))
+        sampSendChat(('/me %s ГІГЁГЇ ГЇГ ГІГ°Г®Г­Г®Гў'):format(cfg.main.male and 'Г±Г¬ГҐГ­ГЁГ«' or 'Г±Г¬ГҐГ­ГЁГ«Г '))
     end)
 end
 
@@ -5156,10 +5156,10 @@ function su(pam)
                 submenus_show(sumenu(pID), "{9966cc}"..script.this.name.." {ffffff}| "..sampGetPlayerNickname(pID).."["..pID.."] ")
             end)
         else
-            ftext("Игрок с ID: "..pID.." не подключен к серверу")
+            ftext("Г€ГЈГ°Г®ГЄ Г± ID: "..pID.." Г­ГҐ ГЇГ®Г¤ГЄГ«ГѕГ·ГҐГ­ ГЄ Г±ГҐГ°ГўГҐГ°Гі")
         end
     else
-        ftext("Введите: /su [id]")
+        ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /su [id]")
     end
 end
 
@@ -5168,17 +5168,17 @@ function ssu(pam)
     if id and zv and orichina then
         sampSendChat(string.format('/su %s %s %s', id, zv, orichina))
     else
-        ftext('Введите: /ssu [id] [кол-во звезд] [причина]')
+        ftext('Г‚ГўГҐГ¤ГЁГІГҐ: /ssu [id] [ГЄГ®Г«-ГўГ® Г§ГўГҐГ§Г¤] [ГЇГ°ГЁГ·ГЁГ­Г ]')
     end
 end
 
 function keys()
     lua_thread.create(function()
-        sampSendChat(("/me %s ключ"):format(cfg.main.male and 'взял' or 'взяла'))
+        sampSendChat(("/me %s ГЄГ«ГѕГ·"):format(cfg.main.male and 'ГўГ§ГїГ«' or 'ГўГ§ГїГ«Г '))
         wait(cfg.commands.zaderjka)
-        sampSendChat("/me сравнивает ключ с ключом от КПЗ")
+        sampSendChat("/me Г±Г°Г ГўГ­ГЁГўГ ГҐГІ ГЄГ«ГѕГ· Г± ГЄГ«ГѕГ·Г®Г¬ Г®ГІ ГЉГЏГ‡")
         wait(cfg.commands.zaderjka)
-        sampSendChat(("/try %s, что ключи идентичны"):format(cfg.main.male and 'обнаружил', 'обнаружила'))
+        sampSendChat(("/try %s, Г·ГІГ® ГЄГ«ГѕГ·ГЁ ГЁГ¤ГҐГ­ГІГЁГ·Г­Г»"):format(cfg.main.male and 'Г®ГЎГ­Г Г°ГіГ¦ГЁГ«', 'Г®ГЎГ­Г Г°ГіГ¦ГЁГ«Г '))
     end)
 end
 
@@ -5190,21 +5190,21 @@ function cput(pam)
                 if sampIsPlayerConnected(id) then
                     if isCharInAnyCar(PLAYER_PED) then
                         if isCharOnAnyBike(PLAYER_PED) then
-                            sampSendChat(("/me %s %s на сиденье мотоцикла"):format(cfg.main.male and 'посадил' or 'посадила', sampGetPlayerNickname(id):gsub("_", ' ')))
+                            sampSendChat(("/me %s %s Г­Г  Г±ГЁГ¤ГҐГ­ГјГҐ Г¬Г®ГІГ®Г¶ГЁГЄГ«Г "):format(cfg.main.male and 'ГЇГ®Г±Г Г¤ГЁГ«' or 'ГЇГ®Г±Г Г¤ГЁГ«Г ', sampGetPlayerNickname(id):gsub("_", ' ')))
                             wait(1400)
                             sampSendChat(("/cput %s %s"):format(id, getFreeSeat()))
                         else
-                            sampSendChat(("/me %s дверь автомобиля и %s туда %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула', sampGetPlayerNickname(id):gsub("_", ' ')))
+                            sampSendChat(("/me %s Г¤ГўГҐГ°Гј Г ГўГІГ®Г¬Г®ГЎГЁГ«Гї ГЁ %s ГІГіГ¤Г  %s"):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'Г§Г ГІГ®Г«ГЄГ­ГіГ«' or 'Г§Г ГІГ®Г«ГЄГ­ГіГ«Г ', sampGetPlayerNickname(id):gsub("_", ' ')))
                             wait(1400)
                             sampSendChat(("/cput %s %s"):format(id, getFreeSeat()))
                         end
                     else
-                        sampSendChat(("/me %s дверь автомобиля и %s туда %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула', sampGetPlayerNickname(id):gsub("_", ' ')))
+                        sampSendChat(("/me %s Г¤ГўГҐГ°Гј Г ГўГІГ®Г¬Г®ГЎГЁГ«Гї ГЁ %s ГІГіГ¤Г  %s"):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'Г§Г ГІГ®Г«ГЄГ­ГіГ«' or 'Г§Г ГІГ®Г«ГЄГ­ГіГ«Г ', sampGetPlayerNickname(id):gsub("_", ' ')))
                         while not isCharInAnyCar(PLAYER_PED) do wait(0) end
                         sampSendChat(("/cput %s %s"):format(id, getFreeSeat()))
                     end
                 else
-                    ftext("Игрок оффлайн")
+                    ftext("Г€ГЈГ°Г®ГЄ Г®ГґГґГ«Г Г©Г­")
                 end
             elseif pam:match("^(%d+) (%d+)$") then
                 local id, seat = pam:match("^(%d+) (%d+)$")
@@ -5213,27 +5213,27 @@ function cput(pam)
                     if seat >=1 and seat <=3 then
                         if isCharInAnyCar(PLAYER_PED) then
                             if isCharOnAnyBike(PLAYER_PED) then
-                                sampSendChat(("/me %s %s на сиденье мотоцикла"):format(cfg.main.male and 'посадил' or 'посадила', sampGetPlayerNickname(id):gsub("_", ' ')))
+                                sampSendChat(("/me %s %s Г­Г  Г±ГЁГ¤ГҐГ­ГјГҐ Г¬Г®ГІГ®Г¶ГЁГЄГ«Г "):format(cfg.main.male and 'ГЇГ®Г±Г Г¤ГЁГ«' or 'ГЇГ®Г±Г Г¤ГЁГ«Г ', sampGetPlayerNickname(id):gsub("_", ' ')))
                                 wait(1400)
                                 sampSendChat(("/cput %s %s"):format(id, seat))
                             else
-                                sampSendChat(("/me %s дверь автомобиля и %s туда %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула', sampGetPlayerNickname(id):gsub("_", ' ')))
+                                sampSendChat(("/me %s Г¤ГўГҐГ°Гј Г ГўГІГ®Г¬Г®ГЎГЁГ«Гї ГЁ %s ГІГіГ¤Г  %s"):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'Г§Г ГІГ®Г«ГЄГ­ГіГ«' or 'Г§Г ГІГ®Г«ГЄГ­ГіГ«Г ', sampGetPlayerNickname(id):gsub("_", ' ')))
                                 wait(1400)
                                 sampSendChat(("/cput %s %s"):format(id, seat))
                             end
                         else
-                            sampSendChat(("/me %s дверь автомобиля и %s туда %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула', sampGetPlayerNickname(id):gsub("_", ' ')))
+                            sampSendChat(("/me %s Г¤ГўГҐГ°Гј Г ГўГІГ®Г¬Г®ГЎГЁГ«Гї ГЁ %s ГІГіГ¤Г  %s"):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'Г§Г ГІГ®Г«ГЄГ­ГіГ«' or 'Г§Г ГІГ®Г«ГЄГ­ГіГ«Г ', sampGetPlayerNickname(id):gsub("_", ' ')))
                             while not isCharInAnyCar(PLAYER_PED) do wait(0) end
                             sampSendChat(("/cput %s %s"):format(id, seat))
                         end
                     else
-                        ftext('Значение не должно быть меньше 1 и больше 3!')
+                        ftext('Г‡Г­Г Г·ГҐГ­ГЁГҐ Г­ГҐ Г¤Г®Г«Г¦Г­Г® ГЎГ»ГІГј Г¬ГҐГ­ГјГёГҐ 1 ГЁ ГЎГ®Г«ГјГёГҐ 3!')
                     end
                 else
-                    ftext('Игрок оффлайн')
+                    ftext('Г€ГЈГ°Г®ГЄ Г®ГґГґГ«Г Г©Г­')
                 end
             elseif #pam == 0 or not pam:match("^(%d+)$") or not pam:match("^(%d+) (%d+)$") then
-                ftext('Введите: /cput [id] [место(не обязательно)]')
+                ftext('Г‚ГўГҐГ¤ГЁГІГҐ: /cput [id] [Г¬ГҐГ±ГІГ®(Г­ГҐ Г®ГЎГїГ§Г ГІГҐГ«ГјГ­Г®)]')
             end
         else
             sampSendChat(('/cput %s'):format(pam))
@@ -5248,19 +5248,19 @@ function ceject(pam)
             if id ~= nil then
                 if sampIsPlayerConnected(id) then
                     if isCharOnAnyBike(PLAYER_PED) then
-                        sampSendChat(("/me %s %s с мотоцикла"):format(cfg.main.male and 'высадил' or 'высадила', sampGetPlayerNickname(id):gsub('_', ' ')))
+                        sampSendChat(("/me %s %s Г± Г¬Г®ГІГ®Г¶ГЁГЄГ«Г "):format(cfg.main.male and 'ГўГ»Г±Г Г¤ГЁГ«' or 'ГўГ»Г±Г Г¤ГЁГ«Г ', sampGetPlayerNickname(id):gsub('_', ' ')))
                         wait(1400)
                         sampSendChat(("/ceject %s"):format(id))
                     else
-                        sampSendChat(("/me %s дверь атвомобиля и %s %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'высадил' or 'высадила', sampGetPlayerNickname(id):gsub('_', ' ')))
+                        sampSendChat(("/me %s Г¤ГўГҐГ°Гј Г ГІГўГ®Г¬Г®ГЎГЁГ«Гї ГЁ %s %s"):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'ГўГ»Г±Г Г¤ГЁГ«' or 'ГўГ»Г±Г Г¤ГЁГ«Г ', sampGetPlayerNickname(id):gsub('_', ' ')))
                         wait(1400)
                         sampSendChat(("/ceject %s"):format(id))
                     end
                 else
-                    ftext('Игрок оффлайн')
+                    ftext('Г€ГЈГ°Г®ГЄ Г®ГґГґГ«Г Г©Г­')
                 end
             else
-                ftext('Введите: /ceject [id]')
+                ftext('Г‚ГўГҐГ¤ГЁГІГҐ: /ceject [id]')
             end
         else
             sampSendChat(("/ceject %s"):format(pam))
@@ -5272,22 +5272,22 @@ function st(pam)
     local id = tonumber(pam)
     local result, ped = sampGetCharHandleBySampPlayerId(id)
     if id == nil then
-        sampSendChat('/m ['..frak..'] Водитель, снизьте скорость и прижмитесь к обочине или мы откроем огонь!')
+        sampSendChat('/m ['..frak..'] Г‚Г®Г¤ГЁГІГҐГ«Гј, Г±Г­ГЁГ§ГјГІГҐ Г±ГЄГ®Г°Г®Г±ГІГј ГЁ ГЇГ°ГЁГ¦Г¬ГЁГІГҐГ±Гј ГЄ Г®ГЎГ®Г·ГЁГ­ГҐ ГЁГ«ГЁ Г¬Г» Г®ГІГЄГ°Г®ГҐГ¬ Г®ГЈГ®Г­Гј!')
     end
     if id ~= nil and not sampIsPlayerConnected(id) then
-        ftext(string.format('Игрок с ID: %s не подключен к серверу', id), -1)
+        ftext(string.format('Г€ГЈГ°Г®ГЄ Г± ID: %s Г­ГҐ ГЇГ®Г¤ГЄГ«ГѕГ·ГҐГ­ ГЄ Г±ГҐГ°ГўГҐГ°Гі', id), -1)
     end
     if result and not doesCharExist(ped) then
         local stname = sampGetPlayerNickname(id)
-        ftext(string.format('Игрок %s [%s] не доступен', stname, id), -1)
+        ftext(string.format('Г€ГЈГ°Г®ГЄ %s [%s] Г­ГҐ Г¤Г®Г±ГІГіГЇГҐГ­', stname, id), -1)
     end
     if result and doesCharExist(ped) and not isCharInAnyCar(ped) then
         local stnaame = sampGetPlayerNickname(id)
-        ftext(string.format('Игрок %s [%s] не в транспорте', stnaame, id), -1)
+        ftext(string.format('Г€ГЈГ°Г®ГЄ %s [%s] Г­ГҐ Гў ГІГ°Г Г­Г±ГЇГ®Г°ГІГҐ', stnaame, id), -1)
     end
     if result and doesCharExist(ped) and isCharInAnyCar(ped) then
         local vehName = tCarsName[getCarModel(storeCarCharIsInNoSave(ped))-399]
-        sampSendChat("/m Водитель Т/C "..vehName.." с гос.номером [EVL"..id.."X], прижмитесь к обочине и остановите своё Т/С")
+        sampSendChat("/m Г‚Г®Г¤ГЁГІГҐГ«Гј Г’/C "..vehName.." Г± ГЈГ®Г±.Г­Г®Г¬ГҐГ°Г®Г¬ [EVL"..id.."X], ГЇГ°ГЁГ¦Г¬ГЁГІГҐГ±Гј ГЄ Г®ГЎГ®Г·ГЁГ­ГҐ ГЁ Г®Г±ГІГ Г­Г®ГўГЁГІГҐ Г±ГўГ®Вё Г’/Г‘")
     end
 end
 
@@ -5300,24 +5300,24 @@ function deject(pam)
                     local result, ped = sampGetCharHandleBySampPlayerId(id)
                     if result then
                         if isCharInFlyingVehicle(ped) then
-                            sampSendChat(("/me %s дверь вертолёта и %s %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'вытащил' or 'вытащила', sampGetPlayerNickname(id):gsub('_', ' ')))
+                            sampSendChat(("/me %s Г¤ГўГҐГ°Гј ГўГҐГ°ГІГ®Г«ВёГІГ  ГЁ %s %s"):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'ГўГ»ГІГ Г№ГЁГ«' or 'ГўГ»ГІГ Г№ГЁГ«Г ', sampGetPlayerNickname(id):gsub('_', ' ')))
                         elseif isCharInModel(ped, 481) or isCharInModel(ped, 510) then
-                            sampSendChat(("/me %s %s с велосипеда"):format(cfg.main.male and 'скинул' or 'скинула', sampGetPlayerNickname(id):gsub('_', ' ')))
+                            sampSendChat(("/me %s %s Г± ГўГҐГ«Г®Г±ГЁГЇГҐГ¤Г "):format(cfg.main.male and 'Г±ГЄГЁГ­ГіГ«' or 'Г±ГЄГЁГ­ГіГ«Г ', sampGetPlayerNickname(id):gsub('_', ' ')))
                         elseif isCharInModel(ped, 462) then
-                            sampSendChat(("/me %s %s со скутера"):format(cfg.main.male and 'скинул' or 'скинула', sampGetPlayerNickname(id):gsub('_', ' ')))
+                            sampSendChat(("/me %s %s Г±Г® Г±ГЄГіГІГҐГ°Г "):format(cfg.main.male and 'Г±ГЄГЁГ­ГіГ«' or 'Г±ГЄГЁГ­ГіГ«Г ', sampGetPlayerNickname(id):gsub('_', ' ')))
                         elseif isCharOnAnyBike(ped) then
-                            sampSendChat(("/me %s %s с мотоцикла"):format(cfg.main.male and 'скинул' or 'скинула', sampGetPlayerNickname(id):gsub('_', ' ')))
+                            sampSendChat(("/me %s %s Г± Г¬Г®ГІГ®Г¶ГЁГЄГ«Г "):format(cfg.main.male and 'Г±ГЄГЁГ­ГіГ«' or 'Г±ГЄГЁГ­ГіГ«Г ', sampGetPlayerNickname(id):gsub('_', ' ')))
                         elseif isCharInAnyCar(ped) then
-                            sampSendChat(("/me %s окно и %s %s из машины"):format(cfg.main.male and 'разбил' or 'разбила', cfg.main.male and 'вытащил' or 'вытащила', sampGetPlayerNickname(id):gsub('_', ' ')))
+                            sampSendChat(("/me %s Г®ГЄГ­Г® ГЁ %s %s ГЁГ§ Г¬Г ГёГЁГ­Г»"):format(cfg.main.male and 'Г°Г Г§ГЎГЁГ«' or 'Г°Г Г§ГЎГЁГ«Г ', cfg.main.male and 'ГўГ»ГІГ Г№ГЁГ«' or 'ГўГ»ГІГ Г№ГЁГ«Г ', sampGetPlayerNickname(id):gsub('_', ' ')))
                         end
                         wait(1400)
                         sampSendChat(("/deject %s"):format(id))
                     end
                 else
-                    ftext('Игрок оффлайн')
+                    ftext('Г€ГЈГ°Г®ГЄ Г®ГґГґГ«Г Г©Г­')
                 end
             else
-                ftext("Введите: /deject [id]")
+                ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /deject [id]")
             end
         else
             sampSendChat(("/deject %s"):format(pam))
@@ -5328,32 +5328,32 @@ end
 function rh(id)
     local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
     if id == "" or id < "1" or id > "3" or id == nil then
-        ftext("Введите: /rh Департамент", -1)
+        ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /rh Г„ГҐГЇГ Г°ГІГ Г¬ГҐГ­ГІ", -1)
         ftext("1 - LSPD | 2 - SFPD | 3 - LVPD", -1)
     elseif id == "1" then
-        sampSendChat("/d LSPD, запрашиваю патрульный экипаж в "..kvadrat()..", как приняли? Ответ на пдж."..myid)
+        sampSendChat("/d LSPD, Г§Г ГЇГ°Г ГёГЁГўГ Гѕ ГЇГ ГІГ°ГіГ«ГјГ­Г»Г© ГЅГЄГЁГЇГ Г¦ Гў "..kvadrat()..", ГЄГ ГЄ ГЇГ°ГЁГ­ГїГ«ГЁ? ГЋГІГўГҐГІ Г­Г  ГЇГ¤Г¦."..myid)
     elseif id == "2" then
-        sampSendChat("/d SFPD, запрашиваю патрульный экипаж в "..kvadrat()..", как приняли? Ответ на пдж."..myid)
+        sampSendChat("/d SFPD, Г§Г ГЇГ°Г ГёГЁГўГ Гѕ ГЇГ ГІГ°ГіГ«ГјГ­Г»Г© ГЅГЄГЁГЇГ Г¦ Гў "..kvadrat()..", ГЄГ ГЄ ГЇГ°ГЁГ­ГїГ«ГЁ? ГЋГІГўГҐГІ Г­Г  ГЇГ¤Г¦."..myid)
     elseif id == "3" then
-        sampSendChat("/d LVPD, запрашиваю патрульный экипаж в "..kvadrat()..", как приняли? Ответ на пдж."..myid)
+        sampSendChat("/d LVPD, Г§Г ГЇГ°Г ГёГЁГўГ Гѕ ГЇГ ГІГ°ГіГ«ГјГ­Г»Г© ГЅГЄГЁГЇГ Г¦ Гў "..kvadrat()..", ГЄГ ГЄ ГЇГ°ГЁГ­ГїГ«ГЁ? ГЋГІГўГҐГІ Г­Г  ГЇГ¤Г¦."..myid)
     end
 end
 function gr(pam)
     local dep, reason = pam:match('(%d+)%s+(.+)')
     if dep == nil or reason == nil then
-        ftext("Введите: /gr [1-3] [Причина]")
+        ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /gr [1-3] [ГЏГ°ГЁГ·ГЁГ­Г ]")
         ftext("1 - LSPD | 2 - SFPD | 3 - LVPD")
     end
     if dep ~= nil then
         if dep == "" or dep < "1" or dep > "3" then
-            ftext("{9966CC}"..script.this.name.." {FFFFFF}| Введите: /gr [1-3] [Причина]")
+            ftext("{9966CC}"..script.this.name.." {FFFFFF}| Г‚ГўГҐГ¤ГЁГІГҐ: /gr [1-3] [ГЏГ°ГЁГ·ГЁГ­Г ]")
             ftext("{9966CC}"..script.this.name.." {FFFFFF}| 1 - LSPD | 2 - SFPD | 3 - LVPD")
         elseif dep == "1" then
-            sampSendChat("/d LSPD, пересекаю вашу юрисдикцию, "..reason)
+            sampSendChat("/d LSPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, "..reason)
         elseif dep == "2" then
-            sampSendChat("/d SFPD, пересекаю вашу юрисдикцию, "..reason)
+            sampSendChat("/d SFPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, "..reason)
         elseif dep == "3" then
-            sampSendChat("/d LVPD, пересекаю вашу юрисдикцию, "..reason)
+            sampSendChat("/d LVPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, "..reason)
         end
     end
 end
@@ -5361,7 +5361,7 @@ function warn(pam)
     local id = tonumber(pam)
     if frak == 'FBI' then
         if id == nil then
-            ftext('Введите /warn ID')
+            ftext('Г‚ГўГҐГ¤ГЁГІГҐ /warn ID')
         end
         if id ~= nil and sampIsPlayerConnected(id) then
             lua_thread.create(function()
@@ -5369,81 +5369,81 @@ function warn(pam)
                 sampSendChat('/mdc '..id)
                 wait(1400)
                 if wfrac == 'LSPD' or wfrac == 'SFPD' or wfrac == 'LVPD' then
-                    sampSendChat(string.format('/d %s, %s получает предупреждение за неправильную подачу в розыск.', wfrac, sampGetPlayerNickname(id):gsub('_', ' ')))
+                    sampSendChat(string.format('/d %s, %s ГЇГ®Г«ГіГ·Г ГҐГІ ГЇГ°ГҐГ¤ГіГЇГ°ГҐГ¦Г¤ГҐГ­ГЁГҐ Г§Г  Г­ГҐГЇГ°Г ГўГЁГ«ГјГ­ГіГѕ ГЇГ®Г¤Г Г·Гі Гў Г°Г®Г§Г»Г±ГЄ.', wfrac, sampGetPlayerNickname(id):gsub('_', ' ')))
                 else
-                    ftext('Человек не является сотрудником PD')
+                    ftext('Г—ГҐГ«Г®ГўГҐГЄ Г­ГҐ ГїГўГ«ГїГҐГІГ±Гї Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ®Г¬ PD')
                 end
                 wfrac = nil
                 warnst = false
             end)
         end
     else
-        ftext("Вы не сотрудник ФБР")
+        ftext("Г‚Г» Г­ГҐ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄ Г”ГЃГђ")
     end
 end
 function ms(pam)
 	lua_thread.create(function()
 		if frak == 'FBI' then
 			if pam == "" or pam < "0" or pam > "3" or pam == nil then
-				ftext("Введите: /ms [Тип]", -1)
-				ftext("0 - Снять маскировку | 1 - Офис | 2 - Багажник | 3 - Сумка", -1)
+				ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /ms [Г’ГЁГЇ]", -1)
+				ftext("0 - Г‘Г­ГїГІГј Г¬Г Г±ГЄГЁГ°Г®ГўГЄГі | 1 - ГЋГґГЁГ± | 2 - ГЃГ ГЈГ Г¦Г­ГЁГЄ | 3 - Г‘ГіГ¬ГЄГ ", -1)
 			elseif pam == '1' then
-				sampSendChat(("/me %s с себя костюм агента и %s на вешалку"):format(cfg.main.male and 'снял' or 'сняла', cfg.main.male and 'повесил' or 'повесила'))
+				sampSendChat(("/me %s Г± Г±ГҐГЎГї ГЄГ®Г±ГІГѕГ¬ Г ГЈГҐГ­ГІГ  ГЁ %s Г­Г  ГўГҐГёГ Г«ГЄГі"):format(cfg.main.male and 'Г±Г­ГїГ«' or 'Г±Г­ГїГ«Г ', cfg.main.male and 'ГЇГ®ГўГҐГ±ГЁГ«' or 'ГЇГ®ГўГҐГ±ГЁГ«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s ящик, после чего достал %s маскировки"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'достал' or 'достала'))
+				sampSendChat(("/me %s ГїГ№ГЁГЄ, ГЇГ®Г±Г«ГҐ Г·ГҐГЈГ® Г¤Г®Г±ГІГ Г« %s Г¬Г Г±ГЄГЁГ°Г®ГўГЄГЁ"):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г ', cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s на себя маскировку и %s ящик"):format(cfg.main.male and 'надел' or 'надела', cfg.main.male and 'закрыл' or 'закрыла'))
+				sampSendChat(("/me %s Г­Г  Г±ГҐГЎГї Г¬Г Г±ГЄГЁГ°Г®ГўГЄГі ГЁ %s ГїГ№ГЁГЄ"):format(cfg.main.male and 'Г­Г Г¤ГҐГ«' or 'Г­Г Г¤ГҐГ«Г ', cfg.main.male and 'Г§Г ГЄГ°Г»Г«' or 'Г§Г ГЄГ°Г»Г«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat("/do Агент в маскировке.")
+				sampSendChat("/do ГЂГЈГҐГ­ГІ Гў Г¬Г Г±ГЄГЁГ°Г®ГўГЄГҐ.")
 				wait(100)
 				submenus_show(osnova, "{9966cc}"..script.this.name.." {ffffff}| Mask")
 			elseif pam == '2' then
-				sampSendChat(("/me %s багажник автомобиля"):format(cfg.main.male and 'открыл' or 'открыла'))
+				sampSendChat(("/me %s ГЎГ ГЈГ Г¦Г­ГЁГЄ Г ГўГІГ®Г¬Г®ГЎГЁГ«Гї"):format(cfg.main.male and 'Г®ГІГЄГ°Г»Г«' or 'Г®ГІГЄГ°Г»Г«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s с себя костюм агента и %s в багажник"):format(cfg.main.male and 'снял' or 'сняла', cfg.main.male and 'убрал' or 'убрала'))
+				sampSendChat(("/me %s Г± Г±ГҐГЎГї ГЄГ®Г±ГІГѕГ¬ Г ГЈГҐГ­ГІГ  ГЁ %s Гў ГЎГ ГЈГ Г¦Г­ГЁГЄ"):format(cfg.main.male and 'Г±Г­ГїГ«' or 'Г±Г­ГїГ«Г ', cfg.main.male and 'ГіГЎГ°Г Г«' or 'ГіГЎГ°Г Г«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s из багажника комплект маскировки и %s на себя"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'надел' or 'надела'))
+				sampSendChat(("/me %s ГЁГ§ ГЎГ ГЈГ Г¦Г­ГЁГЄГ  ГЄГ®Г¬ГЇГ«ГҐГЄГІ Г¬Г Г±ГЄГЁГ°Г®ГўГЄГЁ ГЁ %s Г­Г  Г±ГҐГЎГї"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г ', cfg.main.male and 'Г­Г Г¤ГҐГ«' or 'Г­Г Г¤ГҐГ«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s багажник"):format(cfg.main.male and 'закрыл' or 'закрыла'))
+				sampSendChat(("/me %s ГЎГ ГЈГ Г¦Г­ГЁГЄ"):format(cfg.main.male and 'Г§Г ГЄГ°Г»Г«' or 'Г§Г ГЄГ°Г»Г«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat("/do Агент в маскировке.")
+				sampSendChat("/do ГЂГЈГҐГ­ГІ Гў Г¬Г Г±ГЄГЁГ°Г®ГўГЄГҐ.")
 				wait(100)
 				submenus_show(osnova, "{9966cc}"..script.this.name.." {ffffff}| Mask")
 			elseif pam == '3' then
-				sampSendChat("/do На плече агента висит сумка.")
+				sampSendChat("/do ГЌГ  ГЇГ«ГҐГ·ГҐ Г ГЈГҐГ­ГІГ  ГўГЁГ±ГЁГІ Г±ГіГ¬ГЄГ .")
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me открыв сумку, %s костюм агента и %s туда"):format(cfg.main.male and 'снял' or 'сняла', cfg.main.male and 'убрал' or 'убрала'))
+				sampSendChat(("/me Г®ГІГЄГ°Г»Гў Г±ГіГ¬ГЄГі, %s ГЄГ®Г±ГІГѕГ¬ Г ГЈГҐГ­ГІГ  ГЁ %s ГІГіГ¤Г "):format(cfg.main.male and 'Г±Г­ГїГ«' or 'Г±Г­ГїГ«Г ', cfg.main.male and 'ГіГЎГ°Г Г«' or 'ГіГЎГ°Г Г«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s из сумки комплект маскировки и %s на себя"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'надел' or 'надела'))
+				sampSendChat(("/me %s ГЁГ§ Г±ГіГ¬ГЄГЁ ГЄГ®Г¬ГЇГ«ГҐГЄГІ Г¬Г Г±ГЄГЁГ°Г®ГўГЄГЁ ГЁ %s Г­Г  Г±ГҐГЎГї"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г ', cfg.main.male and 'Г­Г Г¤ГҐГ«' or 'Г­Г Г¤ГҐГ«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s сумку"):format(cfg.main.male and 'закрыл' or 'закрыла'))
+				sampSendChat(("/me %s Г±ГіГ¬ГЄГі"):format(cfg.main.male and 'Г§Г ГЄГ°Г»Г«' or 'Г§Г ГЄГ°Г»Г«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat("/do Агент в маскировке.")
+				sampSendChat("/do ГЂГЈГҐГ­ГІ Гў Г¬Г Г±ГЄГЁГ°Г®ГўГЄГҐ.")
 				wait(100)
 				submenus_show(osnova, "{9966cc}"..script.this.name.." {ffffff}| Mask")
 			elseif pam == '0' then
-				sampSendChat(("/me %s с себя маскировку"):format(cfg.main.male and 'снял' or 'сняла'))
+				sampSendChat(("/me %s Г± Г±ГҐГЎГї Г¬Г Г±ГЄГЁГ°Г®ГўГЄГі"):format(cfg.main.male and 'Г±Г­ГїГ«' or 'Г±Г­ГїГ«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s на себя костюм агента"):format(cfg.main.male and 'надел' or 'надела'))
+				sampSendChat(("/me %s Г­Г  Г±ГҐГЎГї ГЄГ®Г±ГІГѕГ¬ Г ГЈГҐГ­ГІГ "):format(cfg.main.male and 'Г­Г Г¤ГҐГ«' or 'Г­Г Г¤ГҐГ«Г '))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/r %s в костюм агента"):format(cfg.main.male and 'Переоделся' or 'Переоделась'))
+				sampSendChat(("/r %s Гў ГЄГ®Г±ГІГѕГ¬ Г ГЈГҐГ­ГІГ "):format(cfg.main.male and 'ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г±Гї' or 'ГЏГҐГ°ГҐГ®Г¤ГҐГ«Г Г±Гј'))
 				wait(cfg.commands.zaderjka)
 				sampSendChat("/rb "..select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
 			end
 		else
-			ftext('Вы не сотрудник FBI')
+			ftext('Г‚Г» Г­ГҐ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄ FBI')
 		end
 	end)
 end
 
 function ar(id)
     if id == "" or id < "1" or id > "2" or id == nil then
-        ftext("Введите: /ar [1-2]", -1)
+        ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /ar [1-2]", -1)
         ftext("1 - LVa | 2 - SFa", -1)
     elseif id == "1" then
-        sampSendChat("/d LVa, разрешите въезд на вашу территорию, поимка преступника.")
+        sampSendChat("/d LVa, Г°Г Г§Г°ГҐГёГЁГІГҐ ГўГєГҐГ§Г¤ Г­Г  ГўГ ГёГі ГІГҐГ°Г°ГЁГІГ®Г°ГЁГѕ, ГЇГ®ГЁГ¬ГЄГ  ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ .")
     elseif id == "2" then
-        sampSendChat("/d SFa, разрешите въезд на вашу территорию, поимка преступника.")
+        sampSendChat("/d SFa, Г°Г Г§Г°ГҐГёГЁГІГҐ ГўГєГҐГ§Г¤ Г­Г  ГўГ ГёГі ГІГҐГ°Г°ГЁГІГ®Г°ГЁГѕ, ГЇГ®ГЁГ¬ГЄГ  ГЇГ°ГҐГ±ГІГіГЇГ­ГЁГЄГ .")
     end
 end
 
@@ -5455,7 +5455,7 @@ function r(pam)
             sampSendChat(string.format('/r %s', pam))
         end
     else
-        ftext('Введите /r [текст]')
+        ftext('Г‚ГўГҐГ¤ГЁГІГҐ /r [ГІГҐГЄГ±ГІ]')
     end
 end
 
@@ -5467,7 +5467,7 @@ function f(pam)
             sampSendChat(string.format('/f %s', pam))
         end
     else
-        ftext('Введите /f [текст]')
+        ftext('Г‚ГўГҐГ¤ГЁГІГҐ /f [ГІГҐГЄГ±ГІ]')
     end
 end
 
@@ -5478,10 +5478,10 @@ function fst(param)
         patch_samp_time_set(true)
         if time then
             setTimeOfDay(time, 0)
-            ftext('Время изменено на: {9966cc}'..time, -1)
+            ftext('Г‚Г°ГҐГ¬Гї ГЁГ§Г¬ГҐГ­ГҐГ­Г® Г­Г : {9966cc}'..time, -1)
         end
     else
-        ftext('Значение времени должно быть в диапазоне от 0 до 23.', -1)
+        ftext('Г‡Г­Г Г·ГҐГ­ГЁГҐ ГўГ°ГҐГ¬ГҐГ­ГЁ Г¤Г®Г«Г¦Г­Г® ГЎГ»ГІГј Гў Г¤ГЁГ ГЇГ Г§Г®Г­ГҐ Г®ГІ 0 Г¤Г® 23.', -1)
         patch_samp_time_set(false)
         time = nil
     end
@@ -5491,9 +5491,9 @@ function fsw(param)
     local weather = tonumber(param)
     if weather ~= nil and weather >= 0 and weather <= 45 then
         forceWeatherNow(weather)
-        ftext('Погода изменена на: {9966cc}'..weather, -1)
+        ftext('ГЏГ®ГЈГ®Г¤Г  ГЁГ§Г¬ГҐГ­ГҐГ­Г  Г­Г : {9966cc}'..weather, -1)
     else
-        ftext('Значение погоды должно быть в диапазоне от 0 до 45.', -1)
+        ftext('Г‡Г­Г Г·ГҐГ­ГЁГҐ ГЇГ®ГЈГ®Г¤Г» Г¤Г®Г«Г¦Г­Г® ГЎГ»ГІГј Гў Г¤ГЁГ ГЇГ Г§Г®Г­ГҐ Г®ГІ 0 Г¤Г® 45.', -1)
     end
 end
 
@@ -5517,7 +5517,7 @@ function fshp(pam)
         end
         f:close()
     else
-        ftext('Введите /fshp [текст]')
+        ftext('Г‚ГўГҐГ¤ГЁГІГҐ /fshp [ГІГҐГЄГ±ГІ]')
     end
 end
 function fyk(pam)
@@ -5530,7 +5530,7 @@ function fyk(pam)
         end
         f:close()
     else
-        ftext('Введите /fyk [текст]')
+        ftext('Г‚ГўГҐГ¤ГЁГІГҐ /fyk [ГІГҐГЄГ±ГІ]')
     end
 end
 
@@ -5544,7 +5544,7 @@ function ffp(pam)
         end
         f:close()
     else
-        ftext('Введите /ffp [текст]')
+        ftext('Г‚ГўГҐГ¤ГЁГІГҐ /ffp [ГІГҐГЄГ±ГІ]')
     end
 end
 
@@ -5558,7 +5558,7 @@ function fak(pam)
         end
         f:close()
     else
-        ftext('Введите /fak [текст]')
+        ftext('Г‚ГўГҐГ¤ГЁГІГҐ /fak [ГІГҐГЄГ±ГІ]')
     end
 end
 
@@ -5593,7 +5593,7 @@ function dmb()
 end
 
 function megaf()
-    if cfg.main.group == 'ПД/ФБР' then
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
         lua_thread.create(function()
             if isCharInAnyCar(PLAYER_PED) then
                 incar = {}
@@ -5609,7 +5609,7 @@ function megaf()
                             local dist = getDistanceBetweenCoords3d(myposx, myposy, myposz, pposx, pposy, pposz)
                             if dist <=65 then
                                 if getDriverOfCar(car) == ped then
-                                    if sampGetFraktionBySkin(v) ~= 'Полиция' then
+                                    if sampGetFraktionBySkin(v) ~= 'ГЏГ®Г«ГЁГ¶ГЁГї' then
                                         if storeCarCharIsInNoSave(ped) ~= storeCarCharIsInNoSave(PLAYER_PED) then
                                             if v ~= myvodil then
                                                 table.insert(incar, v)
@@ -5628,15 +5628,15 @@ function megaf()
                             if isCharInAnyCar(ped) then
                                 local carh = storeCarCharIsInNoSave(ped)
                                 local carhm = getCarModel(carh)
-                                sampSendChat(("/m Водитель а/м %s [EVL%sX]"):format(tCarsName[carhm-399], incar[1]))
+                                sampSendChat(("/m Г‚Г®Г¤ГЁГІГҐГ«Гј Г /Г¬ %s [EVL%sX]"):format(tCarsName[carhm-399], incar[1]))
                                 wait(1400)
-                                sampSendChat("/m Прижмитесь к обочине или мы откроем огонь!")
+                                sampSendChat("/m ГЏГ°ГЁГ¦Г¬ГЁГІГҐГ±Гј ГЄ Г®ГЎГ®Г·ГЁГ­ГҐ ГЁГ«ГЁ Г¬Г» Г®ГІГЄГ°Г®ГҐГ¬ Г®ГЈГ®Г­Гј!")
                                 wait(300)
                                 sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
                                 sampAddChatMessage('', 0x9966cc)
-                                sampAddChatMessage(' {ffffff}Ник: {9966cc}'..sampGetPlayerNickname(incar[1])..' ['..incar[1]..']', 0x9966cc)
-                                sampAddChatMessage(' {ffffff}Уровень: {9966cc}'..sampGetPlayerScore(incar[1]), 0x9966cc)
-                                sampAddChatMessage(' {ffffff}Фракция: {9966cc}'..sampGetFraktionBySkin(incar[1]), 0x9966cc)
+                                sampAddChatMessage(' {ffffff}ГЌГЁГЄ: {9966cc}'..sampGetPlayerNickname(incar[1])..' ['..incar[1]..']', 0x9966cc)
+                                sampAddChatMessage(' {ffffff}Г“Г°Г®ГўГҐГ­Гј: {9966cc}'..sampGetPlayerScore(incar[1]), 0x9966cc)
+                                sampAddChatMessage(' {ffffff}Г”Г°Г ГЄГ¶ГЁГї: {9966cc}'..sampGetFraktionBySkin(incar[1]), 0x9966cc)
                                 sampAddChatMessage('', 0x9966cc)
                                 sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
                                 gmegafid = incar[1]
@@ -5654,15 +5654,15 @@ function megaf()
                                 if doesCharExist(ped) then
                                     local carh = storeCarCharIsInNoSave(ped)
                                     local carhm = getCarModel(carh)
-                                    sampSendChat(("/m Водитель а/м %s [EVL%sX]"):format(tCarsName[carhm-399], v))
+                                    sampSendChat(("/m Г‚Г®Г¤ГЁГІГҐГ«Гј Г /Г¬ %s [EVL%sX]"):format(tCarsName[carhm-399], v))
                                     wait(1400)
-                                    sampSendChat("/m Прижмитесь к обочине или мы откроем огонь!")
+                                    sampSendChat("/m ГЏГ°ГЁГ¦Г¬ГЁГІГҐГ±Гј ГЄ Г®ГЎГ®Г·ГЁГ­ГҐ ГЁГ«ГЁ Г¬Г» Г®ГІГЄГ°Г®ГҐГ¬ Г®ГЈГ®Г­Гј!")
                                     wait(300)
                                     sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
                                     sampAddChatMessage('', 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}Ник: {9966cc}'..sampGetPlayerNickname(v)..' ['..v..']', 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}Уровень: {9966cc}'..sampGetPlayerScore(v), 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}Фракция: {9966cc}'..sampGetFraktionBySkin(v), 0x9966cc)
+                                    sampAddChatMessage(' {ffffff}ГЌГЁГЄ: {9966cc}'..sampGetPlayerNickname(v)..' ['..v..']', 0x9966cc)
+                                    sampAddChatMessage(' {ffffff}Г“Г°Г®ГўГҐГ­Гј: {9966cc}'..sampGetPlayerScore(v), 0x9966cc)
+                                    sampAddChatMessage(' {ffffff}Г”Г°Г ГЄГ¶ГЁГї: {9966cc}'..sampGetFraktionBySkin(v), 0x9966cc)
                                     sampAddChatMessage('', 0x9966cc)
                                     sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
                                     gmegafid = v
@@ -5676,63 +5676,63 @@ function megaf()
                     end
                 end
             else
-                ftext("Вам необходимо сидеть в транспорте")
+                ftext("Г‚Г Г¬ Г­ГҐГ®ГЎГµГ®Г¤ГЁГ¬Г® Г±ГЁГ¤ГҐГІГј Гў ГІГ°Г Г­Г±ГЇГ®Г°ГІГҐ")
             end
         end)
     end
 end
 
 function dkld()
-    if cfg.main.group == 'ПД/ФБР' then
+    if cfg.main.group == 'ГЏГ„/Г”ГЃГђ' then
         if isCharInAnyCar(PLAYER_PED) then
             if post ~= 7 and post ~= 12 and post ~= 13 and post ~= 14 and post ~= 18 and post ~= 21 and post ~= 22 and post ~= 23 and post ~= 24 and post ~= 25 and post ~= 26 and post ~= 27 and post ~= 28 and post ~= 29 and post ~= 30 and post ~= 31 then
                 if getCarSpeed(storeCarCharIsInNoSave(PLAYER_PED)) > 0 then
                     if frak == 'LSPD' then
                         if not cfg.main.tarb  then
-                            sampSendChat('/r Патруль г. Лос-Сантос. '..naparnik())
+                            sampSendChat('/r ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‹Г®Г±-Г‘Г Г­ГІГ®Г±. '..naparnik())
                         else
-                            sampSendChat('/r ['..cfg.main.tar..']: Патруль г. Лос-Сантос. '..naparnik())
+                            sampSendChat('/r ['..cfg.main.tar..']: ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‹Г®Г±-Г‘Г Г­ГІГ®Г±. '..naparnik())
                         end
                     elseif frak == 'SFPD' then
                         if not cfg.main.tarb then
-                            sampSendChat('/r Патруль г. Сан-Фиерро. '..naparnik())
+                            sampSendChat('/r ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‘Г Г­-Г”ГЁГҐГ°Г°Г®. '..naparnik())
                         else
-                            sampSendChat('/r ['..cfg.main.tar..']: Патруль г. Сан-Фиерро. '..naparnik())
+                            sampSendChat('/r ['..cfg.main.tar..']: ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‘Г Г­-Г”ГЁГҐГ°Г°Г®. '..naparnik())
                         end
                     elseif frak == 'LVPD' then
                         if not cfg.main.tarb then
-                            sampSendChat('/r Патруль г. Лас-Вентурас. '..naparnik())
+                            sampSendChat('/r ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‹Г Г±-Г‚ГҐГ­ГІГіГ°Г Г±. '..naparnik())
                         else
-                            sampSendChat('/r ['..cfg.main.tar..']: Патруль г. Лас-Вентурас. '..naparnik())
+                            sampSendChat('/r ['..cfg.main.tar..']: ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‹Г Г±-Г‚ГҐГ­ГІГіГ°Г Г±. '..naparnik())
                         end
                     end
                 else
                     if post ~= nil then
                         if getNameSphere(post) ~= nil then
                             if not cfg.main.tarb then
-                                sampSendChat('/r Пост: '..getNameSphere(post)..'. '..naparnik())
+                                sampSendChat('/r ГЏГ®Г±ГІ: '..getNameSphere(post)..'. '..naparnik())
                             else
-                                sampSendChat('/r ['..cfg.main.tar..']: Пост: '..getNameSphere(post)..'. '..naparnik())
+                                sampSendChat('/r ['..cfg.main.tar..']: ГЏГ®Г±ГІ: '..getNameSphere(post)..'. '..naparnik())
                             end
                         end
                     else
                         if frak == 'LSPD' then
                             if not cfg.main.tarb  then
-                                sampSendChat('/r Патруль г. Лос-Сантос. '..naparnik())
+                                sampSendChat('/r ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‹Г®Г±-Г‘Г Г­ГІГ®Г±. '..naparnik())
                             else
-                                sampSendChat('/r ['..cfg.main.tar..']: Патруль г. Лос-Сантос. '..naparnik())
+                                sampSendChat('/r ['..cfg.main.tar..']: ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‹Г®Г±-Г‘Г Г­ГІГ®Г±. '..naparnik())
                             end
                         elseif frak == 'SFPD' then
                             if not cfg.main.tarb then
-                                sampSendChat('/r Патруль г. Сан-Фиерро. '..naparnik())
+                                sampSendChat('/r ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‘Г Г­-Г”ГЁГҐГ°Г°Г®. '..naparnik())
                             else
-                                sampSendChat('/r ['..cfg.main.tar..']: Патруль г. Сан-Фиерро. '..naparnik())
+                                sampSendChat('/r ['..cfg.main.tar..']: ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‘Г Г­-Г”ГЁГҐГ°Г°Г®. '..naparnik())
                             end
                         elseif frak == 'LVPD' then
                             if not cfg.main.tarb then
-                                sampSendChat('/r Патруль г. Лас-Вентурас. '..naparnik())
+                                sampSendChat('/r ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‹Г Г±-Г‚ГҐГ­ГІГіГ°Г Г±. '..naparnik())
                             else
-                                sampSendChat('/r ['..cfg.main.tar..']: Патруль г. Лас-Вентурас. '..naparnik())
+                                sampSendChat('/r ['..cfg.main.tar..']: ГЏГ ГІГ°ГіГ«Гј ГЈ. Г‹Г Г±-Г‚ГҐГ­ГІГіГ°Г Г±. '..naparnik())
                             end
                         end
                     end
@@ -5740,105 +5740,105 @@ function dkld()
             end
             if post == 7 or post == 12 or post == 13 or post == 14 or post == 18 then
                 if not cfg.main.tarb then
-                    sampSendChat('/r Пост: '..getNameSphere(post)..'. '..naparnik())
+                    sampSendChat('/r ГЏГ®Г±ГІ: '..getNameSphere(post)..'. '..naparnik())
                 else
-                    sampSendChat('/r ['..cfg.main.tar..']: Пост: '..getNameSphere(post)..'. '..naparnik())
+                    sampSendChat('/r ['..cfg.main.tar..']: ГЏГ®Г±ГІ: '..getNameSphere(post)..'. '..naparnik())
                 end
             end
             if post == 21 then
                 if not cfg.main.tarb then
-                    sampSendChat('/r Патруль опасного района. '..naparnik())
+                    sampSendChat('/r ГЏГ ГІГ°ГіГ«Гј Г®ГЇГ Г±Г­Г®ГЈГ® Г°Г Г©Г®Г­Г . '..naparnik())
                 else
-                    sampSendChat('/r ['..cfg.main.tar..']: Патруль опасного района. '..naparnik())
+                    sampSendChat('/r ['..cfg.main.tar..']: ГЏГ ГІГ°ГіГ«Гј Г®ГЇГ Г±Г­Г®ГЈГ® Г°Г Г©Г®Г­Г . '..naparnik())
                 end
             end
             if post == 22 then
                 if cfg.main.tar == nil then
-                    sampSendChat('/r Патруль ЛВа. '..naparnik())
+                    sampSendChat('/r ГЏГ ГІГ°ГіГ«Гј Г‹Г‚Г . '..naparnik())
                 else
-                    sampSendChat('/r ['..cfg.main.tar..']: Патруль ЛВа. '..naparnik())
+                    sampSendChat('/r ['..cfg.main.tar..']: ГЏГ ГІГ°ГіГ«Гј Г‹Г‚Г . '..naparnik())
                 end
             end
             lua_thread.create(function()
                 if post == 23 then
                     if frak == 'LSPD' then
-                        sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d SFPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'SFPD' then
-                        sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LSPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'LVPD' then
-                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | Пересечение юрисдикции')
+                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | ГЏГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГҐ ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГЁ')
                     end
                 end
                 if post == 24 then
                     if frak == 'LSPD' then
-                        sampSendChat('/d LVPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LVPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'LVPD' then
-                        sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LSPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'SFPD' then
-                        submenus_show(yrisdkld1405, '{9966CC}'..script.this.name..'{ffffff} | Пересечение юрисдикции')
+                        submenus_show(yrisdkld1405, '{9966CC}'..script.this.name..'{ffffff} | ГЏГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГҐ ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГЁ')
                     end
                 end
                 if post == 25 then
                     if frak == 'LSPD' then
-                        sampSendChat('/d LVPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LVPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'LVPD' then
-                        sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LSPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'SFPD' then
-                        submenus_show(yrisdkld1405, '{9966CC}'..script.this.name..'{ffffff} | Пересечение юрисдикции')
+                        submenus_show(yrisdkld1405, '{9966CC}'..script.this.name..'{ffffff} | ГЏГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГҐ ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГЁ')
                     end
                 end
                 if post == 26 then
                     if frak == 'LSPD' then
-                        sampSendChat('/d LVPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LVPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'LVPD' then
-                        sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LSPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'SFPD' then
-                        submenus_show(yrisdkld1405, '{9966CC}'..script.this.name..'{ffffff} | Пересечение юрисдикции')
+                        submenus_show(yrisdkld1405, '{9966CC}'..script.this.name..'{ffffff} | ГЏГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГҐ ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГЁ')
                     end
                 end
                 if post == 27 then
                     if frak == 'LVPD' then
-                        sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d SFPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'SFPD' then
-                        sampSendChat('/d LVPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LVPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'LSPD' then
-                        submenus_show(yrisdkld1406, '{9966CC}'..script.this.name..'{ffffff} | Пересечение юрисдикции')
+                        submenus_show(yrisdkld1406, '{9966CC}'..script.this.name..'{ffffff} | ГЏГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГҐ ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГЁ')
                     end
                 end
                 if post == 28 then
                     if frak == 'LVPD' then
-                        sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d SFPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'SFPD' then
-                        sampSendChat('/d LVPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LVPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'LSPD' then
-                        submenus_show(yrisdkld1406, '{9966CC}'..script.this.name..'{ffffff} | Пересечение юрисдикции')
+                        submenus_show(yrisdkld1406, '{9966CC}'..script.this.name..'{ffffff} | ГЏГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГҐ ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГЁ')
                     end
                 end
                 if post == 29 then
                     if frak == 'LSPD' then
-                        sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d SFPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'SFPD' then
-                        sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LSPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'LVPD' then
-                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | Пересечение юрисдикции')
+                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | ГЏГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГҐ ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГЁ')
                     end
                 end
                 if post == 30 then
                     if frak == 'LSPD' then
-                        sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d SFPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'SFPD' then
-                        sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LSPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'LVPD' then
-                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | Пересечение юрисдикции')
+                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | ГЏГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГҐ ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГЁ')
                     end
                 end
                 if post == 31 then
                     if frak == 'LSPD' then
-                        sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d SFPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'SFPD' then
-                        sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                        sampSendChat('/d LSPD, ГЇГҐГ°ГҐГ±ГҐГЄГ Гѕ ГўГ ГёГі ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГѕ, ГЇГ®ГЈГ®Г­Гї.')
                     elseif frak == 'LVPD' then
-                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | Пересечение юрисдикции')
+                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | ГЏГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГҐ ГѕГ°ГЁГ±Г¤ГЁГЄГ¶ГЁГЁ')
                     end
                 end
             end)
@@ -5847,9 +5847,9 @@ function dkld()
             if post ~= nil then
                 if getNameSphere(post) ~= nil then
                     if not cfg.main.tarb then
-                        sampSendChat('/r Пост: '..getNameSphere(post)..'. '..naparnik())
+                        sampSendChat('/r ГЏГ®Г±ГІ: '..getNameSphere(post)..'. '..naparnik())
                     else
-                        sampSendChat('/r ['..cfg.main.tar..']: Пост: '..getNameSphere(post)..'. '..naparnik())
+                        sampSendChat('/r ['..cfg.main.tar..']: ГЏГ®Г±ГІ: '..getNameSphere(post)..'. '..naparnik())
                     end
                 end
             end
@@ -5862,9 +5862,9 @@ function kmdc(pam)
         local id = tonumber(pam)
         if id ~= nil then
             if sampIsPlayerConnected(id) then
-                sampSendChat(("/me %s КПК и %s фотографию человека"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сделал' or 'сделала'))
+                sampSendChat(("/me %s ГЉГЏГЉ ГЁ %s ГґГ®ГІГ®ГЈГ°Г ГґГЁГѕ Г·ГҐГ«Г®ГўГҐГЄГ "):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г ', cfg.main.male and 'Г±Г¤ГҐГ«Г Г«' or 'Г±Г¤ГҐГ«Г Г«Г '))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/do КПК дал информацию: Имя: %s."):format(sampGetPlayerNickname(id):gsub('_', ' ')))
+                sampSendChat(("/do ГЉГЏГЉ Г¤Г Г« ГЁГ­ГґГ®Г°Г¬Г Г¶ГЁГѕ: Г€Г¬Гї: %s."):format(sampGetPlayerNickname(id):gsub('_', ' ')))
                 wait(cfg.commands.zaderjka)
                 sampSendChat(("/mdc %s"):format(id))
                 if cfg.commands.kmdctime then
@@ -5876,10 +5876,10 @@ function kmdc(pam)
                     setVirtualKeyDown(key.VK_F8, false)
                 end
             else
-                ftext("Игрок оффлайн")
+                ftext("Г€ГЈГ°Г®ГЄ Г®ГґГґГ«Г Г©Г­")
             end
         else
-            ftext("Введите: /kmdc [id]")
+            ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /kmdc [id]")
         end
     end)
 end
@@ -5889,7 +5889,7 @@ function fvz(pam)
     local _, myid = sampGetPlayerIdByCharHandle(playerPed)
     if frak == 'FBI' then
         if id == nil then
-            ftext("Введите: /fvz [id]")
+            ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /fvz [id]")
         end
         if id ~= nil and sampIsPlayerConnected(id) then
             lua_thread.create(function()
@@ -5897,16 +5897,16 @@ function fvz(pam)
                 sampSendChat('/mdc '..id)
                 wait(1400)
                 if wfrac == 'LSPD' or wfrac == 'SFPD' or wfrac == 'LVPD' or wfrac == 'LVa' or wfrac == 'SFa' then
-                    sampSendChat(string.format('/d %s, %s, явитесь в офис ФБР со старшими. Как приняли? Ответ на пдж.%s', wfrac, sampGetPlayerNickname(id):gsub('_', ' '), myid))
+                    sampSendChat(string.format('/d %s, %s, ГїГўГЁГІГҐГ±Гј Гў Г®ГґГЁГ± Г”ГЃГђ Г±Г® Г±ГІГ Г°ГёГЁГ¬ГЁ. ГЉГ ГЄ ГЇГ°ГЁГ­ГїГ«ГЁ? ГЋГІГўГҐГІ Г­Г  ГЇГ¤Г¦.%s', wfrac, sampGetPlayerNickname(id):gsub('_', ' '), myid))
                 else
-                    ftext('Человек не является сотрудником PD/Army')
+                    ftext('Г—ГҐГ«Г®ГўГҐГЄ Г­ГҐ ГїГўГ«ГїГҐГІГ±Гї Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ®Г¬ PD/Army')
                 end
                 warnst = false
                 wfrac = nil
             end)
         end
     else
-        ftext("Вы не сотрудник ФБР")
+        ftext("Г‚Г» Г­ГҐ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄ Г”ГЃГђ")
     end
 end
 
@@ -5916,18 +5916,18 @@ function ftazer(pam)
         if cfg.commands.ftazer then
             if id ~= nil then
                 if id >=1 and id <=3 then
-                    sampSendChat(("/me %s из внутреннего кармана беруши"):format(cfg.main.male and 'достал' or 'достала'))
+                    sampSendChat(("/me %s ГЁГ§ ГўГ­ГіГІГ°ГҐГ­Г­ГҐГЈГ® ГЄГ Г°Г¬Г Г­Г  ГЎГҐГ°ГіГёГЁ"):format(cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
                     wait(1400)
-                    sampSendChat(("/me %s беруши и %s"):format(cfg.main.male and 'надел' or 'надела', cfg.main.male and 'зажмурился' or 'зажмурилась'))
+                    sampSendChat(("/me %s ГЎГҐГ°ГіГёГЁ ГЁ %s"):format(cfg.main.male and 'Г­Г Г¤ГҐГ«' or 'Г­Г Г¤ГҐГ«Г ', cfg.main.male and 'Г§Г Г¦Г¬ГіГ°ГЁГ«Г±Гї' or 'Г§Г Г¦Г¬ГіГ°ГЁГ«Г Г±Гј'))
                     wait(1400)
-                    sampSendChat(("/me %s светошумовую гранату"):format(cfg.main.male and 'бросил' or 'бросила'))
+                    sampSendChat(("/me %s Г±ГўГҐГІГ®ГёГіГ¬Г®ГўГіГѕ ГЈГ°Г Г­Г ГІГі"):format(cfg.main.male and 'ГЎГ°Г®Г±ГЁГ«' or 'ГЎГ°Г®Г±ГЁГ«Г '))
                     wait(1400)
                     sampSendChat(("/ftazer %s"):format(id))
                 else
-                    ftext("Значение не может быть ментше 1 и больше 3!")
+                    ftext("Г‡Г­Г Г·ГҐГ­ГЁГҐ Г­ГҐ Г¬Г®Г¦ГҐГІ ГЎГ»ГІГј Г¬ГҐГ­ГІГёГҐ 1 ГЁ ГЎГ®Г«ГјГёГҐ 3!")
                 end
             else
-                ftext("Введите: /ftazer [тип]")
+                ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /ftazer [ГІГЁГЇ]")
             end
         else
             sampSendChat(("/ftazer %s"):format(pam))
@@ -5945,7 +5945,7 @@ function fbd(pam)
     local id = tonumber(pam)
     if frak == 'FBI' then
         if id == nil then
-            ftext("Введите: /fbd [id]")
+            ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /fbd [id]")
         end
         if id ~= nil and sampIsPlayerConnected(id) then
             lua_thread.create(function()
@@ -5954,16 +5954,16 @@ function fbd(pam)
                 sampSendChat('/mdc '..id)
                 wait(1400)
                 if wfrac == 'LSPD' or wfrac == 'SFPD' or wfrac == 'LVPD' then
-                    sampSendChat(string.format('/d %s, %s, Причина изменения БД на п.%s', wfrac, sampGetPlayerNickname(id):gsub('_', ' '), myid))
+                    sampSendChat(string.format('/d %s, %s, ГЏГ°ГЁГ·ГЁГ­Г  ГЁГ§Г¬ГҐГ­ГҐГ­ГЁГї ГЃГ„ Г­Г  ГЇ.%s', wfrac, sampGetPlayerNickname(id):gsub('_', ' '), myid))
                 else
-                    ftext('Человек не является сотрудником PD')
+                    ftext('Г—ГҐГ«Г®ГўГҐГЄ Г­ГҐ ГїГўГ«ГїГҐГІГ±Гї Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ®Г¬ PD')
                 end
                 warnst = false
                 wfrac = nil
             end)
         end
     else
-        ftext("Вы не сотрудник ФБР")
+        ftext("Г‚Г» Г­ГҐ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄ Г”ГЃГђ")
     end
 end
 
@@ -5978,9 +5978,9 @@ function blg(pam)
     if id and frack and pric and sampIsPlayerConnected(id) then
         name = sampGetPlayerNickname(id)
         rpname = name:gsub('_', ' ')
-        sampSendChat(string.format("/d %s, благодарю %s за %s. Цените", frack, rpname, pric))
+        sampSendChat(string.format("/d %s, ГЎГ«Г ГЈГ®Г¤Г Г°Гѕ %s Г§Г  %s. Г–ГҐГ­ГЁГІГҐ", frack, rpname, pric))
     else
-        ftext("Введите: /blg [id] [Фракция] [Причина]", -1)
+        ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /blg [id] [Г”Г°Г ГЄГ¶ГЁГї] [ГЏГ°ГЁГ·ГЁГ­Г ]", -1)
     end
 end
 
@@ -6013,19 +6013,19 @@ function mcheck()
 end
 
 function dlog()
-    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Лог сообщений департамента', table.concat(departament, '\n'), '»', 'x', 0)
+    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Г‹Г®ГЈ Г±Г®Г®ГЎГ№ГҐГ­ГЁГ© Г¤ГҐГЇГ Г°ГІГ Г¬ГҐГ­ГІГ ', table.concat(departament, '\n'), 'В»', 'x', 0)
 end
 
 function rlog()
-    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Лог сообщений рации', table.concat(radio, '\n'), '»', 'x', 0)
+    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Г‹Г®ГЈ Г±Г®Г®ГЎГ№ГҐГ­ГЁГ© Г°Г Г¶ГЁГЁ', table.concat(radio, '\n'), 'В»', 'x', 0)
 end
 
 function sulog()
-    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Лог выдачи розыска', table.concat(wanted, '\n'), '»', 'x', 0)
+    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Г‹Г®ГЈ ГўГ»Г¤Г Г·ГЁ Г°Г®Г§Г»Г±ГЄГ ', table.concat(wanted, '\n'), 'В»', 'x', 0)
 end
 
 function smslog()
-    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Лог SMS', table.concat(sms, '\n'), '»', 'x', 0)
+    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Г‹Г®ГЈ SMS', table.concat(sms, '\n'), 'В»', 'x', 0)
 end
 
 function ticket(pam)
@@ -6033,20 +6033,20 @@ function ticket(pam)
         local id, summa, reason = pam:match('(%d+) (%d+) (.+)')
         if id and summa and reason then
             if cfg.commands.ticket then
-                sampSendChat(string.format("/me %s бланк и ручку", cfg.main.male and 'достал' or 'достала'))
+                sampSendChat(string.format("/me %s ГЎГ«Г Г­ГЄ ГЁ Г°ГіГ·ГЄГі", cfg.main.male and 'Г¤Г®Г±ГІГ Г«' or 'Г¤Г®Г±ГІГ Г«Г '))
                 wait(cfg.commands.zaderjka)
-                sampSendChat("/do Бланк и ручка в руках.")
+                sampSendChat("/do ГЃГ«Г Г­ГЄ ГЁ Г°ГіГ·ГЄГ  Гў Г°ГіГЄГ Гµ.")
                 wait(cfg.commands.zaderjka)
-                sampSendChat("/me начинает заполнять бланк")
+                sampSendChat("/me Г­Г Г·ГЁГ­Г ГҐГІ Г§Г ГЇГ®Г«Г­ГїГІГј ГЎГ«Г Г­ГЄ")
                 wait(cfg.commands.zaderjka)
-                sampSendChat("/do Бланк заполнен.")
+                sampSendChat("/do ГЃГ«Г Г­ГЄ Г§Г ГЇГ®Г«Г­ГҐГ­.")
                 wait(cfg.commands.zaderjka)
-                sampSendChat(string.format("/me %s бланк нарушителю", cfg.main.male and 'передал' or 'передала'))
+                sampSendChat(string.format("/me %s ГЎГ«Г Г­ГЄ Г­Г Г°ГіГёГЁГІГҐГ«Гѕ", cfg.main.male and 'ГЇГҐГ°ГҐГ¤Г Г«' or 'ГЇГҐГ°ГҐГ¤Г Г«Г '))
                 wait(1400)
             end
             sampSendChat(string.format('/ticket %s %s %s', id, summa, reason))
         else
-            ftext('Введите: /ticket [id] [сумма] [причина]')
+            ftext('Г‚ГўГҐГ¤ГЁГІГҐ: /ticket [id] [Г±ГіГ¬Г¬Г ] [ГЇГ°ГЁГ·ГЁГ­Г ]')
         end
     end)
 end
@@ -6074,16 +6074,16 @@ function ssuz(pam)
     elseif pam:match('(%d+)') then
         zid = pam:match('(%d+)')
         if sampIsPlayerConnected(tonumber(zid)) then
-            sampShowDialog(1765, '{9966cc}'..script.this.name..' {ffffff}| Выдача розыска игроку {9966cc}'..sampGetPlayerNickname(tonumber(zid)).. '[' ..zid.. ']', table.concat(dsuz, '\n').. '\n\n{ffffff}Выберите номер для объявления в розыск. Пример: 15', '»', 'x', 1)
+            sampShowDialog(1765, '{9966cc}'..script.this.name..' {ffffff}| Г‚Г»Г¤Г Г·Г  Г°Г®Г§Г»Г±ГЄГ  ГЁГЈГ°Г®ГЄГі {9966cc}'..sampGetPlayerNickname(tonumber(zid)).. '[' ..zid.. ']', table.concat(dsuz, '\n').. '\n\n{ffffff}Г‚Г»ГЎГҐГ°ГЁГІГҐ Г­Г®Г¬ГҐГ° Г¤Г«Гї Г®ГЎГєГїГўГ«ГҐГ­ГЁГї Гў Г°Г®Г§Г»Г±ГЄ. ГЏГ°ГЁГ¬ГҐГ°: 15', 'В»', 'x', 1)
         end
     elseif #pam == 0 then
-        ftext('Введите: /z [id] [параметр(не опционально)]')
+        ftext('Г‚ГўГҐГ¤ГЁГІГҐ: /z [id] [ГЇГ Г°Г Г¬ГҐГІГ°(Г­ГҐ Г®ГЇГ¶ГЁГ®Г­Г Г«ГјГ­Г®)]')
     end
 end
 
 function rt(pam)
     if #pam == 0 then
-        ftext("Введите /rt [текст]")
+        ftext("Г‚ГўГҐГ¤ГЁГІГҐ /rt [ГІГҐГЄГ±ГІ]")
     else
         sampSendChat('/r '..pam)
     end
@@ -6098,8 +6098,8 @@ function ooplist(pam)
                 wait(1400)
             end
         else
-            sampShowDialog(2458, '{9966cc}'..script.this.name..' | {ffffff}Список ООП', table.concat(ooplistt, '\n'), '»', "x", 2)
-            ftext('Для отправки списка ООП адвокату введите /ooplist [id]')
+            sampShowDialog(2458, '{9966cc}'..script.this.name..' | {ffffff}Г‘ГЇГЁГ±Г®ГЄ ГЋГЋГЏ', table.concat(ooplistt, '\n'), 'В»', "x", 2)
+            ftext('Г„Г«Гї Г®ГІГЇГ°Г ГўГЄГЁ Г±ГЇГЁГ±ГЄГ  ГЋГЋГЏ Г Г¤ГўГ®ГЄГ ГІГі ГўГўГҐГ¤ГЁГІГҐ /ooplist [id]')
         end
     end)
 end
@@ -6113,8 +6113,8 @@ function fkv(pam)
             coordY = (kvadrat1(kvadY) * 250 - 3125) * - 1
         end
     else
-        ftext('Введите: /fkv [квадрат]')
-        ftext('Пример: /fkv Л-6')
+        ftext('Г‚ГўГҐГ¤ГЁГІГҐ: /fkv [ГЄГўГ Г¤Г°Г ГІ]')
+        ftext('ГЏГ°ГЁГ¬ГҐГ°: /fkv Г‹-6')
     end
 end
 
@@ -6126,7 +6126,7 @@ function fnr()
         while not gotovo do wait(0) end
         wait(1400)
         for k, v in pairs(vixodid) do
-            sampSendChat('/sms '..v..' На работу')
+            sampSendChat('/sms '..v..' ГЌГ  Г°Г ГЎГ®ГІГі')
             wait(1400)
         end
 		gotovo = false
@@ -6204,9 +6204,9 @@ end
 
 function pr()
     lua_thread.create(function()
-        sampSendChat("Вы арестованы, у вас есть право хранить молчание. Всё, что вы скажете, может и будет использовано против вас в суде.")
+        sampSendChat("Г‚Г» Г Г°ГҐГ±ГІГ®ГўГ Г­Г», Гі ГўГ Г± ГҐГ±ГІГј ГЇГ°Г ГўГ® ГµГ°Г Г­ГЁГІГј Г¬Г®Г«Г·Г Г­ГЁГҐ. Г‚Г±Вё, Г·ГІГ® ГўГ» Г±ГЄГ Г¦ГҐГІГҐ, Г¬Г®Г¦ГҐГІ ГЁ ГЎГіГ¤ГҐГІ ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ Г­Г® ГЇГ°Г®ГІГЁГў ГўГ Г± Гў Г±ГіГ¤ГҐ.")
         wait(cfg.commands.zaderjka)
-        sampSendChat("У вас есть право на адвоката и на один телефонный звонок. Вам понятны ваши права?")
+        sampSendChat("Г“ ГўГ Г± ГҐГ±ГІГј ГЇГ°Г ГўГ® Г­Г  Г Г¤ГўГ®ГЄГ ГІГ  ГЁ Г­Г  Г®Г¤ГЁГ­ ГІГҐГ«ГҐГґГ®Г­Г­Г»Г© Г§ГўГ®Г­Г®ГЄ. Г‚Г Г¬ ГЇГ®Г­ГїГІГ­Г» ГўГ ГёГЁ ГЇГ°Г ГўГ ?")
     end)
 end
 
@@ -6288,9 +6288,9 @@ function registerCommandsBinder()
                 if #params < v.params then
                     local paramtext = ""
                     for i = 1, v.params do
-                        paramtext = paramtext .. "[параметр"..i.."] "
+                        paramtext = paramtext .. "[ГЇГ Г°Г Г¬ГҐГІГ°"..i.."] "
                     end
-                    ftext("Введите: /"..v.cmd.." "..paramtext, -1)
+                    ftext("Г‚ГўГҐГ¤ГЁГІГҐ: /"..v.cmd.." "..paramtext, -1)
                 else
                     for line in cmdtext:gmatch('[^\r\n]+') do
 
