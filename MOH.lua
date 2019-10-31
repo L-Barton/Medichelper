@@ -1,5 +1,5 @@
 script_name('Medic HELP')
-script_version('1.1')
+script_version('1.2')
 script_author('Evelyn_Ross')
 local sf = require 'sampfuncs'
 local key = require "vkeys"
