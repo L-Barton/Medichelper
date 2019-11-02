@@ -1,86 +1,24 @@
 script_name("FBI Tools")
 script_authors("Thomas Lawson, Sesh Jefferson")
-script_version(3.31)
+script_version(2.6)
 
 require 'lib.moonloader'
 require 'lib.sampfuncs'
 
 local lsg, sf               = pcall(require, 'sampfuncs')
 local lkey, key             = pcall(require, 'vkeys')
-local lmemory, memory       = pcall(require, 'memory')
 local lsampev, sp           = pcall(require, 'lib.samp.events')
 local lsphere, Sphere       = pcall(require, 'Sphere')
 local lrkeys, rkeys         = pcall(require, 'rkeys')
 local limadd, imadd         = pcall(require, 'imgui_addons')
+local dlstatus              = require('moonloader').download_status
 local limgui, imgui         = pcall(require, 'imgui')
 local lrequests, requests   = pcall(require, 'requests')
-local lsha1, sha1           = pcall(require, 'sha1')
-local lbasexx, basexx       = pcall(require, 'basexx')
-local dlstatus              = require('moonloader').download_status
 local wm                    = require 'lib.windows.message'
 local gk                    = require 'game.keys'
 local encoding              = require 'encoding'
-local band                  = bit.band
-encoding.default            = 'CP1251'
+encoding.default = 'CP1251'
 u8 = encoding.UTF8
-
-local groupNames = {
-    u8'РџР”/Р¤Р‘Р ', u8'РђРІС‚РѕС€РєРѕР»Р°', u8'РњРµРґРёРєРё', u8'РњСЌСЂРёСЏ'
-}
-
-local cfg =
-{
-    main = {
-        posX = 1566,
-        posY = 916,
-        widehud = 350,
-        male = true,
-        clear = false,
-        hud = false,
-        tar = 'С‚СЌРі',
-        parol = 'РїР°СЂРѕР»СЊ',
-        parolb = false,
-        tarb = false,
-        clistb = false,
-        spzamen = false,
-        clist = 0,
-        offptrl = false,
-        offwntd = false,
-        tchat = false,
-        autocar = false,
-        strobs = true,
-        megaf = true,
-        autobp = false,
-        googlecode = '',
-        googlecodeb = false,
-        group = 'unknown',
-        nwanted = false,
-        nclear = false
-    },
-    commands = {
-        cput = true,
-        ceject = true,
-        deject = true,
-        ftazer = true,
-        zaderjka = 1400,
-        ticket = true,
-        kmdctime = true
-    },
-    autobp = {
-        deagle = true,
-        dvadeagle = true,
-        shot = true,
-        dvashot = true,
-        smg = true,
-        dvasmg = true,
-        m4 = true,
-        dvam4 = true,
-        rifle = true,
-        dvarifle = true,
-        armour = true,
-        spec = true
-    }
-}
 
 if limgui then 
     mainw           = imgui.ImBool(false)
@@ -94,26 +32,53 @@ if limgui then
     bMainWindow     = imgui.ImBool(false)
     bindkey         = imgui.ImBool(false)
     cmdwind         = imgui.ImBool(false)
-    memw            = imgui.ImBool(false)
     sInputEdit      = imgui.ImBuffer(256)
     bIsEnterEdit    = imgui.ImBool(false)
+    local show      = 1
     piew            = imgui.ImBool(false)
     imegaf          = imgui.ImBool(false)
     bindname        = imgui.ImBuffer(256)
-    bindtext        = imgui.ImBuffer(20480)
-    groupInt        = imgui.ImInt(0)
-    vars = {
-        menuselect  = 0,
-        mainwindow  = imgui.ImBool(false),
-        cmdbuf      = imgui.ImBuffer(256),
-        cmdparams   = imgui.ImInt(0),
-        cmdtext     = imgui.ImBuffer(20480)
-    }
+    bindtext        = imgui.ImBuffer(10240)
 end
 
 function ftext(text)
     sampAddChatMessage((' %s | {ffffff}%s'):format(script.this.name, text),0x9966CC)
 end
+
+local cfg =
+{
+    main = {
+        posX = 1566,
+        posY = 916,
+        widehud = 350,
+        male = true,
+        wanted = false,
+        clear = false,
+        hud = false,
+        tar = 'тэг',
+        parol = 'пароль',
+        parolb = false,
+        tarb = false,
+        clistb = false,
+        spzamen = false,
+        clist = 0,
+        offptrl = false,
+        offwntd = false,
+        tchat = false,
+        autocar = false,
+        strobs = true,
+        megaf = true
+    },
+    commands = {
+        cput = true,
+        ceject = true,
+        deject = true,
+        ftazer = true,
+        zaderjka = 1400,
+        ticket = true,
+        kmdctime = true
+    }
+}
 
 local config_keys = {
     oopda = { v = {key.VK_F12}},
@@ -130,12 +95,7 @@ local config_keys = {
     arrestkey = { v = {}},
     uncuffkey = { v = {}},
     dejectkey = { v = {}},
-    sirenkey = { v = {}},
-    hikey = {v = {key.VK_I}},
-	summakey = {v = {key.VK_L}},
-	freenalkey = {v = {key.VK_Y}},
-    freebankkey = {v = {key.VK_U}},
-    vzaimkey = {v = {key.VK_Z}}
+    sirenkey = { v = {}}
 }
 
 local mcheckb = false
@@ -143,16 +103,21 @@ local stazer = false
 local rabden = false
 local frak = -1
 local rang = -1
+local wfrac = nil
 local warnst = false
 local changetextpos = false
 local opyatstat = false
+local gmegafhandle = nil
 local gmegafid = -1
+local gmegaflvl = nil
+local gmegaffrak = nil
+local gmegafcar = nil
 local targetid = -1
 local smsid = -1
 local smstoid = -1
-local mcid = -1
+local nikk = nil
+local ttt = nil
 local vixodid = {}
-local ins = {}
 local ooplistt = {}
 local tLastKeys = {}
 local departament = {}
@@ -162,242 +127,236 @@ local wanted = {}
 local incar = {}
 local suz = {}
 local show = 1
-local autoBP = 1
+local zid = nil
 local checkstat = false
 local fileb = getWorkingDirectory() .. "\\config\\fbitools.bind"
-local tMembers = {}
-local Player = {}
+local players1 = {'{ffffff}Ник\t{ffffff}Ранг'}
+local players2 = {'{ffffff}Ник\t{ffffff}Ранг\t{ffffff}Статус'}
 local tBindList = {}
-local commands = {}
 local fthelp = {
     {
         cmd = '/ft',
-        desc = 'РћС‚РєСЂС‹С‚СЊ РјРµРЅСЋ СЃРєСЂРёРїС‚Р°',
+        desc = 'Открыть меню скрипта',
         use = '/ft'
     },
     {
         cmd = '/st',
-        desc = 'РџРѕРїСЂРѕСЃРёС‚СЊ РёРіСЂРѕРєР° Р·Р°РіР»СѓС€РёС‚СЊ СЃРІРѕРµ Рў/РЎ С‡РµСЂРµР· РјРµРіР°С„РѕРЅ [/m]',
+        desc = 'Попросить игрока заглушить свое Т/С через мегафон [/m]',
         use = '/st [id]'
     },
     {
         cmd = '/oop',
-        desc = 'РќР°РїРёСЃР°С‚СЊ РІ РІРѕР»РЅСѓ РґРµРїР°СЂС‚Р°РјРµРЅС‚Р° РѕР± РћРћРџ',
+        desc = 'Написать в волну департамента об ООП',
         use = '/oop [id]'
     },
     {
         cmd = '/warn',
-        desc = 'РџСЂРµРґСѓРїСЂРµРґРёС‚СЊ РёРіСЂРѕРєР° РІ РІРѕР»РЅСѓ РґРµРїР°СЂС‚Р°РјРµРЅС‚Р° Рѕ РЅР°СЂСѓС€РµРЅРёРё РїРѕРґР°С‡Рё РІ СЂРѕР·С‹СЃРє',
+        desc = 'Предупредить игрока в волну департамента о нарушении подачи в розыск',
         use = '/warn [id]'
     },
     {
         cmd = '/su',
-        desc = 'Р’С‹РґР°С‚СЊ СЂРѕР·С‹СЃРє С‡РµСЂРµР· РґРёР°Р»РѕРі',
+        desc = 'Выдать розыск через диалог',
         use = '/su [id]'
     },
     {
         cmd = '/ssu',
-        desc = 'Р’С‹РґР°С‚СЊ СЂРѕР·С‹СЃРє С‡РµСЂРµР· СЃРµСЂРІРµСЂРЅСѓСЋ РєРѕРјР°РЅРґСѓ',
-        use = '/ssu [id] [РєРѕР»-РІРѕ Р·РІРµР·Рґ] [РїСЂРёС‡РёРЅР°]'
+        desc = 'Выдать розыск через серверную команду',
+        use = '/ssu [id] [кол-во звезд] [причина]'
     },
     {
         cmd = '/cput',
-        desc = 'Р Рџ РѕС‚С‹РіСЂРѕРІРєР° РїРѕСЃР°РґРєРё РїСЂРµСЃС‚СѓРїРЅРёРєР° РІ Р°РІС‚РѕРјРѕР±РёР»СЊ/РјРѕС‚Рѕ',
-        use = '/cput [id] [СЃРёРґРµРЅСЊРµ(РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)]'
+        desc = 'РП отыгровка посадки преступника в автомобиль/мото',
+        use = '/cput [id] [сиденье(не обязательно)]'
     },
     {
         cmd = '/ceject',
-        desc = 'Р Рџ РѕС‚С‹РіСЂРѕРІРєР° РІС‹СЃР°РґРєРё РїСЂРµСЃС‚СѓРїРЅРёРєР° РёР· Р°РІС‚РѕРјРѕР±РёР»СЏ/РјРѕС‚Рѕ',
+        desc = 'РП отыгровка высадки преступника из автомобиля/мото',
         use = '/ceject [id]'
     },
     {
         cmd = '/deject',
-        desc = 'Р Рџ РѕС‚С‹РіСЂРѕРІРєР° РІС‹С‚Р°СЃРєРёРІР°РЅРёСЏ РїСЂРµСЃС‚СѓРїРЅРёРєР° РёР· Р°РІС‚РѕРјРѕР±РёР»СЏ/РјРѕС‚Рѕ',
+        desc = 'РП отыгровка вытаскивания преступника из автомобиля/мото',
         use = '/deject [id]'
     },
     {
         cmd = '/ms',
-        desc = 'Р Рџ РѕС‚С‹РіСЂРѕРІРєР° РІР·СЏС‚РёСЏ РјР°СЃРєРёСЂРѕРІРєРё',
-        use = '/ms [С‚РёРї]'
+        desc = 'РП отыгровка взятия маскировки',
+        use = '/ms [тип]'
     },
     {
         cmd = '/keys',
-        desc = "Р Рџ РѕС‚С‹РіСЂРѕРІРєР° СЃСЂР°РІРЅРµРЅРёСЏ РєР»СЋС‡РµР№ РѕС‚ РљРџР—",
+        desc = "РП отыгровка сравнения ключей от КПЗ",
         use = '/keys'
     },
     {
         cmd = '/rh',
-        desc = "Р—Р°РїСЂРѕСЃРёС‚СЊ РїР°С‚СЂСѓР»СЊРЅС‹Р№ СЌРєРёРїР°Р¶ РІ С‚РµРєСѓС‰РёР№ РєРІР°РґСЂР°С‚",
-        use = "/rh [РґРµРїР°СЂС‚Р°РјРµРЅС‚(1 - LSPD, 2 - SFPD, 3 - LVPD)]"
+        desc = "Запросить патрульный экипаж в текущий квадрат",
+        use = "/rh [департамент(1 - LSPD, 2 - SFPD, 3 - LVPD)]"
     },
     {
         cmd = '/tazer',
-        desc = "Р Рџ С‚Р°Р·РµСЂ",
+        desc = "РП тазер",
         use = '/tazer'
     },
     {
         cmd = "/gr",
-        desc = "РќР°РїРёСЃР°С‚СЊ РІ РІРѕР»РЅСѓ РґРµРїР°СЂС‚Р°РјРµРЅС‚Р° Рѕ РїРµСЂРµСЃРµС‡РµРЅРёРё СЋСЂРёСЃРґРёРєС†РёРё",
-        use = "/gr [РґРµРїР°СЂС‚Р°РјРµРЅС‚(1 - LSPD, 2 - SFPD, 3 - LVPD)] [РїСЂРёС‡РёРЅР°]"
+        desc = "Написать в волну департамента о пересечении юрисдикции",
+        use = "/gr [департамент(1 - LSPD, 2 - SFPD, 3 - LVPD)] [причина]"
     },
     {
         cmd = '/df',
-        desc = "РћС‚РєСЂС‹С‚СЊ РґРёР°Р»РѕРі СЃ СЂР°Р·РјРёРЅРёСЂРѕРІР°РЅРёРµРј Р±РѕРјР±",
+        desc = "Открыть диалог с разминированием бомб",
         use = '/df'
     },
     {
         cmd = '/dmb',
-        desc = 'РћС‚РєСЂС‹С‚СЊ /members РІ РґРёР°Р»РѕРіРµ',
+        desc = 'Открыть /members в диалоге',
         use = '/dmb'
     },
     {
         cmd = '/ar',
-        desc = 'РџРѕРїСЂРѕСЃРёС‚СЊ СЂР°Р·СЂРµС€РµРЅРёРµ РЅР° РІСЉРµР·Рґ РЅР° РІРѕРµРЅРЅСѓСЋ С‚РµСЂСЂРёС‚РѕСЂРёСЋ РІ РІРѕР»РЅСѓ РґРµРїР°СЂС‚Р°РјРµРЅС‚Р°',
-        use = '/ar [Р°СЂРјРёСЏ(1 - LVA, 2 - SFA)]'
-    },
-    {
-        cmd = '/pr',
-        desc = 'РџСЂР°РІРёР»Р° РјРёСЂР°РЅРґС‹',
-        use = '/pr'
+        desc = 'Попросить разрешение на въезд на военную территорию в волну департамента',
+        use = '/ar [армия(1 - LVA, 2 - SFA)]'
     },
     {
         cmd = '/kmdc',
-        desc = 'РџРѕ Р Рџ РїСЂРѕР±РёС‚СЊ РёРіСЂРѕРєР° РІ РљРџРљ',
+        desc = 'По РП пробить игрока в КПК',
         use = '/kmdc [id]'
     },
     {
         cmd = '/ftazer',
-        desc = 'Р Рџ РѕС‚С‹РіСЂРѕРІРєР° /ftazer',
-        use = '/ftazer [С‚РёРї]'
+        desc = 'РП отыгровка /ftazer',
+        use = '/ftazer [тип]'
     },
     {
         cmd = '/fvz',
-        desc = 'Р’С‹Р·РІР°С‚СЊ РёРіСЂРѕРєР° РІ РѕС„РёСЃ Р¤Р‘Р  СЃРѕ СЃС‚Р°СЂС€РёРјРё',
+        desc = 'Вызвать игрока в офис ФБР со старшими',
         use = '/fvz [id]'
     },
     {
         cmd = '/fbd',
-        desc = 'Р—Р°РїСЂРѕСЃРёС‚СЊ РїСЂРёС‡РёРЅСѓ РёР·РјРµРЅРµРЅРёСЏ Р‘Р” РїРѕ РІРѕР»РЅРµ РґРµРїР°СЂС‚Р°РјРµРЅС‚Р°',
+        desc = 'Запросить причину изменения БД по волне департамента',
         use = '/fbd [id]'
     },
     {
         cmd = '/blg',
-        desc = 'Р’С‹СЂР°Р·РёС‚СЊ Р±Р»Р°РіРѕРґР°СЂРЅРѕСЃС‚СЊ РїРѕ РІРѕР»РЅРµ РґРµРїР°СЂС‚Р°РјРµРЅС‚Р°',
-        use = "/blg [id] [С„СЂР°РєС†РёСЏ] [РїСЂРёС‡РёРЅР°]"
+        desc = 'Выразить благодарность по волне департамента',
+        use = "/blg [id] [фракция] [причина]"
     },
     {
         cmd = '/yk',
-        desc = "РћС‚РєСЂС‹С‚СЊ С€РїРѕСЂСѓ РЈРљ (РўРµРєСЃС‚ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РёР·РјРµРЅРёС‚СЊ РІ С„Р°Р№Р»Рµ moonloader/fbitools/yk.txt)",
+        desc = "Открыть шпору УК (Текст шпоры можно изменить в файле moonloader/fbitools/yk.txt)",
         use = "/yk"
     },
     {
         cmd = '/ak',
-        desc = "РћС‚РєСЂС‹С‚СЊ С€РїРѕСЂСѓ РђРљ (РўРµРєСЃС‚ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РёР·РјРµРЅРёС‚СЊ РІ С„Р°Р№Р»Рµ moonloader/fbitools/ak.txt)",
+        desc = "Открыть шпору АК (Текст шпоры можно изменить в файле moonloader/fbitools/ak.txt)",
         use = "/ak"
     },
     {
         cmd = '/fp',
-        desc = "РћС‚РєСЂС‹С‚СЊ С€РїРѕСЂСѓ Р¤Рџ (РўРµРєСЃС‚ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РёР·РјРµРЅРёС‚СЊ РІ С„Р°Р№Р»Рµ moonloader/fbitools/fp.txt)",
+        desc = "Открыть шпору ФП (Текст шпоры можно изменить в файле moonloader/fbitools/fp.txt)",
         use = "/fp"
     },
     {
         cmd = '/shp',
-        desc = "РћС‚РєСЂС‹С‚СЊ С€РїРѕСЂСѓ (РўРµРєСЃС‚ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РёР·РјРµРЅРёС‚СЊ РІ С„Р°Р№Р»Рµ moonloader/fbitools/shp.txt)",
+        desc = "Открыть шпору (Текст шпоры можно изменить в файле moonloader/fbitools/shp.txt)",
         use = "/shp"
     },
     {
         cmd = '/fyk',
-        desc = 'РџРѕРёСЃРє РїРѕ С€РїРѕСЂРµ РЈРљ',
-        use = '/fyk [С‚РµРєСЃС‚]'
+        desc = 'Поиск по шпоре УК',
+        use = '/fyk [текст]'
     },
     {
         cmd = '/fak',
-        desc = 'РџРѕРёСЃРє РїРѕ С€РїРѕСЂРµ РђРљ',
-        use = '/fak [С‚РµРєСЃС‚]'
+        desc = 'Поиск по шпоре АК',
+        use = '/fak [текст]'
     },
     {
         cmd = '/ffp',
-        desc = 'РџРѕРёСЃРє РїРѕ С€РїРѕСЂРµ Р¤Рџ',
-        use = '/ffp [С‚РµРєСЃС‚]'
+        desc = 'Поиск по шпоре ФП',
+        use = '/ffp [текст]'
     },
     {
         cmd = '/fshp',
-        desc = 'РџРѕРёСЃРє РїРѕ С€РїРѕСЂРµ',
-        use = '/fshp [С‚РµРєСЃС‚]'
+        desc = 'Поиск по шпоре',
+        use = '/fshp [текст]'
     },
     {
         cmd = '/fst',
-        desc = 'РР·РјРµРЅРёС‚СЊ РІСЂРµРјСЏ',
-        use = '/fst [РІСЂРµРјСЏ]'
+        desc = 'Изменить время',
+        use = '/fst [время]'
     },
     {
         cmd = '/fsw',
-        desc = 'РР·РјРµРЅРёС‚СЊ РїРѕРіРѕРґСѓ',
-        use = '/fsw [РїРѕРіРѕРґР°]'
+        desc = 'Изменить погоду',
+        use = '/fsw [погода]'
     },
     {
         cmd = '/cc',
-        desc = 'РћС‡РёСЃС‚РёС‚СЊ С‡Р°С‚',
+        desc = 'Очистить чат',
         use = '/cc'
     },
     {
         cmd = '/dkld',
-        desc = 'РЎРґРµР»Р°С‚СЊ РґРѕРєР»Р°Рґ',
+        desc = 'Сделать доклад',
         use = '/dkld'
     },
     {
         cmd = '/mcheck',
-        desc = 'РџСЂРѕР±РёС‚СЊ РїРѕ /mdc РІСЃРµС… РЅР° СЂР°СЃСЃС‚РѕСЏРЅРёРё 200 РјРµС‚СЂРѕРІ',
+        desc = 'Пробить по /mdc всех на расстоянии 200 метров',
         use = '/mcheck'
     },
     {
         cmd = '/megaf',
-        desc = 'РњРµРіР°С„РѕРЅ СЃ Р°РІС‚РѕРѕС‚РїСЂРµРґРµР»РµРЅРёРµРј Р°РІС‚Рѕ',
+        desc = 'Мегафон с автоотпределением авто',
         use = '/megaf'
     },
     {
         cmd = '/rlog',
-        desc = 'РћС‚РєСЂС‹С‚СЊ Р»РѕРі 25 РїРѕСЃР»РµРґРЅРёС… СЃРѕРѕР±С‰РµРЅРёР№ РІ СЂР°С†РёСЋ',
+        desc = 'Открыть лог 25 последних сообщений в рацию',
         use = '/rlog'
     },
     {
         cmd = '/dlog',
-        desc = 'РћС‚РєСЂС‹С‚СЊ Р»РѕРі 25 РїРѕСЃР»РµРґРЅРёС… СЃРѕРѕР±С‰РµРЅРёР№ РІ РґРµРїР°СЂС‚Р°РјРµРЅС‚',
+        desc = 'Открыть лог 25 последних сообщений в департамент',
         use = '/dlog'
     },
     {
         cmd = '/sulog',
-        desc = 'РћС‚РєСЂС‹С‚СЊ Р»РѕРі 25 РїРѕСЃР»РµРґРЅРёС… РІС‹РґР°С‡Рё СЂРѕР·С‹СЃРєР°',
+        desc = 'Открыть лог 25 последних выдачи розыска',
         use = '/sulog'
     },
     {
         cmd = '/smslog',
-        desc = 'РћС‚РєСЂС‹С‚СЊ Р»РѕРі 25 РїРѕСЃР»РµРґРЅРёС… SMS',
+        desc = 'Открыть лог 25 последних SMS',
         use = '/smslog'
     },
     {
         cmd = '/z',
-        desc = 'Р’С‹РґР°С‚СЊ СЂРѕР·С‹СЃРє РїРѕ Р·Р°РіРѕС‚РѕРІР»РµРЅС‹Рј СЃС‚Р°С‚СЊСЏРј',
-        use = '/z [id] [РїР°СЂР°РјРµС‚СЂ(РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)]'
+        desc = 'Выдать розыск по заготовленым статьям',
+        use = '/z [id] [параметр(не обязательно)]'
     },
     {
         cmd = '/rt',
-        desc = 'РЎРѕРѕР±С‰РµРЅРёРµ РІ СЂР°С†РёСЋ Р±РµР· С‚СЌРіР°',
-        use = '/rt [С‚РµРєСЃС‚]'
+        desc = 'Сообщение в рацию без тэга',
+        use = '/rt [текст]'
     },
     {
         cmd = '/ooplist',
-        desc = 'РЎРїРёСЃРѕРє РћРћРџ',
-        use = '/ooplist [id(РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)]'
+        desc = 'Список ООП',
+        use = '/ooplist [id(не обязательно)]'
     },
     {
         cmd = '/fkv',
-        desc = 'РџРѕСЃС‚Р°РІРёС‚СЊ РјРµС‚РєСѓ РЅР° РєРІР°РґСЂР°С‚ РЅР° РєР°СЂС‚Рµ',
-        use = '/fkv [РєРІР°РґСЂР°С‚]'
+        desc = 'Поставить метку на квадрат на карте',
+        use = '/fkv [квадрат]'
     },
     {
         cmd = '/fnr',
-        desc = 'РЎРѕР·РІР°С‚СЊ СЃРѕС‚СЂСѓРґРЅРёРєРѕРІ РЅР° СЂР°Р±РѕС‚Сѓ',
+        desc = 'Созвать сотрудников на работу',
         use = '/fnr'
     }
 }
@@ -406,66 +365,66 @@ local tEditData = {
 	inputActive = false
 }
 local quitReason = {
-    [1] = 'Р’С‹С…РѕРґ',
-    [2] = 'РљРёРє/Р‘Р°РЅ',
-    [0] = 'РљСЂР°С€/Р’С‹Р»РµС‚'
+    [1] = 'Выход',
+    [2] = 'Кик/Бан',
+    [0] = 'Краш/Вылет'
 }
 local sut = [[
-РќР°РЅРµСЃРµРЅРёРµ С‚РµР»РµСЃРЅС‹С… РїРѕРІСЂРµР¶РґРµРЅРёР№ - 2 РіРѕРґР°
-Р’РѕРѕСЂСѓР¶РµРЅРЅРѕРµ РЅР°РїР°РґРµРЅРёРµ РЅР° РіСЂР°Р¶РґР°РЅСЃРєРёС… - 3 РіРѕРґР°
-Р’РѕРѕСЂСѓР¶РµРЅРЅРѕРµ РЅР°РїР°РґРµРЅРёРµ РЅР° РіРѕСЃ - 6 Р»РµС‚, Р·Р°РїСЂРµС‚ РЅР° Р°РґРІРѕРєР°С‚Р°
-РҐСѓР»РёРіР°РЅСЃС‚РІРѕ - 1 РіРѕРґ
-РќРµР°РґРµРєРІР°С‚РЅРѕРµ РїРѕРІРµРґРµРЅРёРµ - 1 РіРѕРґ
-РџРѕРїСЂРѕС€Р°Р№РЅРёС‡РµСЃС‚РІРѕ - 1 РіРѕРґ
-РћСЃРєРѕСЂР±Р»РµРЅРёРµ - 2 РіРѕРґР°
-РЈРіРѕРЅ С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ СЃСЂРµРґСЃС‚РІР° - 2 РіРѕРґР°
-РќРµРїРѕРґС‡РёРЅРµРЅРёРµ СЃРѕС‚СЂСѓРґРЅРёРєР°Рј РџРћ - 1 РіРѕРґ
-РЈС…РѕРґ РѕС‚ СЃРѕС‚СЂСѓРґРЅРёРєРѕРІ РџРћ - 2 РіРѕРґР°
-РџРѕР±РµРі СЃ РјРµСЃС‚Р° Р·Р°РєР»СЋС‡РµРЅРёСЏ - 6 Р»РµС‚
-РќРѕС€РµРЅРёРµ РѕСЂСѓР¶РёСЏ Р±РµР· Р»РёС†РµРЅР·РёРё - 1 РіРѕРґ Рё С€С‚СЂР°С„ РІ СЂР°Р·РјРµСЂРµ 2000$.
-РР·РіРѕС‚РѕРІР»РµРЅРёРµ РЅРµР»РµРіР°Р»СЊРЅРѕРіРѕ РѕСЂСѓР¶РёСЏ - 3 РіРѕРґР° Рё РёР·СЉСЏС‚РёРµ
-РџСЂРёРѕР±СЂРµС‚РµРЅРёРµ РЅРµР»РµРіР°Р»СЊРЅРѕРіРѕ РѕСЂСѓР¶РёСЏ - 3 РіРѕРґР° Рё РёР·СЉСЏС‚РёРµ
-РџСЂРѕРґР°Р¶Р° РЅРµР»РµРіР°Р»СЊРЅРѕРіРѕ РѕСЂСѓР¶РёСЏ - 3 РіРѕРґР° Рё РёР·СЉСЏС‚РёРµ
-РҐСЂР°РЅРµРЅРёРµ РЅР°СЂРєРѕС‚РёРєРѕРІ - 3 РіРѕРґР° Рё РёР·СЉСЏС‚РёРµ
-РҐСЂР°РЅРµРЅРёРµ РјР°С‚РµСЂРёР°Р»РѕРІ - 3 РіРѕРґР° Рё РёР·СЉСЏС‚РёРµ
-РЈРїРѕС‚СЂРµР±Р»РµРЅРёРµ РЅР°СЂРєРѕС‚РёРєРѕРІ - 3 РіРѕРґР° Рё РёР·СЉСЏС‚РёРµ
-РџРѕСЂС‡Р° С‡СѓР¶РѕРіРѕ РёРјСѓС‰РµСЃС‚РІР° - 1 РіРѕРґ Рё С€С‚СЂР°С„ РІ СЂР°Р·РјРµСЂРµ 5000$
-РЈРЅРёС‡С‚РѕР¶РµРЅРёРµ С‡СѓР¶РѕРіРѕ РёРјСѓС‰РµСЃС‚РІР° - 4 РіРѕРґР° Рё С€С‚СЂР°С„ РІ СЂР°Р·РјРµСЂРµ 15000$
-РџСЂРѕРЅРёРєРЅРѕРІРµРЅРёРµ РЅР° РѕС…СЂ. С‚РµСЂСЂРёС‚РѕСЂРёСЋ - 2 РіРѕРґР°
-РџСЂРѕРЅРёРєРЅРѕРІРµРЅРёРµ РЅР° С‡Р°СЃС‚. С‚РµСЂСЂРёС‚РѕСЂРёСЋ - 1 РіРѕРґ
-Р’С‹РјРѕРіР°С‚РµР»СЊСЃС‚РІРѕ - 2 РіРѕРґР°
-РЈРіСЂРѕР·С‹ - 1 РіРѕРґ
-РџСЂРѕРІРѕРєР°С†РёРё - 2 РіРѕРґР°
-РњРѕС€РµРЅРЅРёС‡РµСЃС‚РІРѕ - 2 РіРѕРґР°
-РџСЂРµРґР»РѕР¶РµРЅРёРµ РёРЅС‚РёРјРЅС‹С… СѓСЃР»СѓРі - 1 РіРѕРґ
-РР·РЅР°СЃРёР»РѕРІР°РЅРёРµ РіСЂР°Р¶РґР°РЅРёРЅР° - 3 РіРѕРґ
-РЈРєСЂС‹РІР°С‚РµР»СЊСЃС‚РІРѕ РїСЂРµСЃС‚СѓРїР»РµРЅРёР№ - 2 РіРѕРґР°
-РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ С„Р°Р»СЊС€РёРІС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ - 1 РіРѕРґ
-РљР»РµРІРµС‚Р° РЅР° РіРѕСЃ. Р»РёС†Рѕ - 1 РіРѕРґ
-РљР»РµРІРµС‚Р° РЅР° РіРѕСЃ. РѕСЂРіР°РЅРёР·Р°С†РёРё - 2 РіРѕРґР°
-РќРѕС€РµРЅРёРµ РІРѕРµРЅРЅРѕР№ С„РѕСЂРјС‹ - 2 РіРѕРґР°, С„РѕСЂРјР° РїРѕРґР»РµР¶РёС‚ РёР·СЉСЏС‚РёСЋ.
-РџРѕРєСѓРїРєР° РєР»СЋС‡РµР№ РѕС‚ РєР°РјРµСЂС‹ - 6 Р»РµС‚
-РџСЂРµРґР»РѕР¶РµРЅРёРµ РІР·СЏС‚РєРё - 2 РіРѕРґР°
-РЎРѕРІРµСЂС€РµРЅРёРµ С‚РµСЂР°РєС‚Р° - 6 Р»РµС‚, Р»РёС€РµРЅРёРµ РІСЃРµС… Р»РёС†РµРЅР·РёР№
-РќРµСѓРїР»Р°С‚Р° С€С‚СЂР°С„Р° - 2 РіРѕРґР°
-РРіРЅРѕСЂРёСЂРѕРІР°РЅРёРµ СЃРїРµС†. СЃРёСЂРµРЅ - 1 РіРѕРґ
-РџСЂРµРІС‹С€РµРЅРёРµ РїРѕР»РЅРѕРјРѕС‡РёР№ Р°РґРІРѕРєР°С‚Р° - 3 РіРѕРґР°
-РџРѕС…РёС‰РµРЅРёРµ РіРѕСЃ. СЃРѕС‚СЂСѓРґРЅРёРєР° - 4 РіРѕРґР°
-Р§РёСЃС‚РѕСЃРµСЂРґРµС‡РЅРѕРµ РїСЂРёР·РЅР°РЅРёРµ - 1 РіРѕРґ
-РќР°РµР·Рґ РЅР° РїРµС€РµС…РѕРґР° - 2 РіРѕРґР°
-РЈС…РѕРґ СЃ РјРµСЃС‚Р° Р”РўРџ - 3 РіРѕРґР°
-РћРіСЂР°Р±Р»РµРЅРёРµ - 3 РіРѕРґР°
-РћРћРџ - 6 Р»РµС‚
-РЈС…РѕРґ - 6 Р»РµС‚
+Нанесение телесных повреждений - 2 года
+Вооруженное нападение на гражданских - 3 года
+Вооруженное нападение на гос - 6 лет, запрет на адвоката
+Хулиганство - 1 год
+Неадекватное поведение - 1 год
+Попрошайничество - 1 год
+Оскорбление - 2 года
+Угон транспортного средства - 2 года
+Неподчинение сотрудникам ПО - 1 год
+Уход от сотрудников ПО - 2 года
+Побег с места заключения - 6 лет
+Ношение оружия без лицензии - 1 год и штраф в размере 2000$.
+Изготовление нелегального оружия - 3 года и изъятие
+Приобретение нелегального оружия - 3 года и изъятие
+Продажа нелегального оружия - 3 года и изъятие
+Хранение наркотиков - 3 года и изъятие
+Хранение материалов - 3 года и изъятие
+Употребление наркотиков - 3 года и изъятие
+Порча чужого имущества - 1 год и штраф в размере 5000$
+Уничтожение чужого имущества - 4 года и штраф в размере 15000$
+Проникновение на охр. территорию - 2 года
+Проникновение на част. территорию - 1 год
+Вымогательство - 2 года
+Угрозы - 1 год
+Провокации - 2 года
+Мошенничество - 2 года
+Предложение интимных услуг - 1 год
+Изнасилование гражданина - 3 год
+Укрывательство преступлений - 2 года
+Использование фальшивых документов - 1 год
+Клевета на гос. лицо - 1 год
+Клевета на гос. организации - 2 года
+Ношение военной формы - 2 года, форма подлежит изъятию.
+Покупка ключей от камеры - 6 лет
+Предложение взятки - 2 года
+Совершение теракта - 6 лет, лишение всех лицензий
+Неуплата штрафа - 2 года
+Игнорирование спец. сирен - 1 год
+Превышение полномочий адвоката - 3 года
+Похищение гос. сотрудника - 4 года
+Чистосердечное признание - 1 год
+Наезд на пешехода - 2 года
+Уход с места ДТП - 3 года
+Ограбление - 3 года
+ООП - 6 лет
+Уход - 6 лет
 ]]
 
 local shpt = [[
-РџРѕРєР° С‡С‚Рѕ РІС‹ РЅРµ РЅР°СЃС‚СЂРѕРёР»Рё С€РїРѕСЂСѓ.
-Р§С‚Рѕ Р±С‹ РІСЃС‚Р°РІРёС‚СЊ СЃСЋРґР° СЃРІРѕР№ С‚РµРєСЃС‚ РІР°Рј РЅСѓР¶РЅРѕ РІС‹РїРѕР»РЅРёС‚СЊ СЂСЏРґ РґРµР№С‚СЃРІРёР№:
-1. РћС‚РєСЂС‹С‚СЊ РїР°РїРєСѓ fbitools РєРѕС‚РѕСЂР°СЏ РЅР°С…РѕРґРёС‚СЃСЏ РІ РїР°РїРєРµ moonloader
-2. РћС‚РєСЂС‹С‚СЊ С„Р°Р№Р» shp.txt Р»СЋР±С‹Рј Р±Р»РѕРєРЅРѕС‚РѕРј
-3. РР·РјРµРЅРёС‚СЊ С‚РµРєСЃС‚ РІ РЅРµРј РЅР° РєР°РєРѕР№ РІР°Рј РЅСѓР¶РµРЅ
-4. РЎРѕС…СЂР°РЅРёС‚СЊ С„Р°Р№Р»
+Пока что вы не настроили шпору.
+Что бы вставить сюда свой текст вам нужно выполнить ряд дейтсвий:
+1. Открыть папку fbitools которая находится в папке moonloader
+2. Открыть файл shp.txt любым блокнотом
+3. Изменить текст в нем на какой вам нужен
+4. Сохранить файл
 ]]
 
 function sampGetStreamedPlayers()
@@ -484,11 +443,9 @@ function sampGetStreamedPlayers()
 end
 
 function sirenk()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then 
-        if isCharInAnyCar(PLAYER_PED) then
-            local car = storeCarCharIsInNoSave(PLAYER_PED)
-            switchCarSiren(car, not isCarSirenOn(car))
-        end
+    if isCharInAnyCar(PLAYER_PED) then
+        local car = storeCarCharIsInNoSave(PLAYER_PED)
+        switchCarSiren(car, not isCarSirenOn(car))
     end
 end
 
@@ -501,7 +458,7 @@ function getClosestPlayerId()
         if streamed then
             local xi, yi, zi = getCharCoordinates(pedID)
             local dist = math.sqrt( (xi - x) ^ 2 + (yi - y) ^ 2 + (zi - z) ^ 2 )
-            if dist < minDist and sampGetFraktionBySkin(i) ~= 'РџРѕР»РёС†РёСЏ' and sampGetFraktionBySkin(i) ~= 'FBI' then
+            if dist < minDist and sampGetFraktionBySkin(i) ~= 'Полиция' and sampGetFraktionBySkin(i) ~= 'FBI' then
                 minDist = dist
                 closestId = i
             end
@@ -519,7 +476,7 @@ function getClosestPlayerIDinCar()
         if streamed then
             local xi, yi, zi = getCharCoordinates(pedID)
             local dist = math.sqrt( (xi - x) ^ 2 + (yi - y) ^ 2 + (zi - z) ^ 2 )
-            if dist < minDist and sampGetFraktionBySkin(i) ~= 'РџРѕР»РёС†РёСЏ' and sampGetFraktionBySkin(i) ~= 'FBI' and isCharInAnyCar(pedID) then
+            if dist < minDist and sampGetFraktionBySkin(i) ~= 'Полиция' and sampGetFraktionBySkin(i) ~= 'FBI' and isCharInAnyCar(pedID) then
                 if storeCarCharIsInNoSave(pedID) == veh then
                     minDist = dist
                     closestId = i
@@ -539,7 +496,7 @@ function getClosestPlayerIDinCarD()
         if streamed then
             local xi, yi, zi = getCharCoordinates(pedID)
             local dist = math.sqrt( (xi - x) ^ 2 + (yi - y) ^ 2 + (zi - z) ^ 2 )
-            if dist < minDist and sampGetFraktionBySkin(i) ~= 'РџРѕР»РёС†РёСЏ' and sampGetFraktionBySkin(i) ~= 'FBI' and isCharInAnyCar(pedID) then
+            if dist < minDist and sampGetFraktionBySkin(i) ~= 'Полиция' and sampGetFraktionBySkin(i) ~= 'FBI' and isCharInAnyCar(pedID) then
                 minDist = dist
                 closestId = i
             end
@@ -549,131 +506,29 @@ function getClosestPlayerIDinCarD()
 end
 
 function cuffk()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then 
-        local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
-        if valid then
-            result, targetid = sampGetPlayerIdByCharHandle(ped)
-            if result then
-                lua_thread.create(function()
-                    sampSendChat(string.format('/me %s СЂСѓРєРё РїСЂРµСЃС‚СѓРїРЅРёРєР° Рё %s РЅР°СЂСѓС‡РЅРёРєРё', cfg.main.male and 'Р·Р°Р»РѕРјР°Р»' or 'Р·Р°Р»РѕРјР°Р»Р°', cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
-                    wait(1400)
-                    sampSendChat('/cuff '..targetid)
-                    gmegafhandle = ped
-                    gmegafid = targetid
-                    gmegaflvl = sampGetPlayerScore(targetid)
-                    gmegaffrak = sampGetFraktionBySkin(targetid)
-                end)
-            end
-        else
-            local closeid = getClosestPlayerId()
-            if closeid ~= -1 then 
-                local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
-                if doesCharExist(closehandle) then
-                    lua_thread.create(function()
-                        sampSendChat(string.format('/me %s СЂСѓРєРё РїСЂРµСЃС‚СѓРїРЅРёРєР° Рё %s РЅР°СЂСѓС‡РЅРёРєРё', cfg.main.male and 'Р·Р°Р»РѕРјР°Р»' or 'Р·Р°Р»РѕРјР°Р»Р°', cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
-                        wait(1400)
-                        sampSendChat('/cuff '..closeid)
-                        gmegafhandle = closehandle
-                        gmegafid = closeid
-                        gmegaflvl = sampGetPlayerScore(closeid)
-                        gmegaffrak = sampGetFraktionBySkin(closeid)
-                    end)
-                end
-            end
+    local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
+    if valid then
+        result, targetid = sampGetPlayerIdByCharHandle(ped)
+        if result then
+            lua_thread.create(function()
+                sampSendChat(string.format('/me %s руки преступника и %s наручники', cfg.main.male and 'заломал' or 'заломала', cfg.main.male and 'достал' or 'достала'))
+                wait(1400)
+                sampSendChat('/cuff '..targetid)
+                gmegafhandle = ped
+                gmegafid = targetid
+                gmegaflvl = sampGetPlayerScore(targetid)
+                gmegaffrak = sampGetFraktionBySkin(targetid)
+            end)
         end
-    end
-end
-
-function uncuffk()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then 
-        local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
-        if valid then
-            local result, targetid = sampGetPlayerIdByCharHandle(ped)
-            if result then
-                lua_thread.create(function()
-                    sampSendChat(string.format('/me %s РЅР°СЂСѓС‡РЅРёРєРё СЃ РїСЂРµСЃС‚СѓРїРЅРёРєР°', cfg.main.male and 'СЃРЅСЏР»' or 'СЃРЅСЏР»Р°'))
-                    wait(1400)
-                    sampSendChat('/uncuff '..targetid)
-                    gmegafhandle = nil
-                    gmegafid = -1
-                    gmegaflvl = nil
-                    gmegaffrak = nil
-                end)
-            end
-        else
-            local closeid = getClosestPlayerId()
-            if sampIsPlayerConnected(closeid) then
-                if closeid ~= -1 then
-                    local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
-                    if doesCharExist(closehandle) then
-                        lua_thread.create(function()
-                            sampSendChat(string.format('/me %s РЅР°СЂСѓС‡РЅРёРєРё СЃ РїСЂРµСЃС‚СѓРїРЅРёРєР°', cfg.main.male and 'СЃРЅСЏР»' or 'СЃРЅСЏР»Р°'))
-                            wait(1400)
-                            sampSendChat('/uncuff '..closeid)
-                            gmegafhandle = nil
-                            gmegafid = -1
-                            gmegaflvl = nil
-                            gmegaffrak = nil
-                        end)
-                    end
-                end
-            end
-        end
-    end
-end
-
-function followk()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then 
-        local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
-        if valid then
-            result, targetid = sampGetPlayerIdByCharHandle(ped)
-            if result then
-                lua_thread.create(function()
-                    sampSendChat(string.format('/me %s РѕРґРёРЅ РёР· РєРѕРЅС†РѕРІ РЅР°СЂСѓС‡РЅРёРєРѕРІ Рє СЃРµР±Рµ, РїРѕСЃР»Рµ С‡РµРіРѕ %s Р·Р° СЃРѕР±РѕР№ РїСЂРµСЃС‚СѓРїРЅРёРєР°', cfg.main.male and 'РїСЂРёСЃС‚РµРіРЅСѓР»' or 'РїСЂРёСЃС‚РµРіРЅСѓР»Р°', cfg.main.male and 'РїРѕРІРµР»' or 'РїРѕРІРµР»Р°'))
-                    wait(1400)
-                    sampSendChat('/follow '..targetid)
-                    gmegafhandle = ped
-                    gmegafid = targetid
-                    gmegaflvl = sampGetPlayerScore(targetid)
-                    gmegaffrak = sampGetFraktionBySkin(targetid)
-                end)
-            end
-        else
-            local closeid = getClosestPlayerId()
-            if closeid ~= -1 then 
-                local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
-                if doesCharExist(closehandle) then
-                    lua_thread.create(function()
-                        sampSendChat(string.format('/me %s РѕРґРёРЅ РёР· РєРѕРЅС†РѕРІ РЅР°СЂСѓС‡РЅРёРєРѕРІ Рє СЃРµР±Рµ, РїРѕСЃР»Рµ С‡РµРіРѕ %s Р·Р° СЃРѕР±РѕР№ РїСЂРµСЃС‚СѓРїРЅРёРєР°', cfg.main.male and 'РїСЂРёСЃС‚РµРіРЅСѓР»' or 'РїСЂРёСЃС‚РµРіРЅСѓР»Р°', cfg.main.male and 'РїРѕРІРµР»' or 'РїРѕРІРµР»Р°'))
-                        wait(1400)
-                        sampSendChat('/follow '..closeid)
-                        gmegafhandle = closehandle
-                        gmegafid = closeid
-                        gmegaflvl = sampGetPlayerScore(closeid)
-                        gmegaffrak = sampGetFraktionBySkin(closeid)
-                    end)
-                end
-            end
-        end
-    end
-end
-
-function cputk()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then 
+    else
         local closeid = getClosestPlayerId()
-        if closeid ~= -1 then
+        if closeid ~= -1 then 
             local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
             if doesCharExist(closehandle) then
                 lua_thread.create(function()
-                    if isCharOnAnyBike(PLAYER_PED) then
-                        sampSendChat(string.format("/me %s РїСЂРµСЃС‚СѓРїРЅРёРєР° РЅР° СЃРёРґРµРЅСЊРµ РјРѕС‚РѕС†РёРєР»Р°", cfg.main.male and 'РїРѕСЃР°РґРёР»' or 'РїРѕСЃР°РґРёР»Р°'))
-                        wait(1400)
-                        sampSendChat("/cput "..closeid.." 1", -1)
-                    else
-                        sampSendChat(string.format("/me %s РґРІРµСЂСЊ Р°РІС‚РѕРјРѕР±РёР»СЏ Рё %s С‚СѓРґР° РїСЂРµСЃС‚СѓРїРЅРёРєР°", cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'Р·Р°С‚РѕР»РєРЅСѓР»' or 'Р·Р°С‚РѕР»РєРЅСѓР»Р°'))
-                        wait(1400)
-                        sampSendChat("/cput "..closeid.." "..getFreeSeat(), -1)
-                    end
+                    sampSendChat(string.format('/me %s руки преступника и %s наручники', cfg.main.male and 'заломал' or 'заломала', cfg.main.male and 'достал' or 'достала'))
+                    wait(1400)
+                    sampSendChat('/cuff '..closeid)
                     gmegafhandle = closehandle
                     gmegafid = closeid
                     gmegaflvl = sampGetPlayerScore(closeid)
@@ -684,115 +539,31 @@ function cputk()
     end
 end
 
-function cejectk()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then 
-        if isCharInAnyCar(PLAYER_PED) then
-            local closestId = getClosestPlayerIDinCar()
-            if closestId ~= -1 then
-                local result, closehandle = sampGetCharHandleBySampPlayerId(closestId)
-                lua_thread.create(function()
-                    if isCharOnAnyBike(PLAYER_PED) then
-                        sampSendChat(string.format("/me %s РїСЂРµСЃС‚СѓРїРЅРёРєР° СЃ РјРѕС‚РѕС†РёРєР»Р°", cfg.main.male and 'РІС‹СЃР°РґРёР»' or 'РІС‹СЃР°РґРёР»Р°'))
-                        wait(1400)
-                        sampSendChat("/ceject "..closestId, -1)
-                    else
-                        sampSendChat(string.format("/me %s РґРІРµСЂСЊ Р°РІС‚РѕРјРѕР±РёР»СЏ Рё %s РїСЂРµСЃС‚СѓРїРЅРёРєР°", cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»', cfg.main.male and 'РІС‹СЃР°РґРёР»' or 'РІС‹СЃР°РґРёР»Р°'))
-                        wait(1400)
-                        sampSendChat("/ceject "..closestId)
-                    end
-                    gmegafhandle = closehandle
-                    gmegafid = closestId
-                    gmegaflvl = sampGetPlayerScore(closestId)
-                    gmegaffrak = sampGetFraktionBySkin(closestId)
-                end)
-            end
+function uncuffk()
+    local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
+    if valid then
+        local result, targetid = sampGetPlayerIdByCharHandle(ped)
+        if result then
+            lua_thread.create(function()
+                sampSendChat(string.format('/me %s наручники с преступника', cfg.main.male and 'снял' or 'сняла'))
+                wait(1400)
+                sampSendChat('/uncuff '..targetid)
+                gmegafhandle = nil
+                gmegafid = -1
+                gmegaflvl = nil
+                gmegaffrak = nil
+            end)
         end
-    end
-end
-
-function takek()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then 
-        local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
-        if valid then
-            result, targetid = sampGetPlayerIdByCharHandle(ped)
-            if result then
-                lua_thread.create(function()
-                    sampSendChat(string.format('/me РЅР°РґРµРІ РїРµСЂС‡Р°С‚РєРё, %s СЂСѓРєР°РјРё РїРѕ С‚РѕСЂСЃСѓ', cfg.main.male and 'РїСЂРѕРІРµР»' or 'РїСЂРѕРІРµР»Р°'))
-                    wait(1400)
-                    sampSendChat('/take '..targetid)
-                    gmegafhandle = ped
-                    gmegafid = targetid
-                    gmegaflvl = sampGetPlayerScore(targetid)
-                    gmegaffrak = sampGetFraktionBySkin(targetid)
-                end)
-            end
-        else
-            local closeid = getClosestPlayerId()
-            if closeid ~= -1 then 
+    else
+        local closeid = getClosestPlayerId()
+        if sampIsPlayerConnected(closeid) then
+            if closeid ~= -1 then
                 local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
                 if doesCharExist(closehandle) then
                     lua_thread.create(function()
-                        sampSendChat(string.format('/me РЅР°РґРµРІ РїРµСЂС‡Р°С‚РєРё, %s СЂСѓРєР°РјРё РїРѕ С‚РѕСЂСЃСѓ', cfg.main.male and 'РїСЂРѕРІРµР»' or 'РїСЂРѕРІРµР»Р°'))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat('/take '..closeid)
-                        gmegafhandle = closehandle
-                        gmegafid = closeid
-                        gmegaflvl = sampGetPlayerScore(closeid)
-                        gmegaffrak = sampGetFraktionBySkin(closeid)
-                    end)
-                end
-            end
-        end
-    end
-end
-
-function arrestk()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then 
-        local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
-        if valid then
-            result, targetid = sampGetPlayerIdByCharHandle(ped)
-            if result then
-                lua_thread.create(function()
-                    --[[sampSendChat(string.format('/me %s РєР°РјРµСЂСѓ', cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°'))
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format('/me %s РїСЂРµСЃС‚СѓРїРЅРёРєР° РІ РєР°РјРµСЂСѓ', cfg.main.male and 'РїСЂРѕРІРµР»' or 'РїСЂРѕРІРµР»Р°'))
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat('/arrest '..targetid)
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format('/me %s РєР°РјРµСЂСѓ', cfg.main.male and 'Р·Р°РєСЂС‹Р»' or 'Р·Р°РєСЂС‹Р»Р°'))]]
-                    sampSendChat("/do РљР»СЋС‡Рё РѕС‚ РєР°РјРµСЂС‹ РІРёСЃСЏС‚ РЅР° РїРѕСЏСЃРµ.")
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format("/me %s РєР»СЋС‡Рё СЃ РїРѕСЏСЃР° Рё %s РєР°РјРµСЂСѓ, РїРѕСЃР»Рµ %s С‚СѓРґР° РїСЂРµСЃС‚СѓРїРЅРёРєР°", cfg.main.male and 'СЃРЅСЏР»' or 'СЃРЅСЏР»Р°', cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'Р·Р°С‚РѕР»РєРЅСѓР»' or 'Р·Р°С‚РѕР»РєРЅСѓР»Р°'))
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat('/arrest '..targetid)
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format("/me %s РґРІРµСЂСЊ РєР°РјРµСЂС‹ Рё %s РєР»СЋС‡Рё РЅР° РїРѕСЏСЃ", cfg.main.male and 'Р·Р°РєСЂС‹Р»' or 'Р·Р°РєСЂС‹Р»Р°', cfg.main.male and 'РїРѕРІРµСЃРёР»' or 'РїРѕРІРµСЃРёР»Р°'))
-                    gmegafhandle = nil
-                    gmegafid = -1
-                    gmegaflvl = nil
-                    gmegaffrak = nil
-                end)
-            end
-        else
-            local closeid = getClosestPlayerId()
-            if closeid ~= -1 then 
-                local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
-                if doesCharExist(closehandle) then
-                    lua_thread.create(function()
-                        --[[sampSendChat(string.format('/me %s РєР°РјРµСЂСѓ', cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°'))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(string.format('/me %s РїСЂРµСЃС‚СѓРїРЅРёРєР° РІ РєР°РјРµСЂСѓ', cfg.main.male and 'РїСЂРѕРІРµР»' or 'РїСЂРѕРІРµР»Р°'))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat('/arrest '..closeid)
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(string.format('/me %s РєР°РјРµСЂСѓ', cfg.main.male and 'Р·Р°РєСЂС‹Р»' or 'Р·Р°РєСЂС‹Р»Р°'))]]
-                        sampSendChat("/do РљР»СЋС‡Рё РѕС‚ РєР°РјРµСЂС‹ РІРёСЃСЏС‚ РЅР° РїРѕСЏСЃРµ.")
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(string.format("/me %s РєР»СЋС‡Рё СЃ РїРѕСЏСЃР° Рё %s РєР°РјРµСЂСѓ, РїРѕСЃР»Рµ %s С‚СѓРґР° РїСЂРµСЃС‚СѓРїРЅРёРєР°", cfg.main.male and 'СЃРЅСЏР»' or 'СЃРЅСЏР»Р°', cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'Р·Р°С‚РѕР»РєРЅСѓР»' or 'Р·Р°С‚РѕР»РєРЅСѓР»Р°'))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat('/arrest '..closeid)
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(string.format("/me %s РґРІРµСЂСЊ РєР°РјРµСЂС‹ Рё %s РєР»СЋС‡Рё РЅР° РїРѕСЏСЃ", cfg.main.male and 'Р·Р°РєСЂС‹Р»' or 'Р·Р°РєСЂС‹Р»Р°', cfg.main.male and 'РїРѕРІРµСЃРёР»' or 'РїРѕРІРµСЃРёР»Р°'))
+                        sampSendChat(string.format('/me %s наручники с преступника', cfg.main.male and 'снял' or 'сняла'))
+                        wait(1400)
+                        sampSendChat('/uncuff '..closeid)
                         gmegafhandle = nil
                         gmegafid = -1
                         gmegaflvl = nil
@@ -804,153 +575,220 @@ function arrestk()
     end
 end
 
-function dejectk()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then 
-        local closestId = getClosestPlayerIDinCarD()
-        if closestId ~= -1 then
-            local result, closehandle = sampGetCharHandleBySampPlayerId(closestId)
-            if result then
+function followk()
+    local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
+    if valid then
+        result, targetid = sampGetPlayerIdByCharHandle(ped)
+        if result then
+            lua_thread.create(function()
+                sampSendChat(string.format('/me %s один из концов наручников к себе, после чего %s за собой преступника', cfg.main.male and 'пристегнул' or 'пристегнула', cfg.main.male and 'повел' or 'повела'))
+                wait(1400)
+                sampSendChat('/follow '..targetid)
+                gmegafhandle = ped
+                gmegafid = targetid
+                gmegaflvl = sampGetPlayerScore(targetid)
+                gmegaffrak = sampGetFraktionBySkin(targetid)
+            end)
+        end
+    else
+        local closeid = getClosestPlayerId()
+        if closeid ~= -1 then 
+            local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
+            if doesCharExist(closehandle) then
                 lua_thread.create(function()
-                    if isCharInFlyingVehicle(closehandle) then
-                        sampSendChat(string.format("/me %s РґРІРµСЂСЊ РІРµСЂС‚РѕР»С‘С‚Р° Рё %s РїСЂРµСЃС‚СѓРїРЅРёРєР°", cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'РІС‹С‚Р°С‰РёР»' or 'РІС‹С‚Р°С‰РёР»Р°'))
-                        wait(1400)
-                        sampSendChat("/deject "..closestId)
-                    elseif isCharInModel(closehandle, 481) or isCharInModel(closehandle, 510) then
-                        sampSendChat(string.format("/me СЃРєРёРЅСѓР» РїСЂРµСЃС‚СѓРїРЅРёРєР° СЃ РІРµР»РѕСЃРёРїРµРґР°", cfg.main.male and 'СЃРєРёРЅСѓР»' or 'СЃРєРёРЅСѓР»Р°'))
-                        wait(1400)
-                        sampSendChat("/deject "..closestId)
-                    elseif isCharInModel(closehandle, 462) then
-                        sampSendChat(string.format("/me %s РїСЂРµСЃС‚СѓРїРЅРёРєР° СЃРѕ СЃРєСѓС‚РµСЂР°", cfg.main.male and 'СЃРєРёРЅСѓР»' or 'СЃРєРёРЅСѓР»Р°'))
-                        wait(1400)
-                        sampSendChat("/deject "..closestId)
-                    elseif isCharOnAnyBike(closehandle) then
-                        sampSendChat(string.format("/me %s РїСЂРµСЃС‚СѓРїРЅРёРєР° СЃ РјРѕС‚РѕС†РёРєР»Р°", cfg.main.male and 'СЃРєРёРЅСѓР»' or 'СЃРєРёРЅСѓР»Р°'))
-                        wait(1400)
-                        sampSendChat("/deject "..closestId)
-                    elseif isCharInAnyCar(closehandle) then
-                        sampSendChat(string.format("/me %s РѕРєРЅРѕ Рё %s РїСЂРµСЃС‚СѓРїРЅРёРєР° РёР· РјР°С€РёРЅС‹", cfg.main.male and 'СЂР°Р·Р±РёР»' or 'СЂР°Р·Р±РёР»Р°', cfg.main.male and 'РІС‹С‚РѕР»РєРЅСѓР»' or 'РІС‹С‚РѕР»РєРЅСѓР»Р°'))
-                        wait(1400)
-                        sampSendChat("/deject "..closestId)
-                    end
+                    sampSendChat(string.format('/me %s один из концов наручников к себе, после чего %s за собой преступника', cfg.main.male and 'пристегнул' or 'пристегнула', cfg.main.male and 'повел' or 'повела'))
+                    wait(1400)
+                    sampSendChat('/follow '..closeid)
+                    gmegafhandle = closehandle
+                    gmegafid = closeid
+                    gmegaflvl = sampGetPlayerScore(closeid)
+                    gmegaffrak = sampGetFraktionBySkin(closeid)
                 end)
             end
         end
     end
 end
 
-function hikeyk()
-	if cfg.main.group == 'РњСЌСЂРёСЏ' then
-		lua_thread.create(function()
-			sampSendChat(string.format('РџСЂРёРІРµС‚СЃС‚РІСѓСЋ, СЏ Р°РґРІРѕРєР°С‚ %s. РљС‚Рѕ РЅСѓР¶РґР°РµС‚СЃСЏ РІ РјРѕРёС… СѓСЃР»СѓРіР°С…?', sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' ')))
-			wait(1400)
-			sampSendChat(string.format('/b /showpass %s', select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))))
-		end)
-	end
+function cputk()
+    local closeid = getClosestPlayerId()
+    if closeid ~= -1 then
+        local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
+        if doesCharExist(closehandle) then
+            lua_thread.create(function()
+                if isCharOnAnyBike(PLAYER_PED) then
+                    sampSendChat(string.format("/me %s преступника на сиденье мотоцикла", cfg.main.male and 'посадил' or 'посадила'))
+                    wait(1400)
+                    sampSendChat("/cput "..closeid.." 1", -1)
+                else
+                    sampSendChat(string.format("/me %s дверь автомобиля и %s туда преступника", cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула'))
+                    wait(1400)
+                    sampSendChat("/cput "..closeid.." "..getFreeSeat(), -1)
+                end
+                gmegafhandle = closehandle
+                gmegafid = closeid
+                gmegaflvl = sampGetPlayerScore(closeid)
+                gmegaffrak = sampGetFraktionBySkin(closeid)
+            end)
+        end
+    end
 end
 
-function summakeyk()
-	if cfg.main.group == 'РњСЌСЂРёСЏ' then
-		lua_thread.create(function()
-			local valid, tped = getCharPlayerIsTargeting(PLAYER_HANDLE)
-			if valid and doesCharExist(tped) then
-				local result, tid = sampGetPlayerIdByCharHandle(tped)
-				if result then
-					local tlvl = sampGetPlayerScore(tid)
-					sampSendChat(string.format('РЎСѓРјРјР° РІР°С€РµРіРѕ РІС‹Р·РІРѕР»РµРЅРёСЏ СЃРѕСЃС‚Р°РІР»СЏРµС‚ %s.', getFreeCost(tlvl)))
-					wait(1400)
-					sampSendChat('Р§РµРј Р¶РµР»Р°РµС‚Рµ РѕРїР»Р°С‚РёС‚СЊ, Р±Р°РЅРєРѕРј РёР»Рё РЅР°Р»РёС‡РЅС‹РјРё?')
-				end
-			end
-		end)
-	end
+function cejectk()
+    if isCharInAnyCar(PLAYER_PED) then
+        local closestId = getClosestPlayerIDinCar()
+        if closestId ~= -1 then
+            local result, closehandle = sampGetCharHandleBySampPlayerId(closestId)
+            lua_thread.create(function()
+                if isCharOnAnyBike(PLAYER_PED) then
+                    sampSendChat(string.format("/me %s преступника с мотоцикла", cfg.main.male and 'высадил' or 'высадила'))
+                    wait(1400)
+                    sampSendChat("/ceject "..closestId, -1)
+                else
+                    sampSendChat(string.format("/me %s дверь автомобиля и %s преступника", cfg.main.male and 'открыл' or 'открыл', cfg.main.male and 'высадил' or 'высадила'))
+                    wait(1400)
+                    sampSendChat("/ceject "..closestId)
+                end
+                gmegafhandle = closehandle
+                gmegafid = closestId
+                gmegaflvl = sampGetPlayerScore(closestId)
+                gmegaffrak = sampGetFraktionBySkin(closestId)
+            end)
+        end
+    end
 end
 
-function freenalkeyk()
-	if cfg.main.group == 'РњСЌСЂРёСЏ' then
-		lua_thread.create(function()
-			local valid, tped = getCharPlayerIsTargeting(PLAYER_HANDLE)
-			if valid and doesCharExist(tped) then
-				local result, tid = sampGetPlayerIdByCharHandle(tped)
-				if result then
-					local tlvl = sampGetPlayerScore(tid)
-					sampSendChat('/me РґРѕСЃС‚Р°Р» Р±Р»Р°РЅРє РёР· РєРµР№СЃР° Рё РЅР°С‡Р°Р» РµРіРѕ Р·Р°РїРѕР»РЅСЏС‚СЊ')
-					wait(1400)
-					sampSendChat('/me РїРѕСЃС‚Р°РІРёР» РїРµС‡Р°С‚СЊ РІ Р±Р»Р°РЅРєРµ Рё РїРµСЂРµРґР°Р» Р·Р°РєР»СЋС‡РµРЅРЅРѕРјСѓ')
-					wait(1400)
-					sampSendChat(string.format('/free %s 1 %s', tid, getFreeCost(tlvl)))
-				end
-			end
-		end)
-	end
-end
-
-function freebankkeyk()
-	if cfg.main.group == 'РњСЌСЂРёСЏ' then
-		lua_thread.create(function()
-			local valid, tped = getCharPlayerIsTargeting(PLAYER_HANDLE)
-			if valid and doesCharExist(tped) then
-				local result, tid = sampGetPlayerIdByCharHandle(tped)
-				if result then
-					local tlvl = sampGetPlayerScore(tid)
-					sampSendChat('/me РґРѕСЃС‚Р°Р» Р±Р»Р°РЅРє РёР· РєРµР№СЃР° Рё РЅР°С‡Р°Р» РµРіРѕ Р·Р°РїРѕР»РЅСЏС‚СЊ')
-					wait(1400)
-					sampSendChat('/me РїРѕСЃС‚Р°РІРёР» РїРµС‡Р°С‚СЊ РІ Р±Р»Р°РЅРєРµ Рё РїРµСЂРµРґР°Р» Р·Р°РєР»СЋС‡РµРЅРЅРѕРјСѓ')
-					wait(1400)
-					sampSendChat(string.format('/free %s 2 %s', tid, getFreeCost(tlvl)))
-				end
-			end
-		end)
-	end
-end
-
-function vzaimk()
+function takek()
     local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
-    if valid and doesCharExist(ped) then
-        local result, id = sampGetPlayerIdByCharHandle(ped)
-        --targetid = id
+    if valid then
+        result, targetid = sampGetPlayerIdByCharHandle(ped)
         if result then
-            if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
+            lua_thread.create(function()
+                sampSendChat(string.format('/me надев перчатки, %s руками по торсу', cfg.main.male and 'провел' or 'провела'))
+                wait(1400)
+                sampSendChat('/take '..targetid)
                 gmegafhandle = ped
-                gmegafid = id
-                gmegaflvl = sampGetPlayerScore(id)
-                gmegaffrak = sampGetFraktionBySkin(id)
-                submenus_show(pkmmenuPD(id), "{9966cc}"..script.this.name.." {ffffff}| "..sampGetPlayerNickname(id).." ["..id.."] ")
-            elseif cfg.main.group == "РђРІС‚РѕС€РєРѕР»Р°" then
-                submenus_show(pkmmenuAS(id), "{9966cc}"..script.this.name.." {ffffff}| "..sampGetPlayerNickname(id).." ["..id.."] ")
-            elseif cfg.main.group == "РњРµРґРёРєРё" then
-                submenus_show(pkmmenuMOH(id), "{9966cc}"..script.this.name.." {ffffff}| "..sampGetPlayerNickname(id).." ["..id.."] ")
+                gmegafid = targetid
+                gmegaflvl = sampGetPlayerScore(targetid)
+                gmegaffrak = sampGetFraktionBySkin(targetid)
+            end)
+        end
+    else
+        local closeid = getClosestPlayerId()
+        if closeid ~= -1 then 
+            local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
+            if doesCharExist(closehandle) then
+                lua_thread.create(function()
+                    sampSendChat(string.format('/me надев перчатки, %s руками по торсу', cfg.main.male and 'провел' or 'провела'))
+                    wait(cfg.commands.zaderjka)
+                    sampSendChat('/take '..closeid)
+                    gmegafhandle = closehandle
+                    gmegafid = closeid
+                    gmegaflvl = sampGetPlayerScore(closeid)
+                    gmegaffrak = sampGetFraktionBySkin(closeid)
+                end)
             end
         end
     end
 end
 
+function arrestk()
+    local valid, ped = getCharPlayerIsTargeting(PLAYER_HANDLE)
+    if valid then
+        result, targetid = sampGetPlayerIdByCharHandle(ped)
+        if result then
+            lua_thread.create(function()
+                sampSendChat(string.format('/me %s камеру', cfg.main.male and 'открыл' or 'открыла'))
+                wait(cfg.commands.zaderjka)
+                sampSendChat(string.format('/me %s преступника в камеру', cfg.main.male and 'провел' or 'провела'))
+                wait(cfg.commands.zaderjka)
+                sampSendChat('/arrest '..targetid)
+                wait(cfg.commands.zaderjka)
+                sampSendChat(string.format('/me %s камеру', cfg.main.male and 'закрыл' or 'закрыла'))
+                gmegafhandle = nil
+                gmegafid = -1
+                gmegaflvl = nil
+                gmegaffrak = nil
+            end)
+        end
+    else
+        local closeid = getClosestPlayerId()
+        if closeid ~= -1 then 
+            local result, closehandle = sampGetCharHandleBySampPlayerId(closeid)
+            if doesCharExist(closehandle) then
+                lua_thread.create(function()
+                    sampSendChat(string.format('/me %s камеру', cfg.main.male and 'открыл' or 'открыла'))
+                    wait(cfg.commands.zaderjka)
+                    sampSendChat(string.format('/me %s преступника в камеру', cfg.main.male and 'провел' or 'провела'))
+                    wait(cfg.commands.zaderjka)
+                    sampSendChat('/arrest '..closeid)
+                    wait(cfg.commands.zaderjka)
+                    sampSendChat(string.format('/me %s камеру', cfg.main.male and 'закрыл' or 'закрыла'))
+                    gmegafhandle = nil
+                    gmegafid = -1
+                    gmegaflvl = nil
+                    gmegaffrak = nil
+                end)
+            end
+        end
+    end
+end
+
+function dejectk()
+    local closestId = getClosestPlayerIDinCarD()
+    if closestId ~= -1 then
+        local result, closehandle = sampGetCharHandleBySampPlayerId(closestId)
+        if result then
+            lua_thread.create(function()
+                if isCharInFlyingVehicle(closehandle) then
+                    sampSendChat(string.format("/me %s дверь вертолёта и %s преступника", cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'вытащил' or 'вытащила'))
+                    wait(1400)
+                    sampSendChat("/deject "..closestId)
+                elseif isCharInModel(closehandle, 481) or isCharInModel(closehandle, 510) then
+                    sampSendChat(string.format("/me скинул преступника с велосипеда", cfg.main.male and 'скинул' or 'скинула'))
+                    wait(1400)
+                    sampSendChat("/deject "..closestId)
+                elseif isCharInModel(closehandle, 462) then
+                    sampSendChat(string.format("/me %s преступника со скутера", cfg.main.male and 'скинул' or 'скинула'))
+                    wait(1400)
+                    sampSendChat("/deject "..closestId)
+                elseif isCharOnAnyBike(closehandle) then
+                    sampSendChat(string.format("/me %s преступника с мотоцикла", cfg.main.male and 'скинул' or 'скинула'))
+                    wait(1400)
+                    sampSendChat("/deject "..closestId)
+                elseif isCharInAnyCar(closehandle) then
+                    sampSendChat(string.format("/me %s окно и %s преступника из машины", cfg.main.male and 'разбил' or 'разбила', cfg.main.male and 'вытолкнул' or 'вытолкнула'))
+                    wait(1400)
+                    sampSendChat("/deject "..closestId)
+                end
+            end)
+        end
+    end
+end
+
 function sampGetFraktionBySkin(id)
-    local skin = 0
-    local t = 'Р“СЂР°Р¶РґР°РЅСЃРєРёР№'
-    --if sampIsPlayerConnected(id) then
+    local t = 'Гражданский'
+    if sampIsPlayerConnected(id) then
         local result, ped = sampGetCharHandleBySampPlayerId(id)
         if result then
-            skin = getCharModel(ped)
-        else
-            skin = getCharModel(PLAYER_PED)
+            local skin = getCharModel(ped)
+            if skin == 102 or skin == 103 or skin == 104 or skin == 195 or skin == 21 then t = 'Ballas Gang' end
+            if skin == 105 or skin == 106 or skin == 107 or skin == 269 or skin == 270 or skin == 271 or skin == 86 or skin == 149 or skin == 297 then t = 'Grove Gang' end
+            if skin == 108 or skin == 109 or skin == 110 or skin == 190 or skin == 47 then t = 'Vagos Gang' end
+            if skin == 114 or skin == 115 or skin == 116 or skin == 48 or skin == 44 or skin == 41 or skin == 292 then t = 'Aztec Gang' end
+            if skin == 173 or skin == 174 or skin == 175 or skin == 193 or skin == 226 or skin == 30 or skin == 119 then t = 'Rifa Gang' end
+            if skin == 191 or skin == 252 or skin == 287 or skin == 61 or skin == 179 or skin == 255 then t = 'Army' end
+            if skin == 57 or skin == 98 or skin == 147 or skin == 150 or skin == 187 or skin == 216 then t = 'Мэрия' end
+            if skin == 59 or skin == 172 or skin == 189 or skin == 240 then t = 'Автошкола' end
+            if skin == 201 or skin == 247 or skin == 248 or skin == 254 or skin == 248 or skin == 298 then t = 'Байкеры' end
+            if skin == 272 or skin == 112 or skin == 125 or skin == 214 or skin == 111  or skin == 126 then t = 'Русская мафия' end
+            if skin == 113 or skin == 124 or skin == 214 or skin == 223 then t = 'La Cosa Nostra' end
+            if skin == 120 or skin == 123 or skin == 169 or skin == 186 then t = 'Yakuza' end
+            if skin == 211 or skin == 217 or skin == 250 or skin == 261 then t = 'News' end
+            if skin == 70 or skin == 219 or skin == 274 or skin == 275 or skin == 276 or skin == 70 then t = 'Медики' end
+            if skin == 286 or skin == 141 or skin == 163 or skin == 164 or skin == 165 or skin == 166 then t = 'FBI' end
+            if skin == 280 or skin == 265 or skin == 266 or skin == 267 or skin == 281 or skin == 282 or skin == 288 or skin == 284 or skin == 285 or skin == 304 or skin == 305 or skin == 306 or skin == 307 or skin == 309 or skin == 283 or skin == 303 then t = 'Полиция' end
         end
-        if skin == 102 or skin == 103 or skin == 104 or skin == 195 or skin == 21 then t = 'Ballas Gang' end
-        if skin == 105 or skin == 106 or skin == 107 or skin == 269 or skin == 270 or skin == 271 or skin == 86 or skin == 149 or skin == 297 then t = 'Grove Gang' end
-        if skin == 108 or skin == 109 or skin == 110 or skin == 190 or skin == 47 then t = 'Vagos Gang' end
-        if skin == 114 or skin == 115 or skin == 116 or skin == 48 or skin == 44 or skin == 41 or skin == 292 then t = 'Aztec Gang' end
-        if skin == 173 or skin == 174 or skin == 175 or skin == 193 or skin == 226 or skin == 30 or skin == 119 then t = 'Rifa Gang' end
-        if skin == 191 or skin == 252 or skin == 287 or skin == 61 or skin == 179 or skin == 255 then t = 'Army' end
-        if skin == 57 or skin == 98 or skin == 147 or skin == 150 or skin == 187 or skin == 216 then t = 'РњСЌСЂРёСЏ' end
-        if skin == 59 or skin == 172 or skin == 189 or skin == 240 then t = 'РђРІС‚РѕС€РєРѕР»Р°' end
-        if skin == 201 or skin == 247 or skin == 248 or skin == 254 or skin == 248 or skin == 298 then t = 'Р‘Р°Р№РєРµСЂС‹' end
-        if skin == 272 or skin == 112 or skin == 125 or skin == 214 or skin == 111  or skin == 126 then t = 'Р СѓСЃСЃРєР°СЏ РјР°С„РёСЏ' end
-        if skin == 113 or skin == 124 or skin == 214 or skin == 223 then t = 'La Cosa Nostra' end
-        if skin == 120 or skin == 123 or skin == 169 or skin == 186 then t = 'Yakuza' end
-        if skin == 211 or skin == 217 or skin == 250 or skin == 261 then t = 'News' end
-        if skin == 70 or skin == 219 or skin == 274 or skin == 275 or skin == 276 or skin == 70 then t = 'РњРµРґРёРєРё' end
-        if skin == 286 or skin == 141 or skin == 163 or skin == 164 or skin == 165 or skin == 166 then t = 'FBI' end
-        if skin == 280 or skin == 265 or skin == 266 or skin == 267 or skin == 281 or skin == 282 or skin == 288 or skin == 284 or skin == 285 or skin == 304 or skin == 305 or skin == 306 or skin == 307 or skin == 309 or skin == 283 or skin == 303 then t = 'РџРѕР»РёС†РёСЏ' end
-    --end
+    end
     return t
 end
 
@@ -962,29 +800,29 @@ end
 
 function getMaskList(forma)
 	local mask = {
-		['РіСЂР°Р¶РґР°РЅСЃРєРѕРіРѕ'] = 0,
-		['РїРѕР»РёС†РµР№СЃРєРѕРіРѕ'] = 1,
-		['РІРѕРµРЅРЅРѕРіРѕ'] = 2,
-		['Р»Р°Р±РѕСЂР°С‚РѕСЂРёСЏ'] = 3,
-		['РјРµРґРёРєР°'] = 3,
-		['СЃРѕС‚СЂСѓРґРЅРёРєР° РјСЌСЂРёРё'] = 4,
-		['СЂР°Р±РѕС‚РЅРёРєР° Р°РІС‚РѕС€РєРѕР»С‹'] = 5,
-		['СЂР°Р±РѕС‚РЅРёРєР° РЅРѕРІРѕСЃС‚РµР№'] = 6,
-		['Р§РћРџ LCN'] = 7,
-		['Р§РћРџ Yakuza'] = 8,
-		['Р§РћРџ Russian Mafia'] = 9,
-		['Р‘Рљ Rifa'] = 10,
-		['Р‘Рљ Grove'] = 11,
-		['Р‘Рљ Ballas'] = 12,
-		['Р‘Рљ Vagos'] = 13,
-		['Р‘Рљ Aztec'] = 14,
-		['Р±Р°Р№РєРµСЂРѕРІ'] = 15
+		['гражданского'] = 0,
+		['полицейского'] = 1,
+		['военного'] = 2,
+		['лаборатория'] = 3,
+		['медика'] = 3,
+		['сотрудника мэрии'] = 4,
+		['работника автошколы'] = 5,
+		['работника новостей'] = 6,
+		['ЧОП LCN'] = 7,
+		['ЧОП Yakuza'] = 8,
+		['ЧОП Russian Mafia'] = 9,
+		['БК Rifa'] = 10,
+		['БК Grove'] = 11,
+		['БК Ballas'] = 12,
+		['БК Vagos'] = 13,
+		['БК Aztec'] = 14,
+		['байкеров'] = 15
 	}
 	return mask[forma]
 end
 
 local russian_characters = {
-    [168] = 'РЃ', [184] = 'С‘', [192] = 'Рђ', [193] = 'Р‘', [194] = 'Р’', [195] = 'Р“', [196] = 'Р”', [197] = 'Р•', [198] = 'Р–', [199] = 'Р—', [200] = 'Р', [201] = 'Р™', [202] = 'Рљ', [203] = 'Р›', [204] = 'Рњ', [205] = 'Рќ', [206] = 'Рћ', [207] = 'Рџ', [208] = 'Р ', [209] = 'РЎ', [210] = 'Рў', [211] = 'РЈ', [212] = 'Р¤', [213] = 'РҐ', [214] = 'Р¦', [215] = 'Р§', [216] = 'РЁ', [217] = 'Р©', [218] = 'РЄ', [219] = 'Р«', [220] = 'Р¬', [221] = 'Р­', [222] = 'Р®', [223] = 'РЇ', [224] = 'Р°', [225] = 'Р±', [226] = 'РІ', [227] = 'Рі', [228] = 'Рґ', [229] = 'Рµ', [230] = 'Р¶', [231] = 'Р·', [232] = 'Рё', [233] = 'Р№', [234] = 'Рє', [235] = 'Р»', [236] = 'Рј', [237] = 'РЅ', [238] = 'Рѕ', [239] = 'Рї', [240] = 'СЂ', [241] = 'СЃ', [242] = 'С‚', [243] = 'Сѓ', [244] = 'С„', [245] = 'С…', [246] = 'С†', [247] = 'С‡', [248] = 'С€', [249] = 'С‰', [250] = 'СЉ', [251] = 'С‹', [252] = 'СЊ', [253] = 'СЌ', [254] = 'СЋ', [255] = 'СЏ',
+    [168] = 'Ё', [184] = 'ё', [192] = 'А', [193] = 'Б', [194] = 'В', [195] = 'Г', [196] = 'Д', [197] = 'Е', [198] = 'Ж', [199] = 'З', [200] = 'И', [201] = 'Й', [202] = 'К', [203] = 'Л', [204] = 'М', [205] = 'Н', [206] = 'О', [207] = 'П', [208] = 'Р', [209] = 'С', [210] = 'Т', [211] = 'У', [212] = 'Ф', [213] = 'Х', [214] = 'Ц', [215] = 'Ч', [216] = 'Ш', [217] = 'Щ', [218] = 'Ъ', [219] = 'Ы', [220] = 'Ь', [221] = 'Э', [222] = 'Ю', [223] = 'Я', [224] = 'а', [225] = 'б', [226] = 'в', [227] = 'г', [228] = 'д', [229] = 'е', [230] = 'ж', [231] = 'з', [232] = 'и', [233] = 'й', [234] = 'к', [235] = 'л', [236] = 'м', [237] = 'н', [238] = 'о', [239] = 'п', [240] = 'р', [241] = 'с', [242] = 'т', [243] = 'у', [244] = 'ф', [245] = 'х', [246] = 'ц', [247] = 'ч', [248] = 'ш', [249] = 'щ', [250] = 'ъ', [251] = 'ы', [252] = 'ь', [253] = 'э', [254] = 'ю', [255] = 'я',
 }
 function string.rlower(s)
     s = s:lower()
@@ -1023,12 +861,12 @@ function string.rupper(s)
     return output
 end
 function submenus_show(menu, caption, select_button, close_button, back_button)
-    select_button, close_button, back_button = select_button or 'В»', close_button or 'x', back_button or 'В«'
+    select_button, close_button, back_button = select_button or '»', close_button or 'x', back_button or '«'
     prev_menus = {}
     function display(menu, id, caption)
         local string_list = {}
         for i, v in ipairs(menu) do
-            table.insert(string_list, type(v.submenu) == 'table' and v.title .. ' В»' or v.title)
+            table.insert(string_list, type(v.submenu) == 'table' and v.title .. ' »' or v.title)
         end
         sampShowDialog(id, caption, table.concat(string_list, '\n'), select_button, (#prev_menus > 0) and back_button or close_button, sf.DIALOG_STYLE_LIST)
         repeat
@@ -1064,161 +902,161 @@ end
 
 local dfmenu = {
     {
-        title = 'Р‘РѕРјР±Р° СЃ С‡Р°СЃРѕРІС‹Рј РјРµС…Р°РЅРёР·РјРѕРј',
+        title = 'Бомба с часовым механизмом',
         onclick = function()
-            sampSendChat(("/me %s СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
+            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'достал' or 'достала'))
             wait(3500)
-            sampSendChat(("/me %s СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°'))
+            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'открыл' or 'открыла'))
             wait(3500)
-            sampSendChat(("/me %s РІР·СЂС‹РІРЅРѕРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ"):format(cfg.main.male and 'РѕСЃРјРѕС‚СЂРµР»' or 'РѕСЃРјРѕС‚СЂРµР»Р°'))
+            sampSendChat(("/me %s взрывное устройство"):format(cfg.main.male and 'осмотрел' or 'осмотрела'))
             wait(3500)
-            sampSendChat(("/do %s С‚РёРї РІР·СЂС‹РІРЅРѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°. Р‘РѕРјР±Р° СЃ С‡Р°СЃРѕРІС‹Рј РјРµС…Р°РЅРёР·РјРѕРј."):format(cfg.main.male and 'РћРїСЂРµРґРµР»РёР»' or 'РћРїСЂРµРґРµР»РёР»Р°'))
+            sampSendChat(("/do %s тип взрывного устройства. Бомба с часовым механизмом."):format(cfg.main.male and 'Определил' or 'Определила'))
             wait(3500)
-            sampSendChat(("/do %s С‚СЂРё РїСЂРѕРІРѕРґР° РІС‹С…РѕРґСЏС‰РёС… СЃ РјРµС…Р°РЅРёР·РјР°."):format(cfg.main.male and 'РЈРІРёРґРµР»' or 'РЈРІРёРґРµР»Р°'))
+            sampSendChat(("/do %s три провода выходящих с механизма."):format(cfg.main.male and 'Увидел' or 'Увидела'))
             wait(3500)
-            sampSendChat(("/me %s РЅРѕР¶ РёР· СЃР°РїРµСЂРЅРѕРіРѕ РЅР°Р±РѕСЂР°"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
+            sampSendChat(("/me %s нож из саперного набора"):format(cfg.main.male and 'достал' or 'достала'))
             wait(3500)
-            sampSendChat(("/me Р°РєРєСѓСЂР°С‚РЅРѕ %s РїРµСЂРІС‹Р№ РїСЂРѕРІРѕРґ"):format(cfg.main.male and 'Р·Р°С‡РёСЃС‚РёР»' or 'Р·Р°С‡РёСЃС‚РёР»Р°'))
+            sampSendChat(("/me аккуратно %s первый провод"):format(cfg.main.male and 'зачистил' or 'зачистила'))
             wait(3500)
-            sampSendChat(("/try %s РѕС‚РІРµСЂС‚РєСѓ СЃ РёРЅРґРёРєР°С‚РѕСЂРѕРј Рё %s РєСЂР°Р№ РѕС‚РІРµСЂС‚РєРё Рє РѕРіРѕР»С‘РЅРЅРѕРј РїСЂРѕРІРѕРґСѓ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°', cfg.main.male and 'РїСЂРёСЃР»РѕРЅРёР»' or 'РїСЂРёСЃР»РѕРЅРёР»Р°'))
+            sampSendChat(("/try %s отвертку с индикатором и %s край отвертки к оголённом проводу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'прислонил' or 'прислонила'))
         end
     },
     {
-        title = 'Р‘РѕРјР±Р° СЃ С‡Р°СЃРѕРІС‹Рј РјРµС…Р°РЅРёР·РјРѕРј РµСЃР»Рё {63c600}[РЈРґР°С‡РЅРѕ]',
+        title = 'Бомба с часовым механизмом если {63c600}[Удачно]',
         onclick = function()
-            sampSendChat(("/me %s РїСЂРѕРІРѕРґРѕРє"):format(cfg.main.male and 'РїРµСЂРµСЂРµР·Р°Р»' or 'РїРµСЂРµСЂРµР·Р°Р»Р°'))
+            sampSendChat(("/me %s проводок"):format(cfg.main.male and 'перерезал' or 'перерезала'))
             wait(3500)
-            sampSendChat(("/me %s Рє СѓСЃС‚СЂРѕР№СЃС‚РІСѓ"):format(cfg.main.male and 'РїСЂРёСЃР»СѓС€Р°Р»СЃСЏ' or 'РїСЂРёСЃР»СѓС€Р°Р»Р°СЃСЊ'))
+            sampSendChat(("/me %s к устройству"):format(cfg.main.male and 'прислушался' or 'прислушалась'))
             wait(3500)
-            sampSendChat("/do РњРµС…Р°РЅРёР·Рј РїРµСЂРµСЃС‚Р°Р» РёР·РґР°РІР°С‚СЊ С‚РёРєР°СЋС‰РёРµ Р·РІСѓРєРё.")
+            sampSendChat("/do Механизм перестал издавать тикающие звуки.")
             wait(3500)
-            sampSendChat("/do Р‘РѕРјР±Р° РѕР±РµР·РІСЂРµР¶РµРЅР°.")
+            sampSendChat("/do Бомба обезврежена.")
             wait(3500)
-            sampSendChat(("/me %s РёРЅСЃС‚СЂСѓРјРµРЅС‚С‹ РѕР±СЂР°С‚РЅРѕ РІ СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
             wait(3500)
-            sampSendChat(("/me %s Р±СЂРѕРЅРёСЂРѕРІР°РЅРЅС‹Р№ РєРµР№СЃ Рё Р°РєРєСѓСЂР°С‚РЅРѕ %s С‚СѓРґР° Р±РѕРјР±Сѓ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°', cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
         end
     },
     {
-        title = 'Р‘РѕРјР±Р° СЃ С‡Р°СЃРѕРІС‹Рј РјРµС…Р°РЅРёР·РјРѕРј РµСЃР»Рё {bf0000}[РќРµСѓРґР°С‡РЅРѕ]',
+        title = 'Бомба с часовым механизмом если {bf0000}[Неудачно]',
         onclick = function()
-            sampSendChat(("/me Р°РєРєСѓСЂР°С‚РЅРѕ %s РІС‚РѕСЂРѕР№ РїСЂРѕРІРѕРґ"):format(cfg.main.male and 'Р·Р°С‡РёСЃС‚РёР»' or 'Р·Р°С‡РёСЃС‚РёР»Р°'))
+            sampSendChat(("/me аккуратно %s второй провод"):format(cfg.main.male and 'зачистил' or 'зачистила'))
             wait(3500)
-            sampSendChat(("/me %s РїСЂРѕРІРѕРґРѕРє"):format(cfg.main.male and 'РїРµСЂРµСЂРµР·Р°Р»' or 'РїРµСЂРµСЂРµР·Р°Р»Р°'))
+            sampSendChat(("/me %s проводок"):format(cfg.main.male and 'перерезал' or 'перерезала'))
             wait(3500)
-            sampSendChat(("/me %s Рє СѓСЃС‚СЂРѕР№СЃС‚РІСѓ"):format(cfg.main.male and 'РїСЂРёСЃР»СѓС€Р°Р»СЃСЏ' or 'РїСЂРёСЃР»СѓС€Р°Р»Р°СЃСЊ'))
+            sampSendChat(("/me %s к устройству"):format(cfg.main.male and 'прислушался' or 'прислушалась'))
             wait(3500)
-            sampSendChat("/do РњРµС…Р°РЅРёР·Рј РїРµСЂРµСЃС‚Р°Р» РёР·РґР°РІР°С‚СЊ С‚РёРєР°СЋС‰РёРµ Р·РІСѓРєРё.")
+            sampSendChat("/do Механизм перестал издавать тикающие звуки.")
             wait(3500)
-            sampSendChat("/do Р‘РѕРјР±Р° РѕР±РµР·РІСЂРµР¶РµРЅР°.")
+            sampSendChat("/do Бомба обезврежена.")
             wait(3500)
-            sampSendChat(("/me %s РёРЅСЃС‚СЂСѓРјРµРЅС‚С‹ РѕР±СЂР°С‚РЅРѕ РІ СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
             wait(3500)
-            sampSendChat(("/me %s Р±СЂРѕРЅРёСЂРѕРІР°РЅРЅС‹Р№ РєРµР№СЃ Рё Р°РєРєСѓСЂР°С‚РЅРѕ %s С‚СѓРґР° Р±РѕРјР±Сѓ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°', cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
         end
     },
     {
-        title = 'Р‘РѕРјР±Р° СЃ РґРёСЃС‚Р°РЅС†РёРѕРЅРЅС‹Рј СѓРїСЂР°РІР»РµРЅРёРµРј',
+        title = 'Бомба с дистанционным управлением',
         onclick = function()
-            sampSendChat(("/me %s СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
+            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'достал' or 'достала'))
             wait(3500)
-            sampSendChat(("/me %s СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°'))
+            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'открыл' or 'открыла'))
             wait(3500)
-            sampSendChat(("/me %s РІР·СЂС‹РІРЅРѕРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ"):format(cfg.main.male and 'РѕСЃРјРѕС‚СЂРµР»' or 'РѕСЃРјРѕС‚СЂРµР»Р°'))
+            sampSendChat(("/me %s взрывное устройство"):format(cfg.main.male and 'осмотрел' or 'осмотрела'))
             wait(3500)
-            sampSendChat(("/do %s С‚РёРї РІР·СЂС‹РІРЅРѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°. Р‘РѕРјР±Р° СЃ РґРёСЃС‚Р°РЅС†РёРѕРЅРЅС‹Рј СѓРїСЂР°РІР»РµРЅРёРµРј."):format(cfg.main.male and 'РћРїСЂРµРґРµР»РёР»' or 'РћРїСЂРµРґРµР»РёР»Р°'))
+            sampSendChat(("/do %s тип взрывного устройства. Бомба с дистанционным управлением."):format(cfg.main.male and 'Определил' or 'Определила'))
             wait(3500)
-            sampSendChat(("/do %s РґРІР° С€СѓСЂСѓРїР° РЅР° Р±Р»РѕРєРµ СЃ РјРµС…Р°РЅРёР·РјРѕРј."):format(cfg.main.male and 'РЈРІРёРґРµР»' or 'РЈРІРёРґРµР»Р°'))
+            sampSendChat(("/do %s два шурупа на блоке с механизмом."):format(cfg.main.male and 'Увидел' or 'Увидела'))
             wait(3500)
-            sampSendChat(("/me %s РѕС‚РІРµСЂС‚РєСѓ РёР· СЃР°РїРµСЂРЅРѕРіРѕ РЅР°Р±РѕСЂР°"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
+            sampSendChat(("/me %s отвертку из саперного набора"):format(cfg.main.male and 'достал' or 'достала'))
             wait(3500)
-            sampSendChat("/me Р°РєРєСѓСЂР°С‚РЅРѕ РІС‹РєСЂСѓС‡РёРІР°РµС‚ С€СѓСЂСѓРї")
+            sampSendChat("/me аккуратно выкручивает шуруп")
             wait(3500)
-            sampSendChat(("/me %s РєСЂС‹С€РєСѓ Р±Р»РѕРєР° Рё %s Р°РЅС‚РµРЅРЅСѓ"):format(cfg.main.male and 'РѕС‚РѕРґРІРёРЅСѓР»' or 'РѕС‚РѕРґРІРёРЅСѓР»Р°', cfg.main.male and 'СѓРІРёРґРµР»' or 'СѓРІРёРґРµР»Р°'))
+            sampSendChat(("/me %s крышку блока и %s антенну"):format(cfg.main.male and 'отодвинул' or 'отодвинула', cfg.main.male and 'увидел' or 'увидела'))
             wait(3500)
-            sampSendChat(("/do %s РєСЂР°СЃРЅС‹Р№ РјРёРіР°СЋС‰РёР№ РёРЅРґРёРєР°С‚РѕСЂ."):format(cfg.main.male and 'РЈРІРёРґРµР»' or 'РЈРІРёРґРµР»Р°'))
+            sampSendChat(("/do %s красный мигающий индикатор."):format(cfg.main.male and 'Увидел' or 'Увидела'))
             wait(3500)
-            sampSendChat(("/me %s РїСѓС‚СЊ РјРёРєСЂРѕСЃС…РµРјС‹ РѕС‚ Р°РЅС‚РµРЅРЅС‹ Рє РґРµС‚РѕРЅР°С‚РѕСЂСѓ"):format(cfg.main.male and 'РїСЂРѕСЃРјРѕС‚СЂРµР»' or 'РїСЂРѕСЃРјРѕС‚СЂРµР»Р°'))
+            sampSendChat(("/me %s путь микросхемы от антенны к детонатору"):format(cfg.main.male and 'просмотрел' or 'просмотрела'))
             wait(3500)
-            sampSendChat(("/me %s РґРІР° РїСЂРѕРІРѕРґР°"):format(cfg.main.male and 'РЈРІРёРґРµР»' or 'РЈРІРёРґРµР»Р°'))
+            sampSendChat(("/me %s два провода"):format(cfg.main.male and 'Увидел' or 'Увидела'))
             wait(3500)
-            sampSendChat(("/try %s РїРµСЂРІС‹Р№ РїСЂРѕРІРѕРґ. РРЅРґРёРєР°С‚РѕСЂ РїРµСЂРµСЃС‚Р°Р» РјРёРіР°С‚СЊ."):format(cfg.main.male and 'РїРµСЂРµСЂРµР·Р°Р»' or 'РїРµСЂРµСЂРµР·Р°Р»Р°'))
+            sampSendChat(("/try %s первый провод. Индикатор перестал мигать."):format(cfg.main.male and 'перерезал' or 'перерезала'))
         end
     },
     {
-        title = 'Р‘РѕРјР±Р° СЃ РґРёСЃС‚Р°РЅС†РёРѕРЅРЅС‹Рј СѓРїСЂР°РІР»РµРЅРёРµРј РµСЃР»Рё {63c600}[РЈРґР°С‡РЅРѕ]',
+        title = 'Бомба с дистанционным управлением если {63c600}[Удачно]',
         onclick = function()
-            sampSendChat("/do Р‘РѕРјР±Р° РѕР±РµР·РІСЂРµР¶РµРЅР°.")
+            sampSendChat("/do Бомба обезврежена.")
             wait(3500)
-            sampSendChat(("/me %s РёРЅСЃС‚СЂСѓРјРµРЅС‚С‹ РѕР±СЂР°С‚РЅРѕ РІ СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
             wait(3500)
-            sampSendChat(("/me %s Р±СЂРѕРЅРёСЂРѕРІР°РЅРЅС‹Р№ РєРµР№СЃ Рё Р°РєРєСѓСЂР°С‚РЅРѕ %s С‚СѓРґР° Р±РѕРјР±Сѓ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°', cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
         end
     },
     {
-        title = 'Р‘РѕРјР±Р° СЃ РґРёСЃС‚Р°РЅС†РёРѕРЅРЅС‹Рј СѓРїСЂР°РІР»РµРЅРёРµРј РµСЃР»Рё {bf0000}[РќРµСѓРґР°С‡РЅРѕ]',
+        title = 'Бомба с дистанционным управлением если {bf0000}[Неудачно]',
         onclick = function()
-            sampSendChat(("/me %s РІС‚РѕСЂРѕР№ РїСЂРѕРІРѕРґ"):format(cfg.main.male and 'РїРµСЂРµСЂРµР·Р°Р»' or 'РїРµСЂРµСЂРµР·Р°Р»Р°'))
+            sampSendChat(("/me %s второй провод"):format(cfg.main.male and 'перерезал' or 'перерезала'))
             wait(3500)
-            sampSendChat("/do РРЅРґРёРєР°С‚РѕСЂ РїРµСЂРµСЃС‚Р°Р» РјРёРіР°С‚СЊ.")
+            sampSendChat("/do Индикатор перестал мигать.")
             wait(3500)
-            sampSendChat("/do Р‘РѕРјР±Р° РѕР±РµР·РІСЂРµР¶РµРЅР°.")
+            sampSendChat("/do Бомба обезврежена.")
             wait(3500)
-            sampSendChat(("/me %s РёРЅСЃС‚СЂСѓРјРµРЅС‚С‹ РѕР±СЂР°С‚РЅРѕ РІ СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
             wait(3500)
-            sampSendChat(("/me %s Р±СЂРѕРЅРёСЂРѕРІР°РЅРЅС‹Р№ РєРµР№СЃ Рё Р°РєРєСѓСЂР°С‚РЅРѕ %s С‚СѓРґР° Р±РѕРјР±Сѓ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°', cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
         end
     },
     {
-        title = 'Р‘РѕРјР±Р° СЃ Р°РєС‚РёРІР°С†РёРѕРЅРЅС‹Рј РєРѕРґРѕРј',
+        title = 'Бомба с активационным кодом',
         onclick = function()
-            sampSendChat(("/me %s СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
+            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'достал' or 'достала'))
             wait(3500)
-            sampSendChat(("/me %s СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°'))
+            sampSendChat(("/me %s саперный набор"):format(cfg.main.male and 'открыл' or 'открыла'))
             wait(3500)
-            sampSendChat(("/me %s РІР·СЂС‹РІРЅРѕРµ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ"):format(cfg.main.male and 'РѕСЃРјРѕС‚СЂРµР»' or 'РѕСЃРјРѕС‚СЂРµР»Р°'))
+            sampSendChat(("/me %s взрывное устройство"):format(cfg.main.male and 'осмотрел' or 'осмотрела'))
             wait(3500)
-            sampSendChat(("/do %s С‚РёРї РІР·СЂС‹РІРЅРѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР°. Р‘РѕРјР±Р° СЃ Р°РєС‚РёРІР°С†РёРѕРЅРЅС‹Рј РєРѕРґРѕРј."):format(cfg.main.male and 'РћРїСЂРµРґРµР»РёР»' or 'РћРїСЂРµРґРµР»РёР»Р°'))
+            sampSendChat(("/do %s тип взрывного устройства. Бомба с активационным кодом."):format(cfg.main.male and 'Определил' or 'Определила'))
             wait(3500)
-            sampSendChat(("/me %s РёР· СЃР°РїРµСЂРЅРѕРіРѕ РЅР°Р±РѕСЂР° РїСЂРёР±РѕСЂ РґР»СЏ РїРѕРґР±РѕСЂР° РєРѕРґР°"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
+            sampSendChat(("/me %s из саперного набора прибор для подбора кода"):format(cfg.main.male and 'достал' or 'достала'))
             wait(3500)
-            sampSendChat(("/me %s РїСЂРёР±РѕСЂ Рє Р±РѕРјР±Рµ"):format(cfg.main.male and 'РїРѕРґРєР»СЋС‡РёР»' or 'РїРѕРґРєР»СЋС‡РёР»Р°'))
+            sampSendChat(("/me %s прибор к бомбе"):format(cfg.main.male and 'подключил' or 'подключила'))
             wait(3500)
-            sampSendChat("/do РќР° РїСЂРёР±РѕСЂРµ РІС‹СЃРІРµС‚РёР»РѕСЃСЊ: РћР¶РёРґР°РЅРёРµ РїРѕР»СѓС‡РµРЅРёСЏ РїР°СЂРѕР»СЏ.")
+            sampSendChat("/do На приборе высветилось: Ожидание получения пароля.")
             wait(3500)
-            sampSendChat("/do РќР° РїСЂРёР±РѕСЂРµ РІС‹СЃРІРµС‚РёР»РѕСЃСЊ: РџР°СЂРѕР»СЊ 5326.")
+            sampSendChat("/do На приборе высветилось: Пароль 5326.")
             wait(3500)
-            sampSendChat(("/try %s РїРѕР»СѓС‡РµРЅРЅС‹Р№ РїР°СЂРѕР»СЊ. Р­РєСЂР°РЅ Р±РѕРјР±С‹ РІС‹РєР»СЋС‡РёР»СЃСЏ"):format(cfg.main.male and 'РІРІС‘Р»' or 'РІРІС‘Р»Р°'))
+            sampSendChat(("/try %s полученный пароль. Экран бомбы выключился"):format(cfg.main.male and 'ввёл' or 'ввёла'))
         end
     },
     {
-        title = 'Р‘РѕРјР±Р° СЃ Р°РєС‚РёРІР°С†РёРѕРЅРЅС‹Рј РєРѕРґРѕРј РµСЃР»Рё {63c600}[РЈРґР°С‡РЅРѕ]',
+        title = 'Бомба с активационным кодом если {63c600}[Удачно]',
         onclick = function()
-            sampSendChat("/do Р‘РѕРјР±Р° РѕР±РµР·РІСЂРµР¶РµРЅР°.")
+            sampSendChat("/do Бомба обезврежена.")
             wait(3500)
-            sampSendChat(("/me %s РёРЅСЃС‚СЂСѓРјРµРЅС‚С‹ РѕР±СЂР°С‚РЅРѕ РІ СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
             wait(3500)
-            sampSendChat(("/me %s Р±СЂРѕРЅРёСЂРѕРІР°РЅРЅС‹Р№ РєРµР№СЃ Рё Р°РєРєСѓСЂР°С‚РЅРѕ %s С‚СѓРґР° Р±РѕРјР±Сѓ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°', cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
         end
     },
     {
-        title = 'Р‘РѕРјР±Р° СЃ Р°РєС‚РёРІР°С†РёРѕРЅРЅС‹Рј РєРѕРґРѕРј РµСЃР»Рё {bf0000}[РќРµСѓРґР°С‡РЅРѕ]',
+        title = 'Бомба с активационным кодом если {bf0000}[Неудачно]',
         onclick = function()
-            sampSendChat(("/me РїРµСЂРµР·Р°РіСЂСѓР·РёР»Р° РїСЂРёР±РѕСЂ"):format(cfg.main.male and 'РїРµСЂРµР·Р°РіСЂСѓР·РёР»' or 'РїРµСЂРµР·Р°РіСЂСѓР·РёР»Р°'))
+            sampSendChat(("/me перезагрузила прибор"):format(cfg.main.male and 'перезагрузил' or 'перезагрузила'))
             wait(3500)
-            sampSendChat("/do РќР° РїСЂРёР±РѕСЂРµ РІС‹СЃРІРµС‚РёР»РѕСЃСЊ: РћР¶РёРґР°РЅРёРµ РїРѕР»СѓС‡РµРЅРёСЏ РїР°СЂРѕР»СЏ.")
+            sampSendChat("/do На приборе высветилось: Ожидание получения пароля.")
             wait(3500)
-            sampSendChat("/do РќР° РїСЂРёР±РѕСЂРµ РІС‹СЃРІРµС‚РёР»РѕСЃСЊ: РџР°СЂРѕР»СЊ 3789.")
+            sampSendChat("/do На приборе высветилось: Пароль 3789.")
             wait(3500)
-            sampSendChat(("/me %s РїРѕР»СѓС‡РµРЅРЅС‹Р№ РїР°СЂРѕР»СЊ"):format(cfg.main.male and 'РІРІС‘Р»' or 'РІРІС‘Р»Р°'))
+            sampSendChat(("/me %s полученный пароль"):format(cfg.main.male and 'ввёл' or 'ввёла'))
             wait(3500)
-            sampSendChat("/Р­РєСЂР°РЅ Р±РѕРјР±С‹ РІС‹РєР»СЋС‡РёР»СЃСЏ")
+            sampSendChat("/Экран бомбы выключился")
             wait(3500)
-            sampSendChat("/do Р‘РѕРјР±Р° РѕР±РµР·РІСЂРµР¶РµРЅР°.")
+            sampSendChat("/do Бомба обезврежена.")
             wait(3500)
-            sampSendChat(("/me %s РёРЅСЃС‚СЂСѓРјРµРЅС‚С‹ РѕР±СЂР°С‚РЅРѕ РІ СЃР°РїРµСЂРЅС‹Р№ РЅР°Р±РѕСЂ"):format(cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s инструменты обратно в саперный набор"):format(cfg.main.male and 'сложил' or 'сложила'))
             wait(3500)
-            sampSendChat(("/me %s Р±СЂРѕРЅРёСЂРѕРІР°РЅРЅС‹Р№ РєРµР№СЃ Рё Р°РєРєСѓСЂР°С‚РЅРѕ %s С‚СѓРґР° Р±РѕРјР±Сѓ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°', cfg.main.male and 'СЃР»РѕР¶РёР»' or 'СЃР»РѕР¶РёР»Р°'))
+            sampSendChat(("/me %s бронированный кейс и аккуратно %s туда бомбу"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сложил' or 'сложила'))
         end
     }
 }
@@ -1226,342 +1064,342 @@ local dfmenu = {
 local fcmenu =
 {
   {
-    title = 'РўРµСЂР°РєС‚С‹',
+    title = 'Теракты',
     submenu =
     {
       {
-        title = '{00BFFF}В« РњСЌСЂРёСЏ В»'
+        title = '{00BFFF}« Мэрия »'
       },
       {
-        title = '{00BFFF}Р—Р°С…РІР°С‚ РјСЌСЂРёРё Р±РµР· Р·Р°Р»РѕР¶РЅРёРєРѕРІ вЂ” {ff0000}100.000$'
+        title = '{00BFFF}Захват мэрии без заложников — {ff0000}100.000$'
       },
       {
-        title = '{00BFFF}Р—Р°С…РІР°С‚ РјСЌСЂРёРё c Р·Р°Р»РѕР¶РЅРёРєР°РјРё вЂ” {ff0000}150.000$'
+        title = '{00BFFF}Захват мэрии c заложниками — {ff0000}150.000$'
       },
       {
-        title = '{9A9593}В« РћС„РёСЃ Р¤Р‘Р  В»'
+        title = '{9A9593}« Офис ФБР »'
       },
       {
-        title = '{9A9593}Р—Р°С…РІР°С‚ РѕС„РёСЃР° С„РµРґРµСЂР°Р»СЊРЅРѕРіРѕ Р±СЋСЂРѕ Р±РµР· Р·Р°Р»РѕР¶РЅРёРєРѕРІ вЂ” {ff0000}100.000$'
+        title = '{9A9593}Захват офиса федерального бюро без заложников — {ff0000}100.000$'
       },
       {
-        title = '{9A9593}Р—Р°С…РІР°С‚ РѕС„РёСЃР° С„РµРґРµСЂР°Р»СЊРЅРѕРіРѕ Р±СЋСЂРѕ c Р·Р°Р»РѕР¶РЅРёРєР°РјРё вЂ” {ff0000}150.000$'
+        title = '{9A9593}Захват офиса федерального бюро c заложниками — {ff0000}150.000$'
       },
       {
-        title = '{0080FF}В« РЈС‡Р°СЃС‚РѕРє SFPD В»'
+        title = '{0080FF}« Участок SFPD »'
       },
       {
-        title = '{0080FF}Р—Р°С…РІР°С‚ СѓС‡Р°СЃС‚РєР° SAPD Р±РµР· Р·Р°Р»РѕР¶РЅРёРєРѕРІ вЂ” {ff0000}100.000$'
+        title = '{0080FF}Захват участка SAPD без заложников — {ff0000}100.000$'
       },
       {
-        title = '{0080FF}Р—Р°С…РІР°С‚ СѓС‡Р°СЃС‚РєР° SAPD c Р·Р°Р»РѕР¶РЅРёРєР°РјРё вЂ” {ff0000}150.000$'
+        title = '{0080FF}Захват участка SAPD c заложниками — {ff0000}150.000$'
       },
       {
-        title = '{BF4040}В« Р‘РѕР»СЊРЅРёС†Р° В»'
+        title = '{BF4040}« Больница »'
       },
       {
-        title = '{BF4040}Р—Р°С…РІР°С‚ Р±РѕР»СЊРЅРёС†С‹ Р±РµР· Р·Р°Р»РѕР¶РЅРёРєРѕРІ вЂ” {ff0000}75.000$'
+        title = '{BF4040}Захват больницы без заложников — {ff0000}75.000$'
       },
       {
-        title = '{BF4040}Р—Р°С…РІР°С‚ Р±РѕР»СЊРЅРёС†С‹ СЃ Р·Р°Р»РѕР¶РЅРёРєР°РјРё вЂ” {ff0000}100.000$'
+        title = '{BF4040}Захват больницы с заложниками — {ff0000}100.000$'
       },
       {
-        title = '{00BFFF}В« РђРІС‚РѕС€РєРѕР»Р° В»'
+        title = '{00BFFF}« Автошкола »'
       },
       {
-        title = '{00BFFF}Р—Р°С…РІР°С‚ Р°РІС‚РѕС€РєРѕР»С‹ Р±РµР· Р·Р°Р»РѕР¶РЅРёРєРѕРІ вЂ” {ff0000}50.000$'
+        title = '{00BFFF}Захват автошколы без заложников — {ff0000}50.000$'
       },
       {
-        title = '{00BFFF}Р—Р°С…РІР°С‚ Р°РІС‚РѕС€РєРѕР»С‹ СЃ Р·Р°Р»РѕР¶РЅРёРєР°РјРё вЂ” {ff0000}75.000$'
+        title = '{00BFFF}Захват автошколы с заложниками — {ff0000}75.000$'
       },
       {
-        title = '{40BFBF}В« CРњР В»'
+        title = '{40BFBF}« CМИ »'
       },
       {
-        title = '{40BFBF}Р—Р°С…РІР°С‚ РЎРњР Р±РµР· Р·Р°Р»РѕР¶РЅРёРєРѕРІ вЂ” {ff0000}50.000$'
+        title = '{40BFBF}Захват СМИ без заложников — {ff0000}50.000$'
       },
       {
-        title = '{40BFBF}Р—Р°С…РІР°С‚ РЎРњР СЃ Р·Р°Р»РѕР¶РЅРёРєР°РјРё вЂ” {ff0000}75.000$'
+        title = '{40BFBF}Захват СМИ с заложниками — {ff0000}75.000$'
       },
       {
-        title = 'В« РћСЃС‚Р°Р»СЊРЅРѕРµ В»'
+        title = '« Остальное »'
       },
       {
-        title = 'Р—Р°С…РІР°С‚ СЂР°Р·РІР»РµРєР°С‚РµР»СЊРЅС‹С…/СЂР°Р±РѕС‡РёС… Р·Р°РІРµРґРµРЅРёР№ Р±РµР· Р·Р°Р»РѕР¶РЅРёРєРѕРІ вЂ” {ff0000}50.000$'
+        title = 'Захват развлекательных/рабочих заведений без заложников — {ff0000}50.000$'
       },
       {
-        title = 'Р—Р°С…РІР°С‚ СЂР°Р·РІР»РµРєР°С‚РµР»СЊРЅС‹С…/СЂР°Р±РѕС‡РёС… Р·Р°РІРµРґРµРЅРёР№ СЃ Р·Р°Р»РѕР¶РЅРёРєР°РјРё вЂ” {ff0000}75.000$'
+        title = 'Захват развлекательных/рабочих заведений с заложниками — {ff0000}75.000$'
       }
     }
   },
   {
-    title = 'РџРѕС…РёС‰РµРЅРёСЏ',
+    title = 'Похищения',
     submenu =
     {
       {
-        title = 'РњСЌСЂРёСЏ',
+        title = 'Мэрия',
         submenu =
         {
           {
-            title = '{0040BF}РњСЌСЂ{ffffff} [6] - {ff0000}100.000$'
+            title = '{0040BF}Мэр{ffffff} [6] - {ff0000}100.000$'
           },
           {
-            title = '{0040BF}Р—Р°Рј.РњСЌСЂР°{ffffff} [5] - {ff0000}80.000$'
+            title = '{0040BF}Зам.Мэра{ffffff} [5] - {ff0000}80.000$'
           },
           {
-            title = '{0040BF}РќР°С‡Р°Р»СЊРЅРёРє РѕС…СЂР°РЅС‹{ffffff} [4] - {ff0000}60.000$'
+            title = '{0040BF}Начальник охраны{ffffff} [4] - {ff0000}60.000$'
           },
           {
-            title = '{0040BF}РћС…СЂР°РЅРЅРёРє{ffffff} [3] - {ff0000}40.000$'
+            title = '{0040BF}Охранник{ffffff} [3] - {ff0000}40.000$'
           },
           {
-            title = '{0040BF}РђРґРІРѕРєР°С‚{ffffff} [2] - {ff0000}30.000$'
+            title = '{0040BF}Адвокат{ffffff} [2] - {ff0000}30.000$'
           },
           {
-            title = '{0040BF}РЎРµРєСЂРµС‚Р°СЂСЊ{ffffff} [1] - {ff0000}20.000$'
+            title = '{0040BF}Секретарь{ffffff} [1] - {ff0000}20.000$'
           }
         }
       },
       {
-        title = 'Р¤Р‘Р ',
+        title = 'ФБР',
         submenu =
         {
           {
-            title = '{9A9593}Р”РёСЂРµРєС‚РѕСЂ{ffffff} [10] - {ff0000}100.000$'
+            title = '{9A9593}Директор{ffffff} [10] - {ff0000}100.000$'
           },
           {
-            title = '{9A9593}Р—Р°Рј.Р”РёСЂРµРєС‚РѕСЂР°{FFFFFF} [9] - {ff0000}80.000$'
+            title = '{9A9593}Зам.Директора{FFFFFF} [9] - {ff0000}80.000$'
           },
           {
-            title = '{9A9593}РРЅСЃРїРµРєС‚РѕСЂ{ffffff} [8] - {ff0000}70.000$'
+            title = '{9A9593}Инспектор{ffffff} [8] - {ff0000}70.000$'
           },
           {
-            title = '{9A9593}Р“Р»Р°РІР° CID{ffffff} [7] - {ff0000}60.000$'
+            title = '{9A9593}Глава CID{ffffff} [7] - {ff0000}60.000$'
           },
           {
-            title = '{9A9593}Р“Р»Р°РІР° DEA{ffffff} [6] - {ff0000}50.000$'
+            title = '{9A9593}Глава DEA{ffffff} [6] - {ff0000}50.000$'
           },
           {
-            title = '{9A9593}РђРіРµРЅС‚ CID{ffffff} [5] - {ff0000}40.000$'
+            title = '{9A9593}Агент CID{ffffff} [5] - {ff0000}40.000$'
           },
           {
-            title = '{9A9593}РђРіРµРЅС‚ DEA{ffffff} [4] - {ff0000}30.000$'
+            title = '{9A9593}Агент DEA{ffffff} [4] - {ff0000}30.000$'
           },
           {
-            title = '{9A9593}РњР».РђРіРµРЅС‚{ffffff} [3] - {ff0000}25.000$'
+            title = '{9A9593}Мл.Агент{ffffff} [3] - {ff0000}25.000$'
           },
           {
-            title = '{9A9593}Р”РµР¶СѓСЂРЅС‹Р№{ffffff} [2] - {ff0000}20.000$'
+            title = '{9A9593}Дежурный{ffffff} [2] - {ff0000}20.000$'
           },
           {
-            title = '{9A9593}РЎС‚Р°Р¶РµСЂ{ffffff} [1] - {ff0000}15.000$'
+            title = '{9A9593}Стажер{ffffff} [1] - {ff0000}15.000$'
           }
         }
       },
       {
-        title = 'РџРѕР»РёС†РёСЏ',
+        title = 'Полиция',
         submenu =
         {
           {
-            title = '{0000FF}РЁРµСЂРёС„{ffffff} [14] - {ff0000}80.000$'
+            title = '{0000FF}Шериф{ffffff} [14] - {ff0000}80.000$'
           },
           {
-            title = '{0000FF}РџРѕР»РєРѕРІРЅРёРє{ffffff} [13] - {ff0000}70.000$'
+            title = '{0000FF}Полковник{ffffff} [13] - {ff0000}70.000$'
           },
           {
-            title = '{0000FF}РџРѕРґРїРѕР»РєРѕРІРЅРёРє{ffffff} [12] - {ff0000}65.000$'
+            title = '{0000FF}Подполковник{ffffff} [12] - {ff0000}65.000$'
           },
           {
-            title = '{0000FF}РњР°Р№РѕСЂ{ffffff} [11] - {ff0000}60.000$'
+            title = '{0000FF}Майор{ffffff} [11] - {ff0000}60.000$'
           },
           {
-            title = '{0000FF}РљР°РїРёС‚Р°РЅ{ffffff} [10] - {ff0000}55.000$'
+            title = '{0000FF}Капитан{ffffff} [10] - {ff0000}55.000$'
           },
           {
-            title = '{0000FF}РЎС‚.Р›РµР№С‚РµРЅР°РЅС‚{ffffff} [9] - {ff0000}50.000$'
+            title = '{0000FF}Ст.Лейтенант{ffffff} [9] - {ff0000}50.000$'
           },
           {
-            title = '{0000FF}Р›РµР№С‚РµРЅР°РЅС‚{ffffff} [8] - {ff0000}45.000$'
+            title = '{0000FF}Лейтенант{ffffff} [8] - {ff0000}45.000$'
           },
           {
-            title = '{0000FF}РњР».Р›РµР№С‚РµРЅР°РЅС‚{ffffff} [7] - {ff0000}40.000$'
+            title = '{0000FF}Мл.Лейтенант{ffffff} [7] - {ff0000}40.000$'
           },
           {
-            title = '{0000FF}РЎС‚.РџСЂР°РїРѕСЂС‰РёРє{ffffff} [6] - {ff0000}35.000$'
+            title = '{0000FF}Ст.Прапорщик{ffffff} [6] - {ff0000}35.000$'
           },
           {
-            title = '{0000FF}РџСЂР°РїРѕСЂС‰РёРє{ffffff} [5] - {ff0000}30.000$'
+            title = '{0000FF}Прапорщик{ffffff} [5] - {ff0000}30.000$'
           },
           {
-            title = '{0000FF}РЎРµСЂР¶Р°РЅС‚{ffffff} [4] - {ff0000}25.000$'
+            title = '{0000FF}Сержант{ffffff} [4] - {ff0000}25.000$'
           },
           {
-            title = '{0000FF}РњР».РЎРµСЂР¶Р°РЅС‚{ffffff} [3] - {ff0000}20.000$'
+            title = '{0000FF}Мл.Сержант{ffffff} [3] - {ff0000}20.000$'
           },
           {
-            title = '{0000FF}РћС„РёС†РµСЂ{ffffff} [2] - {ff0000}15.000$'
+            title = '{0000FF}Офицер{ffffff} [2] - {ff0000}15.000$'
           },
           {
-            title = '{0000FF}РљР°РґРµС‚{ffffff} [1] - {ff0000}10.000$'
+            title = '{0000FF}Кадет{ffffff} [1] - {ff0000}10.000$'
           }
         }
       },
       {
-        title = 'РђСЂРјРёСЏ',
+        title = 'Армия',
         submenu =
         {
           {
-            title = '{008040}Р“РµРЅРµСЂР°Р»{ffffff} [15] - {ff0000}80.000$'
+            title = '{008040}Генерал{ffffff} [15] - {ff0000}80.000$'
           },
           {
-            title = '{008040}РџРѕР»РєРѕРІРЅРёРє{ffffff} [14] - {ff0000}75.000$'
+            title = '{008040}Полковник{ffffff} [14] - {ff0000}75.000$'
           },
           {
-            title = '{008040}РџРѕРґРїРѕР»РєРѕРІРЅРёРє{ffffff} [13] - {ff0000}70.000$'
+            title = '{008040}Подполковник{ffffff} [13] - {ff0000}70.000$'
           },
           {
-            title = '{008040}РњР°Р№РѕСЂ{ffffff} [12] - {ff0000}65.000$'
+            title = '{008040}Майор{ffffff} [12] - {ff0000}65.000$'
           },
           {
-            title = '{008040}РљР°РїРёС‚Р°РЅ{ffffff} [11] - {ff0000}60.000$'
+            title = '{008040}Капитан{ffffff} [11] - {ff0000}60.000$'
           },
           {
-            title = '{008040}РЎС‚.Р›РµР№С‚РµРЅР°РЅС‚{ffffff} [10] - {ff0000}55.000$'
+            title = '{008040}Ст.Лейтенант{ffffff} [10] - {ff0000}55.000$'
           },
           {
-            title = '{008040}Р›РµР№С‚РµРЅР°РЅС‚{ffffff} [9] - {ff0000}50.000$'
+            title = '{008040}Лейтенант{ffffff} [9] - {ff0000}50.000$'
           },
           {
-            title = '{008040}РњР».Р›РµР№С‚РµРЅР°РЅС‚{ffffff} [8] - {ff0000}45.000$'
+            title = '{008040}Мл.Лейтенант{ffffff} [8] - {ff0000}45.000$'
           },
           {
-            title = '{008040}РџСЂР°РїРѕСЂС‰РёРє{ffffff} [7] - {ff0000}40.000$'
+            title = '{008040}Прапорщик{ffffff} [7] - {ff0000}40.000$'
           },
           {
-            title = '{008040}РЎС‚Р°СЂС€РёРЅР°{ffffff} [6] - {ff0000}35.000$'
+            title = '{008040}Старшина{ffffff} [6] - {ff0000}35.000$'
           },
           {
-            title = '{008040}РЎС‚.СЃРµСЂР¶Р°РЅС‚{ffffff} [5] - {ff0000}30.000$'
+            title = '{008040}Ст.сержант{ffffff} [5] - {ff0000}30.000$'
           },
           {
-            title = '{008040}РЎРµСЂР¶Р°РЅС‚{ffffff} [4] - {ff0000}25.000$'
+            title = '{008040}Сержант{ffffff} [4] - {ff0000}25.000$'
           },
           {
-            title = '{008040}РњР».РЎРµСЂР¶Р°РЅС‚{ffffff} [3] - {ff0000}20.000$'
+            title = '{008040}Мл.Сержант{ffffff} [3] - {ff0000}20.000$'
           },
           {
-            title = '{008040}Р•С„СЂРµР№С‚РѕСЂ{ffffff} [2] - {ff0000}15.000$'
+            title = '{008040}Ефрейтор{ffffff} [2] - {ff0000}15.000$'
           },
           {
-            title = '{008040}Р СЏРґРѕРІРѕР№{ffffff} [1] - {ff0000}10.000$'
+            title = '{008040}Рядовой{ffffff} [1] - {ff0000}10.000$'
           }
         }
       },
       {
-        title = 'РњРµРґРёРєРё',
+        title = 'Медики',
         submenu =
         {
           {
-            title = '{BF4040}Р“Р»Р°РІ.Р’СЂР°С‡{ffffff} [10] - {ff0000}80.000$'
+            title = '{BF4040}Глав.Врач{ffffff} [10] - {ff0000}80.000$'
           },
           {
-            title = '{BF4040}Р—Р°Рј.Р“Р»Р°РІ.Р’СЂР°С‡Р°{ffffff} [9] - {ff0000}75.000$'
+            title = '{BF4040}Зам.Глав.Врача{ffffff} [9] - {ff0000}75.000$'
           },
           {
-            title = '{BF4040}РҐРёСЂСѓСЂРі{ffffff} [8] - {ff0000}70.000$'
+            title = '{BF4040}Хирург{ffffff} [8] - {ff0000}70.000$'
           },
           {
-            title = '{BF4040}РџСЃРёС…РѕР»РѕРі{ffffff} [7] - {ff0000}60.000$'
+            title = '{BF4040}Психолог{ffffff} [7] - {ff0000}60.000$'
           },
           {
-            title = '{BF4040}Р”РѕРєС‚РѕСЂ{ffffff} [6] - {ff0000}40.000$'
+            title = '{BF4040}Доктор{ffffff} [6] - {ff0000}40.000$'
           },
           {
-            title = '{BF4040}РќР°СЂРєРѕР»РѕРі{ffffff} [5] - {ff0000}35.000$'
+            title = '{BF4040}Нарколог{ffffff} [5] - {ff0000}35.000$'
           },
           {
-            title = '{BF4040}РЎРїР°СЃР°С‚РµР»СЊ{ffffff} [4] - {ff0000}30.000$'
+            title = '{BF4040}Спасатель{ffffff} [4] - {ff0000}30.000$'
           },
           {
-            title = '{BF4040}РњРµРґ.Р‘СЂР°С‚{ffffff} [3] - {ff0000}25.000$'
+            title = '{BF4040}Мед.Брат{ffffff} [3] - {ff0000}25.000$'
           },
           {
-            title = '{BF4040}РЎР°РЅРёС‚Р°СЂ{ffffff} [2] - {ff0000}20.000$'
+            title = '{BF4040}Санитар{ffffff} [2] - {ff0000}20.000$'
           },
           {
-            title = '{BF4040}РРЅС‚РµСЂРЅ{ffffff} [1] - {ff0000}15.000$'
+            title = '{BF4040}Интерн{ffffff} [1] - {ff0000}15.000$'
           }
         }
       },
       {
-        title = 'РђРІС‚РѕС€РєРѕР»Р°',
+        title = 'Автошкола',
         submenu =
         {
           {
-            title = '{40BFFF}РЈРїСЂР°РІР»СЏСЋС‰РёР№{ffffff} [10] - {ff0000}80.000$'
+            title = '{40BFFF}Управляющий{ffffff} [10] - {ff0000}80.000$'
           },
           {
-            title = '{40BFFF}Р”РёСЂРµРєС‚РѕСЂ{ffffff} [9] - {ff0000}75.000$'
+            title = '{40BFFF}Директор{ffffff} [9] - {ff0000}75.000$'
           },
           {
-            title = '{40BFFF}РЎС‚.РњРµРЅРµРґР¶РµСЂ{ffffff} [8] - {ff0000}70.000$'
+            title = '{40BFFF}Ст.Менеджер{ffffff} [8] - {ff0000}70.000$'
           },
           {
-            title = '{40BFFF}РњР».РњРµРЅРµРґР¶РµСЂ{ffffff} [7] - {ff0000}60.000$'
+            title = '{40BFFF}Мл.Менеджер{ffffff} [7] - {ff0000}60.000$'
           },
           {
-            title = '{40BFFF}РљРѕРѕСЂРґРёРЅР°С‚РѕСЂ{ffffff} [6] - {ff0000}55.000$'
+            title = '{40BFFF}Координатор{ffffff} [6] - {ff0000}55.000$'
           },
           {
-            title = '{40BFFF}РРЅСЃС‚СЂСѓРєС‚РѕСЂ{FFFFFF} [5] - {ff0000}50.000$'
+            title = '{40BFFF}Инструктор{FFFFFF} [5] - {ff0000}50.000$'
           },
           {
-            title = '{40BFFF}РњР».РРЅСЃС‚СЂСѓРєС‚РѕСЂ{ffffff} [4] - {ff0000}45.000$'
+            title = '{40BFFF}Мл.Инструктор{ffffff} [4] - {ff0000}45.000$'
           },
           {
-            title = '{40BFFF}Р­РєР·Р°РјРµРЅР°С‚РѕСЂ{ffffff} [3] - {ff0000}30.000$'
+            title = '{40BFFF}Экзаменатор{ffffff} [3] - {ff0000}30.000$'
           },
           {
-            title = '{40BFFF}РљРѕРЅСЃСѓР»СЊС‚Р°РЅС‚{ffffff} [2] - {ff0000}25.000$'
+            title = '{40BFFF}Консультант{ffffff} [2] - {ff0000}25.000$'
           },
           {
-            title = '{40BFFF}РЎС‚Р°Р¶РµСЂ{ffffff} [1] - {ff0000}20.000$'
+            title = '{40BFFF}Стажер{ffffff} [1] - {ff0000}20.000$'
           }
         }
       },
       {
-        title = 'РќРѕРІРѕСЃС‚Рё',
+        title = 'Новости',
         submenu =
         {
           {
-            title = '{FFFF80}Р“РµРЅРµСЂР°Р»СЊРЅС‹Р№ РґРёСЂРµРєС‚РѕСЂ{ffffff} [10] - {ff0000}70.000$'
+            title = '{FFFF80}Генеральный директор{ffffff} [10] - {ff0000}70.000$'
           },
           {
-            title = '{FFFF80}РџСЂРѕРіСЂР°РјРЅС‹Р№ РґРёСЂРµРєС‚РѕСЂ{ffffff} [9] - {ff0000}60.000$'
+            title = '{FFFF80}Програмный директор{ffffff} [9] - {ff0000}60.000$'
           },
           {
-            title = '{FFFF80}РўРµС…РЅРёС‡РµСЃРєРёР№ РґРёСЂРµРєС‚РѕСЂ{ffffff} [8] - {ff0000}55.000$'
+            title = '{FFFF80}Технический директор{ffffff} [8] - {ff0000}55.000$'
           },
           {
-            title = '{FFFF80}Р“Р»Р°РІРЅС‹Р№ СЂРµРґР°РєС‚РѕСЂ{ffffff} [7] - {ff0000}50.000$'
+            title = '{FFFF80}Главный редактор{ffffff} [7] - {ff0000}50.000$'
           },
           {
-            title = '{FFFF80}Р РµРґР°РєС‚РѕСЂ{ffffff} [6] - {ff0000}45.000$'
+            title = '{FFFF80}Редактор{ffffff} [6] - {ff0000}45.000$'
           },
           {
-            title = '{FFFF80}Р’РµРґСѓС‰РёР№{ffffff} [5] - {ff0000}40.000$'
+            title = '{FFFF80}Ведущий{ffffff} [5] - {ff0000}40.000$'
           },
           {
-            title = '{FFFF80}Р РµРїРѕСЂС‚РµСЂ{ffffff} [4] - {ff0000}30.000$'
+            title = '{FFFF80}Репортер{ffffff} [4] - {ff0000}30.000$'
           },
           {
-            title = '{FFFF80}Р—РІСѓРєРѕСЂРµР¶РёСЃСЃРµСЂ{ffffff} [3] - {ff0000}25.000$'
+            title = '{FFFF80}Звукорежиссер{ffffff} [3] - {ff0000}25.000$'
           },
           {
-            title = '{FFFF80}Р—РІСѓРєРѕРѕРїРµСЂР°С‚РѕСЂ{ffffff} [2] - {ff0000}20.000$'
+            title = '{FFFF80}Звукооператор{ffffff} [2] - {ff0000}20.000$'
           },
           {
-            title = '{FFFF80}РЎС‚Р°Р¶РµСЂ{ffffff} [1] - {ff0000}15.000$'
+            title = '{FFFF80}Стажер{ffffff} [1] - {ff0000}15.000$'
           }
         }
       }
@@ -1569,82 +1407,32 @@ local fcmenu =
   }
 }
 
-local fthmenuPD = {
+local fthmenu = {
     {
-        title = '{ffffff}В» Р—Р°РїСЂРѕСЃРёС‚СЊ РїРѕРґРґРµСЂР¶РєСѓ РІ С‚РµРєСѓС‰РёР№ РєРІР°РґСЂР°С‚',
+        title = '{ffffff}» Запросить поддержку в текущий квадрат',
         onclick = function()
             if cfg.main.tarb then
-                sampSendChat(string.format('/r [%s]: РќСѓР¶РЅР° РїРѕРґРґРµСЂР¶РєР° РІ РєРІР°РґСЂР°С‚ %s', cfg.main.tar, kvadrat()))
+                sampSendChat(string.format('/r [%s]: Нужна поддержка в квадрат %s', cfg.main.tar, kvadrat()))
             else
-                sampSendChat(string.format('/r РќСѓР¶РЅР° РїРѕРґРґРµСЂР¶РєР° РІ РєРІР°РґСЂР°С‚ %s', kvadrat()))
+                sampSendChat(string.format('/r Нужна поддержка в квадрат %s', kvadrat()))
             end
         end
     },
     {
-        title = '{ffffff}В» Р—Р°РїСЂРѕСЃРёС‚СЊ СЌРІР°РєСѓР°С†РёСЋ РІ С‚РµРєСѓС‰РёР№ РєРІР°РґСЂР°С‚',
+        title = '{ffffff}» Запросить эвакуацию в текущий квадрат',
         onclick = function()
-            sampShowDialog(1401, '{9966cc}'..script.this.name..' {ffffff}| Р­РІР°РєСѓР°С†РёСЏ', '{ffffff}Р’РІРµРґРёС‚Рµ: РєРѕР»-РІРѕ РјРµСЃС‚\nРџСЂРёРјРµСЂ: 3 РјРµСЃС‚Р°', 'РћС‚РїСЂР°РІРёС‚СЊ', 'РћС‚РјРµРЅР°', 1)
+            sampShowDialog(1401, '{9966cc}FBI Tools {ffffff}| Эвакуация', '{ffffff}Введите: кол-во мест\nПример: 3 места', 'Отправить', 'Отмена', 1)
         end
     },
     {
-        title = '{ffffff}В» Р¦РµРЅС‹ РІС‹РєСѓРїР°',
+        title = '{ffffff}» Цены выкупа',
         onclick = function()
-            submenus_show(fcmenu, '{9966cc}'..script.this.name..' {ffffff}| Р¦РµРЅС‹ РІС‹РєСѓРїР°')
+            submenus_show(fcmenu, '{9966cc}FBI Tools {ffffff}| Цены выкупа')
         end
     }
 }
 
-local fthmenuAS = {
-    {
-        title = "{FFFFFF}В» РџСЂРёРІРµС‚СЃС‚РІРёРµ",
-        onclick = function() 
-            sampSendChat(("Р”РѕР±СЂС‹Р№ РґРµРЅСЊ. РЇ СЃРѕС‚СЂСѓРґРЅРёРє РђРІС‚РѕС€РєРѕР»С‹ %s, С‡РµРј РјРѕРіСѓ РїРѕРјРѕС‡СЊ?"):format(sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub("_", " ")))
-        end
-    },
-    {
-        title = "{FFFFFF}В» РџРѕРїСЂРѕСЃРёС‚СЊ РїР°СЃРїРѕСЂС‚",
-        onclick = function()
-            sampSendChat("Р’Р°С€ РїР°СЃРїРѕСЂС‚, РїРѕР¶Р°Р»СѓР№СЃС‚Р°.")
-            wait(1400)
-            sampSendChat(("/b /showpass %s"):format(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))))
-        end
-    },
-    {
-        title = "{FFFFFF}В» РџРѕРїСЂРѕС‰Р°С‚СЊСЃСЏ",
-        onclick = function() sampSendChat("РҐРѕСЂРѕС€РµРіРѕ РґРЅСЏ!") end
-    },
-    {
-        title = "{FFFFFF}В» РЈРґР°СЂРёС‚СЊ С€РѕРєРµСЂРѕРј (Р±Р»РёР·Р¶Р°Р№С€РµРіРѕ РёРіСЂРѕРєР°)",
-        onclick = function()
-            sampSendChat(("/me %s С€РѕРєРµСЂ СЃ РїРѕСЏСЃР°"):format(cfg.main.male and 'СЃРЅСЏР»' or 'СЃРЅСЏР»Р°'))
-            wait(cfg.commands.zaderjka)
-            sampSendChat("/itazer")
-            wait(cfg.commands.zaderjka)
-            sampSendChat(("/me %s С€РѕРєРµСЂ РЅР° РїРѕСЏСЃ"):format(cfg.main.male and 'РїРѕРІРµСЃРёР»' or 'РїРѕРІРµСЃРёР»Р°'))
-        end
-    }
-}
 
-local fthmenuMOH = {
-    {
-        title = "В» РџСЂРёРІРµС‚СЃС‚РІРёРµ",
-        onclick = function()
-            sampSendChat("Р—РґСЂР°РІСЃС‚РІСѓР№С‚Рµ, С‡С‚Рѕ РІР°СЃ Р±РµСЃРїРѕРєРѕРёС‚? ")
-        end
-    },
-    {
-        title = "В» РџРѕРїСЂРѕС‰Р°С‚СЊСЃСЏ",
-        onclick = function()
-            sampSendChat("РЈРґР°С‡РЅРѕРіРѕ РґРЅСЏ, РЅРµ Р±РѕР»РµР№С‚Рµ.")
-        end
-    },
-    {
-        title = "В» РћРіР»Р°СЃРёС‚СЊ СЃС‚РѕРёРјРѕСЃС‚СЊ СЃРµР°РЅСЃР° РѕС‚ РЅР°СЂРєРѕР·Р°РІРёСЃРёРјРѕСЃС‚Рё",
-        onclick = function()
-            sampSendChat("РЎС‚РѕРёРјРѕСЃС‚СЊ СЃРµР°РЅСЃР° РѕС‚ РЅР°СЂРєРѕР·Р°РІРёСЃРёРјРѕСЃС‚Рё СЃРѕСЃС‚Р°РІР»СЏРµС‚ 10.000$.")
-        end
-    }
-}
 
 function getweaponname(weapon)
     local names = {
@@ -1706,7 +1494,7 @@ function naparnik()
                     if isCharInAnyCar(ichar) then
                         local iveh = storeCarCharIsInNoSave(ichar)
                         if veh == iveh then
-                            if sampGetFraktionBySkin(i) == 'РџРѕР»РёС†РёСЏ' or sampGetFraktionBySkin(i) == 'FBI' then
+                            if sampGetFraktionBySkin(i) == 'Полиция' or sampGetFraktionBySkin(i) == 'FBI' then
                                 local inick, ifam = sampGetPlayerNickname(i):match('(.+)_(.+)')
                                 if inick and ifam then
                                     table.insert(v, string.format('%s.%s', inick:sub(1,1), ifam))
@@ -1725,7 +1513,7 @@ function naparnik()
                 if doesCharExist(ichar) then
                     local ix, iy, iz = getCharCoordinates(ichar)
                     if getDistanceBetweenCoords3d(myposx, myposy, myposz, ix, iy, iz) <= 30 then
-                        if sampGetFraktionBySkin(i) == 'РџРѕР»РёС†РёСЏ' or sampGetFraktionBySkin(i) == 'FBI' then
+                        if sampGetFraktionBySkin(i) == 'Полиция' or sampGetFraktionBySkin(i) == 'FBI' then
                             local inick, ifam = sampGetPlayerNickname(i):match('(.+)_(.+)')
                             if inick and ifam then
                                 table.insert(v, string.format('%s.%s', inick:sub(1,1), ifam))
@@ -1737,11 +1525,11 @@ function naparnik()
         end
     end
     if #v == 0 then
-        return 'РќР°РїР°СЂРЅРёРєРѕРІ РЅРµС‚.'
+        return 'Напарников нет.'
     elseif #v == 1 then
-        return 'РќР°РїР°СЂРЅРёРє: '..table.concat(v, ', ').. '.'
+        return 'Напарник: '..table.concat(v, ', ').. '.'
     elseif #v >=2 then
-        return 'РќР°РїР°СЂРЅРёРєРё: '..table.concat(v, ', ').. '.'
+        return 'Напарники: '..table.concat(v, ', ').. '.'
     end
 end
 
@@ -1760,34 +1548,14 @@ function onHotKey(id, keys)
                         else
                             local bIsEnter = string.match(line, "^{noe}(.+)") ~= nil
                             local bIsF6 = string.match(line, "^{f6}(.+)") ~= nil
-                            local keys = {
-                                ["{f6}"] = "",
-                                ["{noe}"] = "",
-                                ["{myid}"] = select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)),
-                                ["{kv}"] = kvadrat(),
-                                ["{targetid}"] = targetid,
-                                ["{targetrpnick}"] = sampGetPlayerNicknameForBinder(targetid):gsub('_', ' '),
-                                ["{naparnik}"] = naparnik(),
-                                ["{myrpnick}"] = sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub("_", " "),
-                                ["{smsid}"] = smsid,
-                                ["{smstoid}"] = smstoid,
-                                ["{rang}"] = rang,
-                                ["{frak}"] = frak,
-                                ["{megafid}"] = gmegafid,
-                                ["{dl}"] = mcid
-                            }
-                            for k1, v1 in pairs(keys) do
-                                line = line:gsub(k1, v1)
-                            end
-
                             if not bIsEnter then
                                 if bIsF6 then
-                                    sampProcessChatInput(line)
+                                    sampProcessChatInput(line:gsub("{f6}", ""):gsub('{myid}', select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('{kv}', kvadrat()):gsub('{targetid}', targetid):gsub('{targetrpnick}', sampGetPlayerNicknameForBinder(targetid):gsub('_', ' ')):gsub('{naparnik}', naparnik()):gsub('{myrpnick}', sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' ')):gsub('{smsid}', smsid):gsub('{smstoid}', smstoid):gsub('{rang}', rang):gsub('{frak}', frak):gsub('{megafid}', gmegafid))
                                 else
-                                    sampSendChat(line)
+                                    sampSendChat(line:gsub('{myid}', select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('{kv}', kvadrat()):gsub('{targetid}', targetid):gsub('{targetrpnick}', sampGetPlayerNicknameForBinder(targetid):gsub('_', ' ')):gsub('{naparnik}', naparnik()):gsub('{myrpnick}', sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' ')):gsub('{smsid}', smsid):gsub('{smstoid}', smstoid):gsub('{rang}', rang):gsub('{frak}', frak):gsub('{megafid}', gmegafid))
                                 end
                             else
-                                sampSetChatInputText(line)
+                                sampSetChatInputText(line:gsub("{noe}", ""):gsub('{myid}', select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('{kv}', kvadrat()):gsub('{targetid}', targetid):gsub('{targetrpnick}', sampGetPlayerNicknameForBinder(targetid):gsub('_', ' ')):gsub('{naparnik}', naparnik()):gsub('{myrpnick}', sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' ')):gsub('{smsid}', smsid):gsub('{smstoid}', smstoid):gsub('{rang}', rang):gsub('{frak}', frak):gsub('{megafid}', gmegafid))
                                 sampSetChatInputEnabled(true)
                             end
                         end
@@ -1799,30 +1567,30 @@ function onHotKey(id, keys)
 end
 function kvadrat()
     local KV = {
-        [1] = "Рђ",
-        [2] = "Р‘",
-        [3] = "Р’",
-        [4] = "Р“",
-        [5] = "Р”",
-        [6] = "Р–",
-        [7] = "Р—",
-        [8] = "Р",
-        [9] = "Рљ",
-        [10] = "Р›",
-        [11] = "Рњ",
-        [12] = "Рќ",
-        [13] = "Рћ",
-        [14] = "Рџ",
-        [15] = "Р ",
-        [16] = "РЎ",
-        [17] = "Рў",
-        [18] = "РЈ",
-        [19] = "Р¤",
-        [20] = "РҐ",
-        [21] = "Р¦",
-        [22] = "Р§",
-        [23] = "РЁ",
-        [24] = "РЇ",
+        [1] = "А",
+        [2] = "Б",
+        [3] = "В",
+        [4] = "Г",
+        [5] = "Д",
+        [6] = "Ж",
+        [7] = "З",
+        [8] = "И",
+        [9] = "К",
+        [10] = "Л",
+        [11] = "М",
+        [12] = "Н",
+        [13] = "О",
+        [14] = "П",
+        [15] = "Р",
+        [16] = "С",
+        [17] = "Т",
+        [18] = "У",
+        [19] = "Ф",
+        [20] = "Х",
+        [21] = "Ц",
+        [22] = "Ч",
+        [23] = "Ш",
+        [24] = "Я",
     }
     local X, Y, Z = getCharCoordinates(playerPed)
     X = math.ceil((X + 3000) / 250)
@@ -1832,80 +1600,56 @@ function kvadrat()
     return KVX
 end
 
-function isHudEnabled()
-    local value = memory.read(0xBA6769, 1, true)
-    if value == 1 then return true else return false end
-end
-
-function genCode(skey)
-    skey = basexx.from_base32(skey)
-    value = math.floor(os.time() / 30)
-    value = string.char(
-    0, 0, 0, 0,
-    band(value, 0xFF000000) / 0x1000000,
-    band(value, 0xFF0000) / 0x10000,
-    band(value, 0xFF00) / 0x100,
-    band(value, 0xFF))
-    local hash = sha1.hmac_binary(skey, value)
-    local offset = band(hash:sub(-1):byte(1, 1), 0xF)
-    local function bytesToInt(a,b,c,d)
-      return a*0x1000000 + b*0x10000 + c*0x100 + d
-    end
-    hash = bytesToInt(hash:byte(offset + 1, offset + 4))
-    hash = band(hash, 0x7FFFFFFF) % 1000000
-    return ('%06d'):format(hash)
-end
-
 function kvadrat1(param)
     local KV = {
-        ["Рђ"] = 1,
-        ["Р‘"] = 2,
-        ["Р’"] = 3,
-        ["Р“"] = 4,
-        ["Р”"] = 5,
-        ["Р–"] = 6,
-        ["Р—"] = 7,
-        ["Р"] = 8,
-        ["Рљ"] = 9,
-        ["Р›"] = 10,
-        ["Рњ"] = 11,
-        ["Рќ"] = 12,
-        ["Рћ"] = 13,
-        ["Рџ"] = 14,
-        ["Р "] = 15,
-        ["РЎ"] = 16,
-        ["Рў"] = 17,
-        ["РЈ"] = 18,
-        ["Р¤"] = 19,
-        ["РҐ"] = 20,
-        ["Р¦"] = 21,
-        ["Р§"] = 22,
-        ["РЁ"] = 23,
-        ["РЇ"] = 24,
-        ["Р°"] = 1,
-        ["Р±"] = 2,
-        ["РІ"] = 3,
-        ["Рі"] = 4,
-        ["Рґ"] = 5,
-        ["Р¶"] = 6,
-        ["Р·"] = 7,
-        ["Рё"] = 8,
-        ["Рє"] = 9,
-        ["Р»"] = 10,
-        ["Рј"] = 11,
-        ["РЅ"] = 12,
-        ["Рѕ"] = 13,
-        ["Рї"] = 14,
-        ["СЂ"] = 15,
-        ["СЃ"] = 16,
-        ["С‚"] = 17,
-        ["Сѓ"] = 18,
-        ["С„"] = 19,
-        ["С…"] = 20,
-        ["С†"] = 21,
-        ["С‡"] = 22,
-        ["С€"] = 23,
-        ["СЏ"] = 24,
+        ["А"] = 1,
+        ["Б"] = 2,
+        ["В"] = 3,
+        ["Г"] = 4,
+        ["Д"] = 5,
+        ["Ж"] = 6,
+        ["З"] = 7,
+        ["И"] = 8,
+        ["К"] = 9,
+        ["Л"] = 10,
+        ["М"] = 11,
+        ["Н"] = 12,
+        ["О"] = 13,
+        ["П"] = 14,
+        ["Р"] = 15,
+        ["С"] = 16,
+        ["Т"] = 17,
+        ["У"] = 18,
+        ["Ф"] = 19,
+        ["Х"] = 20,
+        ["Ц"] = 21,
+        ["Ч"] = 22,
+        ["Ш"] = 23,
+        ["Я"] = 24,
+        ["а"] = 1,
+        ["б"] = 2,
+        ["в"] = 3,
+        ["г"] = 4,
+        ["д"] = 5,
+        ["ж"] = 6,
+        ["з"] = 7,
+        ["и"] = 8,
+        ["к"] = 9,
+        ["л"] = 10,
+        ["м"] = 11,
+        ["н"] = 12,
+        ["о"] = 13,
+        ["п"] = 14,
+        ["р"] = 15,
+        ["с"] = 16,
+        ["т"] = 17,
+        ["у"] = 18,
+        ["ф"] = 19,
+        ["х"] = 20,
+        ["ц"] = 21,
+        ["ч"] = 22,
+        ["ш"] = 23,
+        ["я"] = 24,
     }
     return KV[param]
 end
@@ -1935,31 +1679,31 @@ end
 function getNameSphere(id)
     local names =
     {
-      [1] = 'РђР’',
-      [2] = 'РђРЁ',
-      [3] = 'РЎР¤Р°',
-      [4] = 'Р’',
-      [5] = 'Рђ',
-      [6] = 'РЎР¤РЅ',
-      [7] = 'РўРѕРЅРЅРµР»СЊ',
-      [8] = 'РњСЌСЂРёСЏ',
-      [9] = 'РҐРѕС‚-Р”РѕРіРё',
-      [10] = 'Р‘РѕР»СЊРЅРёС†Р° Р›РЎ',
-      [11] = 'РђР’',
-      [12] = 'РњРѕСЃС‚',
-      [13] = 'РџРµСЂРµРєСЂРµСЃС‚РѕРє',
-      [14] = 'Р Р°Р·РІРёР»РєР°',
-      [15] = 'Р’',
-      [16] = 'Рђ',
-      [17] = 'Р’',
-      [18] = 'РЎ',
-      [19] = 'РљРџРџ',
-      [20] = 'РџРѕСЂС‚ Р›РЎ',
-      [21] = 'РћРїР°СЃРЅС‹Р№ СЂР°Р№РѕРЅ',
-      [32] = 'РљРџРџ',
+      [1] = 'АВ',
+      [2] = 'АШ',
+      [3] = 'СФа',
+      [4] = 'В',
+      [5] = 'А',
+      [6] = 'СФн',
+      [7] = 'Тоннель',
+      [8] = 'Мэрия',
+      [9] = 'Хот-Доги',
+      [10] = 'Больница ЛС',
+      [11] = 'АВ',
+      [12] = 'Мост',
+      [13] = 'Перекресток',
+      [14] = 'Развилка',
+      [15] = 'В',
+      [16] = 'А',
+      [17] = 'В',
+      [18] = 'С',
+      [19] = 'КПП',
+      [20] = 'Порт ЛС',
+      [21] = 'Опасный район',
+      [32] = 'КПП',
       [33] = 'D',
-      [34] = 'РҐРѕР»Р» РњСЌСЂРёРё',
-      [35] = 'РђРІС‚РѕСЂС‹РЅРѕРє'
+      [34] = 'Холл Мэрии',
+      [35] = 'Авторынок'
     }
     return names[id]
 end
@@ -1967,132 +1711,132 @@ end
 function longtoshort(long)
     local short =
     {
-      ['РђСЂРјРёСЏ Р›Р’'] = 'LVa',
-      ['РђСЂРјРёСЏ РЎР¤'] = 'SFa',
-      ['Р¤Р‘Р '] = 'FBI'
+      ['Армия ЛВ'] = 'LVa',
+      ['Армия СФ'] = 'SFa',
+      ['ФБР'] = 'FBI'
     }
     return short[long]
 end
 local osnova = {
 	{
-		title = 'Р›Р°Р±РѕСЂР°С‚РѕСЂРёСЏ',
+		title = 'Лаборатория',
 		onclick = function()
 			local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
-			sampSendChat(("/r %s РІ СЃРѕС‚СЂСѓРґРЅРёРєР° Р»Р°Р±РѕСЂР°С‚РѕСЂРёРё."):format(cfg.main.male and 'РџРµСЂРµРѕРґРµР»СЃСЏ' or 'РџРµСЂРµРѕРґРµР»Р°СЃСЊ'))
+			sampSendChat(("/r %s в сотрудника лаборатории."):format(cfg.main.male and 'Переоделся' or 'Переоделась'))
 	        wait(1400)
 	        sampSendChat("/rb "..myid)
 		end
 	},
 	{
-		title = 'Р“СЂР°Р¶РґР°РЅСЃРєРёР№',
+		title = 'Гражданский',
 		onclick = function()
-			mstype = 'РіСЂР°Р¶РґР°РЅСЃРєРѕРіРѕ'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'гражданского'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
-		title = 'РџРѕР»РёС†РёСЏ',
+		title = 'Полиция',
 		onclick = function()
-			mstype = 'РїРѕР»РёС†РµР№СЃРєРѕРіРѕ'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'полицейского'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
-		title = 'РђСЂРјРёСЏ',
+		title = 'Армия',
 		onclick = function()
-			mstype = 'РІРѕРµРЅРЅРѕРіРѕ'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'военного'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
-		title = 'РњР§РЎ',
+		title = 'МЧС',
 		onclick = function()
-			mstype = 'РјРµРґРёРєР°'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'медика'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
-		title = 'РњСЌСЂРёСЏ',
+		title = 'Мэрия',
 		onclick = function()
-			mstype = 'СЃРѕС‚СЂСѓРґРЅРёРєР° РјСЌСЂРёРё'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'сотрудника мэрии'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
-		title = 'РђРІС‚РѕС€РєРѕР»Р°',
+		title = 'Автошкола',
 		onclick = function()
-			mstype = 'СЂР°Р±РѕС‚РЅРёРєР° Р°РІС‚РѕС€РєРѕР»С‹'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'работника автошколы'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
-		title = 'РќРѕРІРѕСЃС‚Рё',
+		title = 'Новости',
 		onclick = function()
-			mstype = 'СЂР°Р±РѕС‚РЅРёРєР° РЅРѕРІРѕСЃС‚РµР№'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'работника новостей'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
 		title = 'LCN',
 		ocnlick = function()
-			mstype = 'Р§РћРџ LCN'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'ЧПО LCN'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
 		title = 'Yakuza',
 		onclick = function()
-			mstype = 'Р§РћРџ Yakuza'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'ЧОП Yakuza'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
 		title = 'Russian Mafia',
 		onclick = function()
-			mstype = 'Р§РћРџ Russian Mafia'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'ЧОП Russian Mafia'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
 		title = 'Rifa',
 		onclick = function()
-			mstype = 'Р‘Рљ Rifa'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'БК Rifa'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
 		title = 'Grove',
 		onclick = function()
-			mstype = 'Р‘Рљ Grove'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'БК Grove'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
 		title = 'Ballas',
 		onclick = function()
-			mstype = 'Р‘Рљ Ballas'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'БК Ballas'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
 		title = 'Vagos',
 		onclick = function()
-			mstype = 'Р‘Рљ Vagos'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'БК Vagos'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
 		title = 'Aztec',
 		onclick = function()
-			mstype = 'Р‘Рљ Aztec'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'БК Aztec'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	},
 	{
-		title = 'Р‘Р°Р№РєРµСЂС‹',
+		title = 'Байкеры',
 		onclick = function()
-			mstype = 'Р±Р°Р№РєРµСЂРѕРІ'
-			sampShowDialog(1385, '{9966cc}'..script.this.name..' {ffffff}| РњР°СЃРєРёСЂРѕРІРєР°', 'Р’РІРµРґРёС‚Рµ: РїСЂРёС‡РёРЅСѓ', 'В»', 'x', 1)
+			mstype = 'байкеров'
+			sampShowDialog(1385, '{9966cc}FBI Tools {ffffff}| Маскировка', 'Введите: причину', '»', 'x', 1)
 		end
 	}
 }
@@ -2113,7 +1857,7 @@ local tCarsName = {"Landstalker", "Bravura", "Buffalo", "Linerunner", "Perrenial
 "Tug", "Trailer", "Emperor", "Wayfarer", "Euros", "Hotdog", "Club", "FreightBox", "Trailer", "Andromada", "Dodo", "RCCam", "Launch", "PoliceCar", "PoliceCar",
 "PoliceCar", "PoliceRanger", "Picador", "S.W.A.T", "Alpha", "Phoenix", "GlendaleShit", "SadlerShit", "Luggage A", "Luggage B", "Stairs", "Boxville", "Tiller",
 "UtilityTrailer"}
-local tCarsTypeName = {"РђРІС‚РѕРјРѕР±РёР»СЊ", "РњРѕС‚РѕРёС†РёРєР»", "Р’РµСЂС‚РѕР»С‘С‚", "РЎР°РјРѕР»С‘С‚", "РџСЂРёС†РµРї", "Р›РѕРґРєР°", "Р”СЂСѓРіРѕРµ", "РџРѕРµР·Рґ", "Р’РµР»РѕСЃРёРїРµРґ"}
+local tCarsTypeName = {"Автомобиль", "Мотоицикл", "Вертолёт", "Самолёт", "Прицеп", "Лодка", "Другое", "Поезд", "Велосипед"}
 local tCarsSpeed = {43, 40, 51, 30, 36, 45, 30, 41, 27, 43, 36, 61, 46, 30, 29, 53, 42, 30, 32, 41, 40, 42, 38, 27, 37,
 54, 48, 45, 43, 55, 51, 36, 26, 30, 46, 0, 41, 43, 39, 46, 37, 21, 38, 35, 30, 45, 60, 35, 30, 52, 0, 53, 43, 16, 33, 43,
 29, 26, 43, 37, 48, 43, 30, 29, 14, 13, 40, 39, 40, 34, 43, 30, 34, 29, 41, 48, 69, 51, 32, 38, 51, 20, 43, 34, 18, 27,
@@ -2132,8 +1876,8 @@ local tCarsType = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1
 }
 
 function update()
-    local fpath = os.getenv('TEMP') .. '\\ftulsupd.json' 
-    downloadUrlToFile('https://raw.githubusercontent.com/L-Barton/Medichelper/master/ftulsupd.json', fpath, function(id, status, p1, p2)
+    local fpath = os.getenv('TEMP') .. '\\ftulsupd.json'
+    downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/ftulsupd.json', fpath, function(id, status, p1, p2)
         if status == dlstatus.STATUS_ENDDOWNLOADDATA then
             local f = io.open(fpath, 'r')
             if f then
@@ -2143,20 +1887,19 @@ function update()
                 ttt = updlist1
 			    if info and info.latest then
                     if tonumber(thisScript().version) < tonumber(info.latest) then
-                        ftext('РћР±РЅР°СЂСѓР¶РµРЅРѕ РѕР±РЅРѕРІР»РµРЅРёРµ {9966cc}'..script.this.name..'{ffffff}. Р”Р»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ РЅР°Р¶РјРёС‚Рµ РєРЅРѕРїРєСѓ РІ РѕРєРѕС€РєРµ.')
-                        ftext('РџСЂРёРјРµС‡Р°РЅРёРµ: Р•СЃР»Рё Сѓ РІР°СЃ РЅРµ РїРѕСЏРІРёР»РѕСЃСЊ РѕРєРѕС€РєРѕ РІРІРµРґРёС‚Рµ {9966cc}/ft')
-                        updwindows.v = true
-                        canupdate = true
+                        ftext('Обнаружено обновление {9966cc}FBI Tools{ffffff}. Для обновления нажмите кнопку в окошке.')
+                        ftext('Примечание: Если у вас не появилось окошко введите {9966cc}/ft')
+					    updwindows.v = true
                     else
-                        print('РћР±РЅРѕРІР»РµРЅРёР№ СЃРєСЂРёРїС‚Р° РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅРѕ. РџСЂРёСЏС‚РЅРѕР№ РёРіСЂС‹.')
+                        print('Обновлений скрипта не обнаружено. Приятной игры.')
                         update = false
 				    end
                 end
             else
-                print("РџСЂРѕРІРµСЂРєР° РѕР±РЅРѕРІР»РµРЅРёСЏ РїСЂРѕС€РєР° РЅРµСѓСЃРїРµС€РЅРѕ. Р—Р°РїСѓСЃРєР°СЋ СЃС‚Р°СЂСѓСЋ РІРµСЂСЃРёСЋ.")
+                print("Проверка обновления прошка неуспешно. Запускаю старую версию.")
             end
         elseif status == 64 then
-            print("РџСЂРѕРІРµСЂРєР° РѕР±РЅРѕРІР»РµРЅРёСЏ РїСЂРѕС€РєР° РЅРµСѓСЃРїРµС€РЅРѕ. Р—Р°РїСѓСЃРєР°СЋ СЃС‚Р°СЂСѓСЋ РІРµСЂСЃРёСЋ.")
+            print("Проверка обновления прошка неуспешно. Запускаю старую версию.")
             update = false
         end
     end)
@@ -2164,27 +1907,27 @@ end
 
 
 function goupdate()
-    ftext('РќР°С‡Р°Р»РѕСЃСЊ СЃРєР°С‡РёРІР°РЅРёРµ РѕР±РЅРѕРІР»РµРЅРёСЏ. РЎРєСЂРёРїС‚ РїРµСЂРµР·Р°РіСЂСѓР·РёС‚СЃСЏ С‡РµСЂРµР· РїР°СЂСѓ СЃРµРєСѓРЅРґ.', -1)
+    ftext('Началось скачивание обновления. Скрипт перезагрузится через пару секунд.', -1)
     wait(300)
     downloadUrlToFile(updatelink, thisScript().path, function(id3, status1, p13, p23)
         if status1 == dlstatus.STATUS_ENDDOWNLOADDATA then
             thisScript():reload()
         elseif status1 == 64 then
-            ftext("РЎРєР°С‡РёРІР°РЅРёРµ РѕР±РЅРѕРІР»РµРЅРёСЏ РїСЂРѕС€Р»Рѕ РЅРµ СѓСЃРїРµС€РЅРѕ. Р—Р°РїСѓСЃРєР°СЋ СЃС‚Р°СЂСѓСЋ РІРµСЂСЃРёСЋ")
+            ftext("Скачивание обновления прошло не успешно. Запускаю старую версию")
         end
     end)
 end
 
 function libs()
-    if not limgui or not lsampev or not lsphere or not lrkeys or not limadd or not lsha1 or not lbasexx then
-        ftext('РќР°С‡Р°С‚Р° Р·Р°РіСЂСѓР·РєР° РЅРµРґРѕСЃС‚Р°СЋС‰РёС… Р±РёР±Р»РёРѕС‚РµРє')
-        ftext('РџРѕ РѕРєРѕРЅС‡Р°РЅРёСЋ Р·Р°РіСЂСѓР·РєРё СЃРєСЂРёРїС‚ Р±СѓРґРµС‚ РїРµСЂРµР·Р°РіСЂСѓР¶РµРЅ')
+    if not limgui or not lsampev or not lsphere or not lrkeys or not limadd then
+        ftext('Начата загрузка недостающих библиотек')
+        ftext('По окончанию загрузки скрипт будет перезагружен')
         if limgui == false then
             imgui_download_status = 'proccess'
             downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/imgui.lua', 'moonloader/lib/imgui.lua', function(id, status, p1, p2)
                 if status == dlstatus.STATUS_DOWNLOADINGDATA then
                     imgui_download_status = 'proccess'
-                    print(string.format('Р—Р°РіСЂСѓР¶РµРЅРѕ %d РєРёР»РѕР±Р°Р№С‚ РёР· %d РєРёР»РѕР±Р°Р№С‚.', p1, p2))
+                    print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
                 elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                     imgui_download_status = 'succ'
                 elseif status == 64 then
@@ -2193,18 +1936,18 @@ function libs()
             end)
             while imgui_download_status == 'proccess' do wait(0) end
             if imgui_download_status == 'failed' then
-                print('РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ: imgui.lua')
+                print('Не удалось загрузить: imgui.lua')
                 thisScript():unload()
             else
-                print('Р¤Р°Р№Р»: imgui.lua СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅ')
+                print('Файл: imgui.lua успешно загружен')
                 if doesFileExist('moonloader/lib/MoonImGui.dll') then
-                    print('Imgui Р±С‹Р» Р·Р°РіСЂСѓР¶РµРЅ')
+                    print('Imgui был загружен')
                 else
                     imgui_download_status = 'proccess'
                     downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/MoonImGui.dll', 'moonloader/lib/MoonImGui.dll', function(id, status, p1, p2)
                         if status == dlstatus.STATUS_DOWNLOADINGDATA then
                             imgui_download_status = 'proccess'
-                            print(string.format('Р—Р°РіСЂСѓР¶РµРЅРѕ %d РєРёР»РѕР±Р°Р№С‚ РёР· %d РєРёР»РѕР±Р°Р№С‚.', p1, p2))
+                            print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
                         elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                             imgui_download_status = 'succ'
                         elseif status == 64 then
@@ -2213,10 +1956,10 @@ function libs()
                     end)
                     while imgui_download_status == 'proccess' do wait(0) end
                     if imgui_download_status == 'failed' then
-                        print('РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ Imgui')
+                        print('Не удалось загрузить Imgui')
                         thisScript():unload()
                     else
-                        print('Imgui Р±С‹Р» Р·Р°РіСЂСѓР¶РµРЅ')
+                        print('Imgui был загружен')
                     end
                 end
             end
@@ -2230,7 +1973,7 @@ function libs()
                 downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/samp/'..v, 'moonloader/lib/samp/'..v, function(id, status, p1, p2)
                     if status == dlstatus.STATUS_DOWNLOADINGDATA then
                         sampev_download_status = 'proccess'
-                        print(string.format('Р—Р°РіСЂСѓР¶РµРЅРѕ %d РєРёР»РѕР±Р°Р№С‚ РёР· %d РєРёР»РѕР±Р°Р№С‚.', p1, p2))
+                        print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
                     elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                         sampev_download_status = 'succ'
                     elseif status == 64 then
@@ -2239,10 +1982,10 @@ function libs()
                 end)
                 while sampev_download_status == 'proccess' do wait(0) end
                 if sampev_download_status == 'failed' then
-                    print('РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ sampev')
+                    print('Не удалось загрузить sampev')
                     thisScript():unload()
                 else
-                    print(v..' Р±С‹Р» Р·Р°РіСЂСѓР¶РµРЅ')
+                    print(v..' был загружен')
                 end
             end
         end
@@ -2251,7 +1994,7 @@ function libs()
             downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/sphere.lua', 'moonloader/lib/sphere.lua', function(id, status, p1, p2)
                 if status == dlstatus.STATUS_DOWNLOADINGDATA then
                     sphere_download_status = 'proccess'
-                    print(string.format('Р—Р°РіСЂСѓР¶РµРЅРѕ %d РєРёР»РѕР±Р°Р№С‚ РёР· %d РєРёР»РѕР±Р°Р№С‚.', p1, p2))
+                    print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
                 elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                     sphere_download_status = 'succ'
                 elseif status == 64 then
@@ -2260,10 +2003,10 @@ function libs()
             end)
             while sphere_download_status == 'proccess' do wait(0) end
             if sphere_download_status == 'failed' then
-                print('РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ Sphere.lua')
+                print('Не удалось загрузить Sphere.lua')
                 thisScript():unload()
             else
-                print('Sphere.lua Р±С‹Р» Р·Р°РіСЂСѓР¶РµРЅ')
+                print('Sphere.lua был загружен')
             end
         end
         if not lrkeys then
@@ -2271,7 +2014,7 @@ function libs()
             downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/rkeys.lua', 'moonloader/lib/rkeys.lua', function(id, status, p1, p2)
                 if status == dlstatus.STATUS_DOWNLOADINGDATA then
                     rkeys_download_status = 'proccess'
-                    print(string.format('Р—Р°РіСЂСѓР¶РµРЅРѕ %d РєРёР»РѕР±Р°Р№С‚ РёР· %d РєРёР»РѕР±Р°Р№С‚.', p1, p2))
+                    print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
                 elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                     rkeys_download_status = 'succ'
                 elseif status == 64 then
@@ -2280,10 +2023,10 @@ function libs()
             end)
             while rkeys_download_status == 'proccess' do wait(0) end
             if rkeys_download_status == 'failed' then
-                print('РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ rkeys.lua')
+                print('Не удалось загрузить rkeys.lua')
                 thisScript():unload()
             else
-                print('rkeys.lua Р±С‹Р» Р·Р°РіСЂСѓР¶РµРЅ')
+                print('rkeys.lua был загружен')
             end
         end
         if not limadd then
@@ -2291,7 +2034,7 @@ function libs()
             downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/imgui_addons.lua', 'moonloader/lib/imgui_addons.lua', function(id, status, p1, p2)
                 if status == dlstatus.STATUS_DOWNLOADINGDATA then
                     imadd_download_status = 'proccess'
-                    print(string.format('Р—Р°РіСЂСѓР¶РµРЅРѕ %d РєРёР»РѕР±Р°Р№С‚ РёР· %d РєРёР»РѕР±Р°Р№С‚.', p1, p2))
+                    print(string.format('Загружено %d килобайт из %d килобайт.', p1, p2))
                 elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
                     imadd_download_status = 'succ'
                 elseif status == 64 then
@@ -2300,56 +2043,16 @@ function libs()
             end)
             while imadd_download_status == 'proccess' do wait(0) end
             if imadd_download_status == 'failed' then
-                print('РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ imgui_addons.lua')
+                print('Не удалось загрузить imgui_addons.lua')
                 thisScript():unload()
             else
-                print('imgui_addons.lua Р±С‹Р» Р·Р°РіСЂСѓР¶РµРЅ')
+                print('imgui_addons.lua был загружен')
             end
         end
-        if not lsha1 then
-            sha1_download_status = 'proccess'
-            downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/sha1.lua', 'moonloader/lib/sha1.lua', function(id, status, p1, p2)
-                if status == dlstatus.STATUS_DOWNLOADINGDATA then
-                    sha1_download_status = 'proccess'
-                    print(string.format('Р—Р°РіСЂСѓР¶РµРЅРѕ %d РєРёР»РѕР±Р°Р№С‚ РёР· %d РєРёР»РѕР±Р°Р№С‚.', p1, p2))
-                elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
-                    sha1_download_status = 'succ'
-                elseif status == 64 then
-                    sha1_download_status = 'failed'
-                end
-            end)
-            while sha1_download_status == 'proccess' do wait(0) end
-            if sha1_download_status == 'failed' then
-                print('РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ sha1.lua')
-                thisScript():unload()
-            else
-                print('sha1.lua Р±С‹Р» Р·Р°РіСЂСѓР¶РµРЅ')
-            end
-        end
-        if not lbasexx then
-            basexx_download_status = 'proccess'
-            downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/lib/basexx.lua', 'moonloader/lib/basexx.lua', function(id, status, p1, p2)
-                if status == dlstatus.STATUS_DOWNLOADINGDATA then
-                    basexx_download_status = 'proccess'
-                    print(string.format('Р—Р°РіСЂСѓР¶РµРЅРѕ %d РєРёР»РѕР±Р°Р№С‚ РёР· %d РєРёР»РѕР±Р°Р№С‚.', p1, p2))
-                elseif status == dlstatus.STATUS_ENDDOWNLOADDATA then
-                    basexx_download_status = 'succ'
-                elseif status == 64 then
-                    basexx_download_status = 'failed'
-                end
-            end)
-            while basexx_download_status == 'proccess' do wait(0) end
-            if basexx_download_status == 'failed' then
-                print('РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ basexx.lua')
-                thisScript():unload()
-            else
-                print('basexx.lua Р±С‹Р» Р·Р°РіСЂСѓР¶РµРЅ')
-            end
-        end
-        ftext('Р’СЃРµ РЅРµРѕР±С…РѕРґРёРјС‹Рµ Р±РёР±Р»РёРѕС‚РµРєРё Р±С‹Р»Рё Р·Р°РіСЂСѓР¶РµРЅС‹')
+        ftext('Все необходимые библиотеки были загружены')
         reloadScripts()
     else
-        print('Р’СЃРµ РЅРµРѕР±С…РѕРґРёРјРµ Р±РёР±Р»РёРѕС‚РµРєРё Р±С‹Р»Рё РЅР°Р№РґРµРЅС‹ Рё Р·Р°РіСЂСѓР¶РµРЅС‹')
+        print('Все необходиме библиотеки были найдены и загружены')
     end
 end
 
@@ -2362,10 +2065,10 @@ function checkStats()
     local chtime = nil
     checkstat = false
     if rang == -1 and frak == -1 then
-        frak = 'РќРµС‚'
-        rang = 'РќРµС‚'
-        ftext('РќРµ СѓРґР°Р»РѕСЃСЊ РѕРїСЂРµРґРµР»РёС‚СЊ СЃС‚Р°С‚РёСЃС‚РёРєСѓ РїРµСЂСЃРѕРЅР°Р¶Р°. РџРѕРІС‚РѕСЂРёС‚СЊ РїРѕРїС‹С‚РєСѓ?', -1)
-        ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+        frak = 'Нет'
+        rang = 'Нет'
+        ftext('Не удалось определить статистику персонажа. Повторить попытку?', -1)
+        ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
         opyatstat = true
     end
 end
@@ -2382,19 +2085,19 @@ function ykf()
                     file:close()
                 else
                     local file = io.open("moonloader/fbitools/yk.txt", "w")
-                    file:write("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° Р·Р°РєР°С‡РєРё РЈРљ.\nРР·РјРµРЅРёС‚СЊ С‚РµРєСЃС‚ СЌС‚РѕР№ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РІ С„Р°Р№Р»Рµ: moonloader/fbitools/yk.txt")
+                    file:write("Произошла ошибка закачки УК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
                     file:close()
                 end
             elseif status == 64 then
                 local file = io.open("moonloader/fbitools/yk.txt", "w")
-                file:write("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° Р·Р°РєР°С‡РєРё РЈРљ.\nРР·РјРµРЅРёС‚СЊ С‚РµРєСЃС‚ СЌС‚РѕР№ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РІ С„Р°Р№Р»Рµ: moonloader/fbitools/yk.txt")
+                file:write("Произошла ошибка закачки УК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
                 file:close()
             end
         end)
     end
     if not doesFileExist('moonloader/fbitools/yk.txt') then
         local file = io.open("moonloader/fbitools/yk.txt", "w")
-        file:write("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° Р·Р°РєР°С‡РєРё РЈРљ.\nРР·РјРµРЅРёС‚СЊ С‚РµРєСЃС‚ СЌС‚РѕР№ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РІ С„Р°Р№Р»Рµ: moonloader/fbitools/yk.txt")
+        file:write("Произошла ошибка закачки УК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
         file:close()
     end
 
@@ -2420,19 +2123,19 @@ function fpf()
                     file:close()
                 else
                     local file = io.open("moonloader/fbitools/fp.txt", "w")
-                    file:write("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° Р·Р°РєР°С‡РєРё Р¤Рџ.\nРР·РјРµРЅРёС‚СЊ С‚РµРєСЃС‚ СЌС‚РѕР№ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РІ С„Р°Р№Р»Рµ: moonloader/fbitools/yk.txt")
+                    file:write("Произошла ошибка закачки ФП.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
                     file:close()
                 end
             elseif status == 64 then
                 local file = io.open("moonloader/fbitools/fp.txt", "w")
-                file:write("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° Р·Р°РєР°С‡РєРё Р¤Рџ.\nРР·РјРµРЅРёС‚СЊ С‚РµРєСЃС‚ СЌС‚РѕР№ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РІ С„Р°Р№Р»Рµ: moonloader/fbitools/yk.txt")
+                file:write("Произошла ошибка закачки ФП.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
                 file:close()
             end
         end)
     end
     if not doesFileExist('moonloader/fbitools/fp.txt') then 
         local file = io.open("moonloader/fbitools/fp.txt", "w")
-        file:write("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° Р·Р°РєР°С‡РєРё Р¤Рџ.\nРР·РјРµРЅРёС‚СЊ С‚РµРєСЃС‚ СЌС‚РѕР№ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РІ С„Р°Р№Р»Рµ: moonloader/fbitools/yk.txt")
+        file:write("Произошла ошибка закачки ФП.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
         file:close()
     end
 end
@@ -2449,19 +2152,19 @@ function akf()
                     file:close()
                 else
                     local file = io.open("moonloader/fbitools/ak.txt", "w")
-                    file:write("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° Р·Р°РєР°С‡РєРё РђРљ.\nРР·РјРµРЅРёС‚СЊ С‚РµРєСЃС‚ СЌС‚РѕР№ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РІ С„Р°Р№Р»Рµ: moonloader/fbitools/yk.txt")
+                    file:write("Произошла ошибка закачки АК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
                     file:close()
                 end
             elseif status == 64 then
                 local file = io.open("moonloader/fbitools/ak.txt", "w")
-                file:write("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° Р·Р°РєР°С‡РєРё РђРљ.\nРР·РјРµРЅРёС‚СЊ С‚РµРєСЃС‚ СЌС‚РѕР№ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РІ С„Р°Р№Р»Рµ: moonloader/fbitools/yk.txt")
+                file:write("Произошла ошибка закачки АК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
                 file:close()
             end
         end)
     end
     if not doesFileExist('moonloader/fbitools/ak.txt') then
         local file = io.open("moonloader/fbitools/ak.txt", "w")
-        file:write("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° Р·Р°РєР°С‡РєРё РђРљ.\nРР·РјРµРЅРёС‚СЊ С‚РµРєСЃС‚ СЌС‚РѕР№ С€РїРѕСЂС‹ РјРѕР¶РЅРѕ РІ С„Р°Р№Р»Рµ: moonloader/fbitools/yk.txt")
+        file:write("Произошла ошибка закачки АК.\nИзменить текст этой шпоры можно в файле: moonloader/fbitools/yk.txt")
         file:close()
     end
 end
@@ -2492,718 +2195,357 @@ function sumenu(args)
     return
     {
       {
-        title = '{5b83c2}В« Р Р°Р·РґРµР» в„–1 В»',
+        title = '{5b83c2}« Раздел №1 »',
         onclick = function()
         end
       },
       {
-        title = '{ffffff}В» РР·Р±РёРµРЅРёРµ - {ff0000}2 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Избиение - {ff0000}2 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 2 РР·Р±РёРµРЅРёРµ")
+          sampSendChat("/su "..args.." 2 Избиение")
         end
       },
       {
-        title = '{ffffff}В» Р’РѕРѕСЂСѓР¶РµРЅРЅРѕРµ РЅР°РїР°РґРµРЅРёРµ РЅР° РіСЂР°Р¶РґР°РЅСЃРєРѕРіРѕ - {ff0000}3 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Вооруженное нападение на гражданского - {ff0000}3 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 3 Р’РѕРѕСЂСѓР¶РµРЅРЅРѕРµ РЅР°РїР°РґРµРЅРёРµ РЅР° РіСЂР°Р¶РґР°РЅСЃРєРѕРіРѕ")
+          sampSendChat("/su "..args.." 3 Вооруженное нападение на гражданского")
         end
       },
       {
-        title = '{ffffff}В» Р’РѕРѕСЂСѓР¶РµРЅРЅРѕРµ РЅР°РїР°РґРµРЅРёРµ РЅР° РіРѕСЃ.СЃР»СѓР¶Р°С‰РµРіРѕ - {ff0000}6 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Вооруженное нападение на гос.служащего - {ff0000}6 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 6 Р’РѕРѕСЂСѓР¶РµРЅРЅРѕРµ РЅР°РїР°РґРµРЅРёРµ РЅР° РџРћ")
+          sampSendChat("/su "..args.." 6 Вооруженное нападение на ПО")
         end
       },
       {
-        title = '{ffffff}В» РЈР±РёР№СЃС‚РІРѕ С‡РµР»РѕРІРµРєР° - {ff0000}3 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Убийство человека - {ff0000}3 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 3 РЈР±РёР№СЃС‚РІРѕ С‡РµР»РѕРІРµРєР°")
+          sampSendChat("/su "..args.." 3 Убийство человека")
         end
       },
       {
-        title = '{ffffff}В» РҐСѓР»РёРіР°РЅСЃС‚РІРѕ - {ff0000}1 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Хулиганство - {ff0000}1 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 1 РҐСѓР»РёРіР°РЅСЃС‚РІРѕ")
+          sampSendChat("/su "..args.." 1 Хулиганство")
         end
       },
       {
-        title = '{ffffff}В» РќРµР°РґРµРєРІР°С‚РЅРѕРµ РїРѕРІРµРґРµРЅРёРµ - {ff0000}1 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Неадекватное поведение - {ff0000}1 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 1 РќРµР°РґРµРєРІР°С‚РЅРѕРµ РїРѕРІРµРґРµРЅРёРµ")
+          sampSendChat("/su "..args.." 1 Неадекватное поведение")
         end
       },
       {
-        title = '{ffffff}В» РџРѕРїСЂРѕС€Р°Р№РЅРёС‡РµСЃС‚РІРѕ - {ff0000}1 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Попрошайничество - {ff0000}1 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 1 РџРѕРїСЂРѕС€Р°Р№РЅРёС‡РµСЃС‚РІРѕ")
+          sampSendChat("/su "..args.." 1 Попрошайничество")
         end
       },
       {
-        title = '{ffffff}В» РћСЃРєРѕСЂР±Р»РµРЅРёРµ - {ff0000}2 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Оскорбление - {ff0000}2 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 2 РћСЃРєРѕСЂР±Р»РµРЅРёРµ")
+          sampSendChat("/su "..args.." 2 Оскорбление")
         end
       },
       {
-        title = '{ffffff}В» РќР°РµР·Рґ РЅР° РїРµС€РµС…РѕРґР° - {ff0000}2 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Наезд на пешехода - {ff0000}2 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 2 РќР°РµР·Рґ РЅР° РїРµС€РµС…РѕРґР°")
+          sampSendChat("/su "..args.." 2 Наезд на пешехода")
         end
       },
       {
-        title = '{ffffff}В» РРіРЅРѕСЂРёСЂРѕРІР°РЅРёРµ СЃРїРµС†.СЃРёРіРЅР°Р»Р° - {ff0000}1 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Игнорирование спец.сигнала - {ff0000}1 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 1 РРіРЅРѕСЂРёСЂРѕРІР°РЅРёРµ СЃРїРµС†.СЃРёРіРЅР°Р»Р°")
+          sampSendChat("/su "..args.." 1 Игнорирование спец.сигнала")
         end
       },
       {
-        title = '{ffffff}В» РЈРіРѕРЅ С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ СЃСЂРµРґСЃС‚РІР° - {ff0000}2 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Угон транспортного средства - {ff0000}2 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 2 РЈРіРѕРЅ С‚СЂР°РЅСЃРїРѕСЂС‚РЅРѕРіРѕ СЃСЂРµРґСЃС‚РІР°")
+          sampSendChat("/su "..args.." 2 Угон транспортного средства")
         end
       },
       {
-        title = '{ffffff}В» РџРѕСЂС‡Р° С‡СѓР¶РѕРіРѕ РёРјСѓС‰РµСЃС‚РІР° - {ff0000}1 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Порча чужого имущества - {ff0000}1 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.. " 1 РџРѕСЂС‡Р° С‡СѓР¶РѕРіРѕ РёРјСѓС‰РµСЃС‚РІР°")
+          sampSendChat("/su "..args.. " 1 Порча чужого имущества")
         end
       },
       {
-        title = '{ffffff}В» РЈРЅРёС‡С‚РѕР¶РµРЅРёРµ С‡СѓР¶РѕРіРѕ РёРјСѓС‰РµСЃС‚РІР° - {ff0000}4 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Уничтожение чужого имущества - {ff0000}4 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 4 РЈРЅРёС‡С‚РѕР¶РµРЅРёРµ С‡СѓР¶РѕРіРѕ РёРјСѓС‰РµСЃС‚РІР°")
+          sampSendChat("/su "..args.." 4 Уничтожение чужого имущества")
         end
       },
       {
-        title = '{ffffff}В» РќРµРїРѕРґС‡РёРЅРµРЅРёРµ СЃРѕС‚СЂСѓРґРЅРёРєСѓ РџРћ - {ff0000}1 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Неподчинение сотруднику ПО - {ff0000}1 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 1 РќРµРїРѕРґС‡РёРЅРµРЅРёРµ СЃРѕС‚СЂСѓРґРЅРёРєСѓ РџРћ")
+          sampSendChat("/su "..args.." 1 Неподчинение сотруднику ПО")
         end
       },
       {
-        title = '{ffffff}В» РЈС…РѕРґ РѕС‚ СЃРѕС‚СЂСѓРґРЅРёРєР° РџРћ - {ff0000}2 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°',
+        title = '{ffffff}» Уход от сотрудника ПО - {ff0000}2 уровень розыска',
         onclick = function()
-          sampSendChat("/su "..args.." 2 РЈС…РѕРґ РѕС‚ СЃРѕС‚СЂСѓРґРЅРёРєР° РџРћ")
+          sampSendChat("/su "..args.." 2 Уход от сотрудника ПО")
         end
       },
       {
-          title = '{ffffff}В» РЈС…РѕРґ СЃ РјРµСЃС‚Р° Р”РўРџ - {ff0000}3 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°',
+          title = '{ffffff}» Уход с места ДТП - {ff0000}3 уровень розыска',
           onclick = function()
-            sampSendChat('/su '..args.. ' 3 РЈС…РѕРґ СЃ РјРµСЃС‚Р° Р”РўРџ')
+            sampSendChat('/su '..args.. ' 3 Уход с места ДТП')
           end
       },
       {
-        title = '{ffffff}В» РџРѕР±РµРі РёР· РјРµСЃС‚Р° Р·Р°РєР»СЋС‡РµРЅРёСЏ - {ff0000}6 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Побег из места заключения - {ff0000}6 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 6 РџРѕР±РµРі РёР· РјРµСЃС‚Р° Р·Р°РєР»СЋС‡РµРЅРёСЏ")
+          sampSendChat("/su "..args.." 6 Побег из места заключения")
         end
       },
       {
-        title = '{ffffff}В» РџСЂРѕРЅРёРєРЅРѕРІРµРЅРёРµ РЅР° РѕС…СЂР°РЅСЏРµРјСѓСЋ С‚РµСЂСЂРёС‚РѕСЂРёСЋ - {ff0000}2 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Проникновение на охраняемую территорию - {ff0000}2 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 2 РџСЂРѕРЅРёРєРЅРѕРІРµРЅРёРµ РЅР° РѕС…СЂ. С‚РµСЂСЂРёС‚РѕСЂРёСЋ")
+          sampSendChat("/su "..args.." 2 Проникновение на охр. территорию")
         end
       },
       {
-        title = '{ffffff}В» РџСЂРѕРІРѕРєР°С†РёСЏ - {ff0000}2 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Провокация - {ff0000}2 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 2 РџСЂРѕРІРѕРєР°С†РёСЏ")
+          sampSendChat("/su "..args.." 2 Провокация")
         end
       },
       {
-        title = '{ffffff}В» РЈРіСЂРѕР·С‹ - {ff0000}1 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Угрозы - {ff0000}1 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 1 РЈРіСЂРѕР·С‹")
+          sampSendChat("/su "..args.." 1 Угрозы")
         end
       },
       {
-        title = '{ffffff}В» РџСЂРµРґР»РѕР¶РµРЅРёРµ РёРЅС‚РёРј. СѓСЃР»СѓРі - {ff0000}1 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°',
+        title = '{ffffff}» Предложение интим. услуг - {ff0000}1 уровень розыска',
         onclick = function()
-          sampSendChat('/su '..args..' 1 РџСЂРµРґР»РѕР¶РµРЅРёРµ РёРЅС‚РёРјРЅС‹С… СѓСЃР»СѓРі')
+          sampSendChat('/su '..args..' 1 Предложение интимных услуг')
         end
       },
       {
-        title = '{ffffff}В» РР·РЅР°СЃРёР»РѕРІР°РЅРёРµ - {ff0000}3 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°',
+        title = '{ffffff}» Изнасилование - {ff0000}3 уровень розыска',
         onclick = function()
-          sampSendChat('/su '..args..' 3 РР·РЅР°СЃРёР»РѕРІР°РЅРёРµ')
+          sampSendChat('/su '..args..' 3 Изнасилование')
         end
       },
       {
-        title = '{ffffff}В» Р§РёСЃС‚РѕСЃРµСЂРґРµС‡РЅРѕРµ РїСЂРёР·РЅР°РЅРёРµ - {ff0000}1 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Чистосердечное признание - {ff0000}1 уровень розыска.',
         onclick = function()
           local result = isCharInAnyCar(PLAYER_PED)
           if result then
             sampSendChat("/clear "..args)
             wait(1400)
-            sampSendChat("/su "..args.." 1 Р§РёСЃС‚РѕСЃРµСЂРґРµС‡РЅРѕРµ РїСЂРёР·РЅР°РЅРёРµ")
+            sampSendChat("/su "..args.." 1 Чистосердечное признание")
           else
-            sampAddChatMessage("{9966CC}"..script.this.name.." {FFFFFF}| You have to be in the car", -1)
+            sampAddChatMessage("{9966CC}FBI Tools {FFFFFF}| You have to be in the car", -1)
           end
         end
       },
       {
-        title = '{ffbc54}В« Р Р°Р·РґРµР» в„–2 В»',
+        title = '{ffbc54}« Раздел №2 »',
         onclick = function()
         end
       },
       {
-        title = '{ffffff}В» РҐСЂР°РЅРµРЅРёРµ РјР°С‚РµСЂРёР°Р»РѕРІ - {ff0000}3 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Хранение материалов - {ff0000}3 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 3 РҐСЂР°РЅРµРЅРёРµ РјР°С‚РµСЂРёР°Р»РѕРІ")
+          sampSendChat("/su "..args.." 3 Хранение материалов")
         end
       },
       {
-        title = '{ffffff}В» РҐСЂР°РЅРµРЅРёРµ РЅР°СЂРєРѕС‚РёРєРѕРІ - {ff0000}3 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Хранение наркотиков - {ff0000}3 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 3 РҐСЂР°РЅРµРЅРёРµ РЅР°СЂРєРѕС‚РёРєРѕРІ")
+          sampSendChat("/su "..args.." 3 Хранение наркотиков")
         end
       },
       {
-        title = '{ffffff}В» РџСЂРѕРґР°Р¶Р° РєР»СЋС‡РµР№ РѕС‚ РєР°РјРµСЂС‹ - {ff0000}6 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°',
+        title = '{ffffff}» Продажа ключей от камеры - {ff0000}6 уровень розыска',
         onclick = function()
-          sampSendChat("/su "..args.." 6 РџСЂРѕРґР°Р¶Р° РєР»СЋС‡РµР№ РѕС‚ РєР°РјРµСЂС‹")
+          sampSendChat("/su "..args.." 6 Продажа ключей от камеры")
         end
       },
       {
-        title = '{ffffff}В» РЈРїРѕС‚СЂРµР±Р»РµРЅРёРµ РЅР°СЂРєРѕС‚РёРєРѕРІ - {ff0000}3 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°',
+        title = '{ffffff}» Употребление наркотиков - {ff0000}3 уровень розыска',
         onclick = function()
-          sampSendChat("/su "..args.." 3 РЈРїРѕС‚СЂРµР±Р»РµРЅРёРµ РЅР°СЂРєРѕС‚РёРєРѕРІ")
+          sampSendChat("/su "..args.." 3 Употребление наркотиков")
         end
       },
       {
-        title = '{ffffff}В» РџСЂРѕРґР°Р¶Р° РЅР°СЂРєРѕС‚РёРєРѕРІ - {ff0000}2 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°',
+        title = '{ffffff}» Продажа наркотиков - {ff0000}2 уровень розыска',
         onclick = function()
-          sampSendChat("/su "..args.." 2 РџСЂРѕРґР°Р¶Р° РЅР°СЂРєРѕС‚РёРєРѕРІ")
+          sampSendChat("/su "..args.." 2 Продажа наркотиков")
         end
       },
       {
-        title = '{ffffff}В» РџРѕРєСѓРїРєР° РІРѕРµРЅРЅРѕР№ С„РѕСЂРјС‹ - {ff0000}2 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°',
+        title = '{ffffff}» Покупка военной формы - {ff0000}2 уровень розыска',
         onclick = function()
-          sampSendChat("/su "..args.." 2 РџРѕРєСѓРїРєР° РІРѕРµРЅРЅРѕР№ С„РѕСЂРјС‹")
+          sampSendChat("/su "..args.." 2 Покупка военной формы")
         end
       },
       {
-        title = '{ffffff}В» РџСЂРµРґР»РѕР¶РµРЅРёРµ РІР·СЏС‚РєРё РіРѕСЃ.СЃР»СѓР¶Р°С‰РµРјСѓ - {ff0000}2 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Предложение взятки гос.служащему - {ff0000}2 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 2 РџСЂРµРґР»РѕР¶РµРЅРёРµ РІР·СЏС‚РєРё РіРѕСЃ.СЃР»СѓР¶Р°С‰РµРјСѓ")
+          sampSendChat("/su "..args.." 2 Предложение взятки гос.служащему")
         end
       },
       {
-        title = '{ae0620}В« Р Р°Р·РґРµР» в„–3 В»',
+        title = '{ae0620}« Раздел №3 »',
         onclick = function()
         end
       },
       {
-        title = '{ffffff}В» РЈС…РѕРґ РІ AFK РѕС‚ Р°СЂРµСЃС‚Р° - {ff0000}6 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Уход в AFK от ареста - {ff0000}6 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 6 РЈС…РѕРґ")
+          sampSendChat("/su "..args.." 6 Уход")
         end
       },
       {
-        title = '{ffffff}В» РЎРѕРІРµСЂС€РµРЅРёРµ С‚РµСЂСЂР°РєС‚Р° - {ff0000}6 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Совершение терракта - {ff0000}6 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 6 РЎРѕРІРµСЂС€РµРЅРёРµ С‚РµСЂР°РєС‚Р°")
+          sampSendChat("/su "..args.." 6 Совершение теракта")
         end
       },
       {
-        title = '{ffffff}В» РќРµСѓРїР»Р°С‚Р° С€С‚СЂР°С„Р° - {ff0000}2 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Неуплата штрафа - {ff0000}2 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 2 РќРµСѓРїР»Р°С‚Р° С€С‚СЂР°С„Р°")
+          sampSendChat("/su "..args.." 2 Неуплата штрафа")
         end
       },
       {
-        title = '{ffffff}В» РџСЂРµРІС‹С€РµРЅРёРµ РїРѕР»РЅРѕРјРѕС‡РёР№ Р°РґРІРѕРєР°С‚Р° - {ff0000}3 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°.',
+        title = '{ffffff}» Превышение полномочий адвоката - {ff0000}3 уровень розыска.',
         onclick = function()
-          sampSendChat("/su "..args.." 3 РџСЂРµРІС‹С€РµРЅРёРµ РїРѕР»РЅРѕРјРѕС‡РёР№ Р°РґРІРѕРєР°С‚Р°")
+          sampSendChat("/su "..args.." 3 Превышение полномочий адвоката")
         end
       },
       {
-        title = '{ffffff}В» РџРѕС…РёС‰РµРЅРёРµ РіСЂР°Р¶РґР°РЅСЃРєРѕРіРѕ/РіРѕСЃ.СЃР»СѓР¶Р°С‰РµРіРѕ - {ff0000}4 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°',
+        title = '{ffffff}» Похищение гражданского/гос.служащего - {ff0000}4 уровень розыска',
         onclick = function()
-          sampSendChat("/su "..args.." 4 РџРѕС…РёС‰РµРЅРёРµ")
+          sampSendChat("/su "..args.." 4 Похищение")
         end
       },
       {
-        title = '{ffffff}В» РЎС‚Р°С‚СѓСЃ РћРћРџ - {ff0000}6 СѓСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°',
+        title = '{ffffff}» Статус ООП - {ff0000}6 уровень розыска',
         onclick = function()
-          sampSendChat("/su "..args.." 6 РћРћРџ")
+          sampSendChat("/su "..args.." 6 ООП")
         end
       }
     }
 end
-
-function getDriveLicenseCount(id)
-    local lvl = sampGetPlayerScore(id)
-    if lvl <= 2 then return 500
-    elseif lvl >= 3 and lvl <= 5 then return 5000
-    elseif lvl >= 6 and lvl <= 15 then return 10000
-    elseif lvl >= 16 then return 30000 end
-end
-
-function giveLicense(id, list)
-    ins.list = list
-    ins.isLicense = true
-    sampSendChat(("/me %s РїР°РїРєСѓ СЃ Р»РёС†РµРЅР·РёСЏРјРё"):format(cfg.main.male and "РѕС‚РєСЂС‹Р»" or "РѕС‚РєСЂС‹Р»Р°"))
-    wait(cfg.commands.zaderjka)
-    sampSendChat("/do Р›РёС†РµРЅР·РёСЏ РІ СЂСѓРєРµ.")
-    wait(cfg.commands.zaderjka)
-    sampSendChat(("/me %s РїРµС‡Р°С‚СЊ \"Autoschool San Fierro\" Рё %s Р»РёС†РµРЅР·РёСЋ"):format(cfg.main.male and "РїРѕСЃС‚Р°РІРёР»" or "РїРѕСЃС‚Р°РІРёР»Р°", cfg.main.male and "РїРµСЂРµРґР°Р»" or "РїРµСЂРµРґР°Р»Р°"))
-    wait(1400)
-    sampSendChat(("/givelicense %s"):format(id))
-end
-
-function healPlayer(id, head)
-    sampSendChat(("/me %s Р°РїС‚РµС‡РєСѓ"):format(cfg.main.male and "РґРѕСЃС‚Р°Р»" or "РґРѕСЃС‚Р°Р»Р°"))
-    wait(cfg.commands.zaderjka)
-    sampSendChat(("/me %s РЅРµРѕР±С…РѕРґРёРјС‹Р№ РїСЂРµРїР°СЂР°С‚"):format(cfg.main.male and "РЅР°С€РµР»" or "РЅР°С€Р»Р°"))
-    wait(cfg.commands.zaderjka)
-    sampSendChat(("/do %s РІ СЂСѓРєР°С…"):format(head and "РђСЃРїРёСЂРёРЅ" or "РќРѕС€РїР°"))
-    wait(cfg.commands.zaderjka)
-    sampSendChat(("/me %s РїР°С†РёРµРЅС‚Сѓ Р»РµРєР°СЂСЃС‚РІРѕ Рё %s Р·Р°РїРёС‚СЊ РІРѕРґРѕР№"):format(cfg.main.male and "РїРµСЂРµРґР°Р»" or "РїРµСЂРµРґР°Р»Р°", cfg.main.male and "РґР°Р»" or "РґР°Р»Р°"))
-    wait(1400)
-    sampSendChat(("/heal %s"):format(id))
-end
-
-function pkmmenuMOH(id)
-    return
-    {
-        {
-            title = "Р’С‹Р»РµС‡РёС‚СЊ",
-            submenu = {
-                {
-                    title = "Р“РѕР»РѕРІР°",
-                    onclick = function()
-                        healPlayer(id, true)
-                    end
-                },
-                {
-                    title = "Р–РёРІРѕС‚Р°",
-                    onclick = function()
-                        healPlayer(id, false)
-                    end
-                },
-                {
-                    title = "Р“РѕСЂР»Рѕ",
-                    onclick = function()
-                        sampSendChat(("/me %s РіРѕСЂР»Рѕ"):format(cfg.main.male and "РѕСЃРјРѕС‚СЂРµР»" or "РѕСЃРјРѕС‚СЂРµР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s Р°РїС‚РµС‡РєСѓ"):format(cfg.main.male and "РґРѕСЃС‚Р°Р»" or "РґРѕСЃС‚Р°Р»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s РЅРµРѕР±С…РѕРґРёРјС‹Р№ РїСЂРµРїР°СЂР°С‚"):format(cfg.main.male and "РЅР°С€РµР»" or "РЅР°С€Р»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat("/do РЎС‚РѕРїР°РЅРіРёРЅ РІ СЂСѓРєР°С…")
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s РїР°С†РёРµРЅС‚Сѓ Р»РµРєР°СЂСЃС‚РІРѕ Рё %s Р·Р°РїРёС‚СЊ РІРѕРґРѕР№"):format(cfg.main.male and "РїРµСЂРµРґР°Р»" or "РїРµСЂРµРґР°Р»Р°", cfg.main.male and "РґР°Р»" or "РґР°Р»Р°"))
-                        wait(1400)
-                        sampSendChat(("/heal %s"):format(id))
-                    end
-                }
-            }
-        },
-        {
-            title = "В» РџСЂРѕРІРµСЃС‚Рё СЃРµР°РЅСЃ",
-            onclick = function()
-                sampSendChat("/do РЁРїСЂРёС† РІ СЂСѓРєРµ.")
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РІР°С‚РєСѓ СЃРјРѕС‡РµРЅРЅСѓСЋ РјРµРґ.СЃРїРёСЂС‚РѕРј Рё %s РјРµСЃС‚Рѕ СѓРєРѕР»Р°"):format(cfg.main.male and "РІР·СЏР»" or "РІР·СЏР»Р°", cfg.main.male and "РѕР±СЂР°Р±РѕС‚Р°Р»" or "РѕР±СЂР°Р±РѕС‚Р°Р»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s Р¶РіСѓС‚ РЅР° СЂСѓРєРµ РїР°С†РёРµРЅС‚Р°, РїРѕСЃР»Рµ С‡РµРіРѕ %s РёРЅСЉРµРєС†РёСЋ"):format(cfg.main.male and "Р·Р°С‚СЏРЅСѓР»" or "Р·Р°С‚СЏРЅСѓР»Р°", cfg.main.male and "РІРІРµР»" or "РІРІРµР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s Р¶РіСѓС‚ Рё %s РІР°С‚РєСѓ Рє РјРµСЃС‚Сѓ СѓРєРѕР»Р°"):format(cfg.main.male and "СЃРЅСЏР»" or "СЃРЅСЏР»Р°", cfg.main.male and "РїСЂРёР»РѕР¶РёР»" or "РїСЂРёР»РѕР¶РёР»Р°"))
-                wait(1400)
-                sampSendChat(("/healaddict %s 10000"):format(id))
-            end
-        },
-        {
-            title = "В» РЎРґРµР»Р°С‚СЊ СЂРµРЅС‚РіРµРЅ",
-            onclick = function()
-                sampSendChat(("/me %s СЂРµРЅС‚РіРµРЅРѕРІСЃРєРёР№ Р°РїРїР°СЂР°С‚"):format(cfg.main.male and "РІРєР»СЋС‡РёР»" or "РІРєР»СЋС‡РёР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat("/do Р РµРЅС‚РіРµРЅРѕРІСЃРєРёР№ Р°РїРїР°СЂР°С‚ Р·Р°С€СѓРјРµР».")
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s СЂРµРЅС‚РіРµРЅРѕРІСЃРєРёРј Р°РїРїР°СЂР°С‚РѕРј РїРѕ РїРѕРІСЂРµР¶РґРµРЅРЅРѕРјСѓ СѓС‡Р°СЃС‚РєСѓ"):format(cfg.main.male and "РїСЂРѕРІРµР»" or "РїСЂРѕРІРµР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat("/me СЂР°СЃСЃРјР°С‚СЂРёРІР°РµС‚ СЃРЅРёРјРѕРє")
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/try %s РїРµСЂРµР»РѕРј"):format(cfg.main.male and "РѕР±РЅР°СЂСѓР¶РёР»" or "РѕР±РЅР°СЂСѓР¶РёР»Р°"))
-            end
-        },
-        {
-            title = "В» Р’С‹Р»РµС‡РёС‚СЊ РїРµСЂРµР»РѕРј РєРѕРЅРµС‡РЅРѕСЃС‚РµР№",
-            onclick = function()
-                sampSendChat(("/me %s СЃРѕ СЃС‚РѕР»Р° РїРµСЂС‡Р°С‚РєРё Рё %s РёС…"):format(cfg.main.male and "РІР·СЏР»" or "РІР·СЏР»Р°", cfg.main.male and "РЅР°РґРµР»" or "РЅР°РґРµР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s С€РїСЂРёС† СЃ РѕР±РµР·Р±Р°Р»РёРІР°СЋС‰РёРј, РїРѕСЃР»Рµ С‡РµРіРѕ %s РїРѕРІСЂРµР¶РґРµРЅРЅС‹Р№ СѓС‡Р°СЃС‚РѕРє"):format(cfg.main.male and "РІР·СЏР»" or "РІР·СЏР»Р°", cfg.main.male and "РѕР±РµР·Р±РѕР»РёР»" or "РѕР±РµР·Р±РѕР»РёР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s СЂРµРїРѕР·РёС†РёСЋ РїРѕРІСЂРµР¶РґРµРЅРЅРѕРіРѕ СѓС‡Р°СЃС‚РєР°"):format(cfg.main.male and "РїСЂРѕРІРµР»" or "РїСЂРѕРІРµР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s Р±РёРЅС‚ РІРґРѕР»СЊ СЃС‚РѕР»Р°, РїРѕСЃР»Рµ С‡РµРіРѕ %s РіРёРїСЃРѕРІС‹Р№ СЂР°СЃС‚РІРѕСЂ"):format(cfg.main.male and "СЂР°СЃРєР°С‚РёР»" or "СЂР°СЃРєР°С‚РёР»Р°", cfg.main.male and "РІС‚РµСЂ" or "РІС‚РµСЂР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s Р±РёРЅС‚, РїРѕСЃР»Рµ С‡РµРіРѕ Р·Р°С„РёРєСЃРёСЂРѕРІР°Р» РїРµСЂРµР»РѕРј"):format(cfg.main.male and "СЃРІРµСЂРЅСѓР»" or "СЃРІРµСЂРЅСѓР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat("РџСЂРёС…РѕРґРёС‚Рµ С‡РµСЂРµР· РјРµСЃСЏС†. Р’СЃРµРіРѕ РґРѕР±СЂРѕРіРѕ!")
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РїРµСЂС‡Р°С‚РєРё Рё %s РёС… РІ СѓСЂРЅСѓ РІРѕР·Р»Рµ СЃС‚РѕР»Р°"):format(cfg.main.male and "СЃРЅСЏР»" or "СЃРЅСЏР»Р°", cfg.main.male and "Р±СЂРѕСЃРёР»" or "Р±СЂРѕСЃРёР»Р°"))
-            end
-        },
-        {
-            title = "В» Р’С‹Р»РµС‡РёС‚СЊ РїРµСЂРµР»РѕРј РїРѕР·РІРѕРЅРѕС‡РЅРёРєР° / СЂРµР±РµСЂ",
-            onclick = function()
-                sampSendChat(("/me РѕСЃС‚РѕСЂРѕР¶РЅРѕ %s РїРѕСЃС‚СЂР°РґР°РІС€РµРіРѕ РЅР° РѕРїРµСЂР°С†РёРѕРЅРЅС‹Р№ СЃС‚РѕР»"):format(cfg.main.male and "СѓРєР»Р°Р»" or "СѓРєР»Р°Р»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s СЃРѕ СЃС‚РѕР»Р° РїРµСЂС‡Р°С‚РєРё Рё %s РёС…"):format(cfg.main.male and "РІР·СЏР»" or "РІР·СЏР»Р°", cfg.main.male and "РЅР°РґРµР»" or "РЅР°РґРµР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РїРѕСЃС‚СЂР°РґР°РІС€РµРіРѕ Рє РєР°РїРµР»СЊРЅРёС†Рµ"):format(cfg.main.male and "РїРѕРґРєР»СЋС‡РёР»" or "РїРѕРґРєР»СЋС‡РёР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РІР°С‚РєСѓ СЃРїРёСЂС‚РѕРј Рё %s РєРѕР¶Сѓ РЅР° СЂСѓРєРµ РїР°С†РёРµРЅС‚Р°"):format(cfg.main.male and "РЅР°РјРѕС‡РёР»" or "РЅР°РјРѕС‡РёР»Р°", cfg.main.male and "РѕР±СЂР°Р±РѕС‚Р°Р»" or "РѕР±СЂР°Р±РѕС‚Р°Р»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me РІРЅСѓС‚СЂРёРІРµРЅРЅРѕ %s Р¤С‚РѕСЂРѕС‚Р°РЅ"):format(cfg.main.male and "РІРІРµР»" or "РІРІРµР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat("/do РќР°СЂРєРѕР· РЅР°С‡РёРЅР°РµС‚ РґРµР№СЃС‚РІРѕРІР°С‚СЊ, РїР°С†РёРµРЅС‚ РїРѕС‚РµСЂСЏР» СЃРѕР·РЅР°РЅРёРµ.")
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s СЃРєР°Р»СЊРїРµР»СЊ Рё РїРёРЅС†РµС‚"):format(cfg.main.male and "РґРѕСЃС‚Р°Р»" or "РґРѕСЃС‚Р°Р»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me СЃ РїРѕРјРѕС‰СЊСЋ СЂР°Р·Р»РёС‡РЅС‹С… РёРЅСЃС‚СЂСѓРјРµРЅС‚РѕРІ %s СЂРµРїРѕР·РёС†РёСЋ РїРѕРІСЂРµР¶РґРµРЅРЅРѕРіРѕ СѓС‡Р°СЃС‚РєР°"):format(cfg.main.male and "РїСЂРѕРёР·РІРµР»" or "РїСЂРѕРёР·РІРµР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РёР· С‚СѓРјР±РѕС‡РєРё СЃРїРµС†РёР°Р»СЊРЅС‹Р№ РєРѕСЂСЃРµС‚"):format(cfg.main.male and "РґРѕСЃС‚Р°Р»" or "РґРѕСЃС‚Р°Р»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РїРѕРІСЂРµР¶РґРµРЅРЅС‹Р№ СѓС‡Р°СЃС‚РѕРє СЃ РїРѕРјРѕС‰СЊСЋ РєР°СЂСЃРµС‚Р°"):format(cfg.main.male and "Р·Р°С„РёРєСЃРёСЂРѕРІР°Р»" or "Р·Р°С„РёРєСЃРёСЂРѕРІР°Р»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РїРµСЂС‡Р°С‚РєРё Рё %s РёС… РІ СѓСЂРЅСѓ РІРѕР·Р»Рµ СЃС‚РѕР»Р°"):format(cfg.main.male and "СЃРЅСЏР»" or "СЃРЅСЏР»Р°", cfg.main.male and "Р±СЂРѕСЃРёР»" or "Р±СЂРѕСЃРёР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РІ РѕС‚РґРµР»СЊРЅС‹Р№ РєРѕРЅС‚РµР№РЅРµСЂ РіСЂСЏР·РЅС‹Р№ РёРЅСЃС‚СЂСѓРјРµРЅС‚Р°СЂРёР№"):format(cfg.main.male and "СѓР±СЂР°Р»" or "СѓР±СЂР°Р»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat("/do РџСЂРѕС€Р»Рѕ РЅРµРєРѕС‚РѕСЂРѕРµ РІСЂРµРјСЏ, РїР°С†РёРµРЅС‚ РїСЂРёС€РµР» РІ СЃРѕР·РЅР°РЅРёРµ.")
-            end
-        },
-        {
-            title = "В» Р“Р»СѓР±РѕРєРёР№ РїРѕСЂРµР·",
-            onclick = function()
-                sampSendChat(("/me %s СЃРѕ СЃС‚РѕР»Р° РїРµСЂС‡Р°С‚РєРё Рё %s РёС…"):format(cfg.main.male and "РІР·СЏР»" or "РІР·СЏР»Р°", cfg.main.male and "РЅР°РґРµР»" or "РЅР°РґРµР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РѕСЃРјРѕС‚СЂ РїР°С†РёРµРЅС‚Р°"):format(cfg.main.male and "РїСЂРѕРІРµР»" or "РїСЂРѕРІРµР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s СЃС‚РµРїРµРЅСЊ С‚СЏР¶РµСЃС‚Рё РїРѕСЂРµР·Р° Сѓ РїР°С†РёРµРЅС‚Р°"):format(cfg.main.male and "РѕРїСЂРµРґРµР»РёР»" or "РѕРїСЂРµРґРµР»РёР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РїРѕРІСЂРµР¶РґРµРЅРЅС‹Р№ СѓС‡Р°СЃС‚РѕРє"):format(cfg.main.male and "РѕР±РµР·Р±РѕР»РёР»" or "РѕР±РµР·Р±РѕР»РёР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РёР· РјРµРґ. СЃСѓРјРєРё Р¶РіСѓС‚ Рё %s РµРіРѕ РїРѕРІРµСЂС… РїРѕРІСЂРµР¶РґРµРЅРёСЏ"):format(cfg.main.male and "РґРѕСЃС‚Р°Р»" or "РґРѕСЃС‚Р°Р»Р°", cfg.main.male and "РЅР°Р»РѕР¶РёР»" or "РЅР°Р»РѕР¶РёР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s С…РёСЂСѓСЂРіРёС‡РµСЃРєРёРµ РёРЅСЃС‚СЂСѓРјРµРЅС‚С‹ РЅР° СЃС‚РѕР»Рµ"):format(cfg.main.male and "СЂР°Р·Р»РѕР¶РёР»" or "СЂР°Р·Р»РѕР¶РёР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s СЃРїРµС†РёР°Р»СЊРЅС‹Рµ РёРіР»Сѓ Рё РЅРёС‚Рё"):format(cfg.main.male and "РІР·СЏР»" or "РІР·СЏР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РєСЂРѕРІРµРЅРѕСЃРЅС‹Р№ СЃРѕСЃСѓРґ Рё %s РїСѓР»СЊСЃ"):format(cfg.main.male and "Р·Р°С€РёР»" or "Р·Р°С€РёР»Р°", cfg.main.male and "РїСЂРѕРІРµСЂРёР»" or "РїСЂРѕРІРµСЂРёР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РєСЂРѕРІСЊ Рё %s РјРµСЃС‚Рѕ РїРѕСЂРµР·Р°"):format(cfg.main.male and "РїСЂРѕС‚РµСЂ" or "РїСЂРѕС‚РµСЂР»Р°", cfg.main.male and "Р·Р°С€РёР»" or "Р·Р°С€РёР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РёРіР»Сѓ Рё РЅРёС‚Рё РІ СЃС‚РѕСЂРѕРЅСѓ"):format(cfg.main.male and "РѕС‚Р»РѕР¶РёР»" or "РѕС‚Р»РѕР¶РёР»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s Р¶РіСѓС‚, %s Р±РёРЅС‚С‹ Рё %s РїРѕРІСЂРµР¶РґРµРЅРЅС‹Р№ СѓС‡Р°СЃС‚РѕРє РєРѕР¶Рё"):format(cfg.main.male and "СЃРЅСЏР»" or "СЃРЅСЏР»Р°", cfg.main.male and "РІР·СЏР»" or "РІР·СЏР»Р°", cfg.main.male and "РїРµСЂРµР±РёРЅС‚РѕРІР°Р»" or "РїРµСЂРµР±РёРЅС‚РѕРІР°Р»Р°"))
-                wait(cfg.commands.zaderjka)
-                sampSendChat(("/me %s РІ РѕС‚РґРµР»СЊРЅС‹Р№ РєРѕРЅС‚РµР№РЅРµСЂ РіСЂСЏР·РЅС‹Р№ РёРЅСЃС‚СЂСѓРјРµРЅС‚Р°СЂРёР№"):format(cfg.main.male and "СѓР±СЂР°Р»" or "СѓР±СЂР°Р»Р°"))
-            end
-        },
-        {
-            title = "РџСѓР»РµРІРѕРµ СЂР°РЅРµРЅРёРµ",
-            submenu = {
-                {
-                    title = "В» РћСЃРЅРѕРІРЅР°СЏ РѕС‚С‹РіСЂРѕРІРєР°",
-                    onclick = function()
-                        sampSendChat(("/me %s РѕСЃРјРѕС‚СЂ РїР°С†РёРµРЅС‚Р°"):format(cfg.main.male and "РїСЂРѕРІРµР»" or "РїСЂРѕРІРµР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s РїСЂРёР·РЅР°РєРё РїСѓР»РµРІРѕРіРѕ СЂР°РЅРµРЅРёСЏ Сѓ РїР°С†РёРµРЅС‚Р°"):format(cfg.main.male and "РІС‹СЏРІРёР»" or "РІС‹СЏРІРёР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s РёР· РјРµРґ. СЃСѓРјРєРё Рё %s СЃС‚РµСЂРёР»СЊРЅС‹Рµ РїРµСЂС‡Р°С‚РєРё"):format(cfg.main.male and "РґРѕСЃС‚Р°Р»" or "РґРѕСЃС‚Р°Р»Р°", cfg.main.male and "РЅР°РґРµР»" or "РЅР°РґРµР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s Рё %s Р°РїРїР°СЂР°С‚ РґР»СЏ РЅР°СЂРєРѕР·Р°"):format(cfg.main.male and "РїРѕРґРєР°С‚РёР»" or "РїРѕРґРєР°С‚РёР»Р°", cfg.main.male and "РІРєР»СЋС‡РёР»" or "РІРєР»СЋС‡РёР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s РјР°СЃРєСѓ РґР»СЏ РЅР°СЂРєРѕР·Р° РїР°С†РёРµРЅС‚Сѓ"):format(cfg.main.male and "РЅР°РґРµР»" or "РЅР°РґРµР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat("/do РџР°С†РёРµРЅС‚ Р·Р°СЃРЅСѓР».")
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s С…РёСЂСѓСЂРіРёС‡РµСЃРєРёРµ РёРЅСЃС‚СЂСѓРјРµРЅС‚С‹ РЅР° СЃС‚РѕР»Рµ Рё %s РІР°С‚РєСѓ"):format(cfg.main.male and "СЂР°Р·Р»РѕР¶РёР»" or "СЂР°Р·Р»РѕР¶РёР»Р°", cfg.main.male and "РІР·СЏР»" or "РІР·СЏР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s СЂР°РЅСѓ РїР°С†РёРµРЅС‚Р° Рё %s С‰РёРїС†С‹"):format(cfg.main.male and "РѕР±СЂР°Р±РѕС‚Р°Р»" or "РѕР±СЂР°Р±РѕС‚Р°Р»Р°", cfg.main.male and "РІР·СЏР»" or "РІР·СЏР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/try %s РїСѓР»СЋ"):format(cfg.main.male and "РІС‹С‚Р°С‰РёР»" or "РІС‹С‚Р°С‰РёР»Р°"))
-                        return true
-                    end
-                },
-                {
-                    title = "В» РџСЂРѕРґРѕР»Р¶РµРЅРёРµ РµСЃР»Рё {63c600}[РЈРґР°С‡РЅРѕ]",
-                    onclick = function()
-                        sampSendChat(("/me %s РїСѓР»СЋ, %s РјРµРґ. РёРіР»Сѓ Рё РјРµРґ. РЅРёС‚Рё Рё %s СЂР°РЅСѓ РїР°С†РёРµРЅС‚Сѓ"):format(cfg.main.male and "РѕС‚Р»РѕР¶РёР»" or "РѕС‚Р»РѕР¶РёР»Р°", cfg.main.male and "РІР·СЏР»" or "РІР·СЏР»Р°", cfg.main.male and "Р·Р°С€РёР»" or "Р·Р°С€РёР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s Р±РёРЅС‚С‹ Рё %s РЅР° СЂР°РЅРµРЅРёСЏ"):format(cfg.main.male and "РґРѕСЃС‚Р°Р»" or "РґРѕСЃС‚Р°Р»Р°", cfg.main.male and "РЅР°Р»РѕР¶РёР»" or "РЅР°Р»РѕР¶РёР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s Рё %s СЃС‚РµСЂРёР»СЊРЅС‹Рµ РїРµСЂС‡Р°С‚РєРё "):format(cfg.main.male and "СЃРЅСЏР»" or "СЃРЅСЏР»Р°", cfg.main.male and "СЃРІРµСЂРЅСѓР»" or "СЃРІРµСЂРЅСѓР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/me %s Р°РїРїР°СЂР°С‚ РґР»СЏ РЅР°СЂРєРѕР·Р° Рё %s РјР°СЃРєСѓ СЃ РїР°С†РёРµРЅС‚Р°"):format(cfg.main.male and "РѕС‚РєР»СЋС‡РёР»" or "РѕС‚РєР»СЋС‡РёР»Р°", cfg.main.male and "СЃРЅСЏР»" or "СЃРЅСЏР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat("/do РџР°С†РёРµРЅС‚ РїСЂРѕСЃРЅСѓР»СЃСЏ ")
-                        wait(1400)
-                        sampSendChat("Р’Р°Рј РїРѕР»РѕР¶РµРЅ РїРѕСЃС‚РµР»СЊРЅС‹Р№ СЂРµР¶РёРј. Р’С‹Р·РґРѕСЂР°РІР»РёРІР°Р№С‚Рµ")
-                    end
-                },
-                {
-                    title = "В» РџСЂРѕРґРѕР»Р¶РµРЅРёРµ {bf0000}[РќРµСѓРґР°С‡РЅРѕ]",
-                    onclick = function()
-                        sampSendChat(("/me %s РєСЂРѕРІСЊ РІР°С‚РєРѕР№"):format(cfg.main.male and "РІС‹С‚РµСЂ" or "РІС‹С‚РµСЂР»Р°"))
-                        wait(cfg.commands.zaderjka)
-                        sampSendChat(("/try %s РїСѓР»СЋ"):format(cfg.main.male and "РІС‹С‚Р°С‰РёР»" or "РІС‹С‚Р°С‰РёР»Р°"))
-                        return true
-                    end
-                }
-            }
-        }
-    }
-end
-
-function pkmmenuAS(id)
-    return
-    {
-        {
-            title = "{FFFFFF}Р’С‹РґР°С‚СЊ Р»РёС†РµРЅР·РёРё",
-            submenu = {
-                {
-                    title = "В» Р’РѕРґРёС‚РµР»СЊСЃРєРёРµ РїСЂР°РІР°",
-                    onclick = function()
-                        if sampIsPlayerConnected(id) then
-                            giveLicense(id, 0)
-                        end
-                    end
-                },
-                {
-                    title = "В» Р’РѕР·РґСѓС€РЅРёР№ С‚СЂР°РЅСЃРїРѕСЂС‚",
-                    onclick = function()
-                        if sampIsPlayerConnected(id) then
-                            giveLicense(id, 1)
-                        end
-                    end
-                },
-                {
-                    title = "В» Р’РѕРґРЅС‹Р№ С‚СЂР°РЅСЃРїРѕСЂС‚",
-                    onclick = function()
-                        if sampIsPlayerConnected(id) then
-                            giveLicense(id, 3)
-                        end
-                    end
-                },
-                {
-                    title = "В» Р›РёС†РµРЅР·РёСЏ РЅР° РѕСЂСѓР¶РёРµ",
-                    onclick = function()
-                        if sampIsPlayerConnected(id) then
-                            giveLicense(id, 4)
-                        end
-                    end
-                },
-                {
-                    title = "В» Р›РёС†РµРЅР·РёСЏ РЅР° СЂС‹Р±РѕР»РѕРІСЃС‚РІРѕ",
-                    onclick = function()
-                        if sampIsPlayerConnected(id) then
-                            giveLicense(id, 2)
-                        end
-                    end
-                },
-                {
-                    title = "В» Р›РёС†РµРЅР·РёСЏ РЅР° Р±РёР·РЅРµСЃ",
-                    onclick = function()
-                        if sampIsPlayerConnected(id) then
-                            giveLicense(id, 5)
-                        end
-                    end
-                }
-            }
-        },
-        {
-            title = "{FFFFFF}Р—Р°РґР°С‚СЊ РІРѕРїСЂРѕСЃС‹",
-            submenu = {
-                {
-                    title = "{FFFFFF}В» РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ СЃРєРѕСЂРѕСЃС‚СЊ РІ РіРѕСЂРѕРґРµ {6495ED}[РћС‚РІРµС‚: {FFFFFF}50{6495ED}]",
-                    onclick = function() sampSendChat("РљР°РєР°СЏ РјР°РєСЃРёРјР°Р»СЊРЅР°СЏ СЃРєРѕСЂРѕСЃС‚СЊ СЂР°Р·СЂРµС€РµРЅР° РІ РіРѕСЂРѕРґРµ?") end
-                },
-                {
-                    title = "{FFFFFF}В» РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ СЃРєРѕСЂРѕСЃС‚СЊ РІ Р¶РёР»С‹С… Р·РѕРЅР°С… {6495ED}[РћС‚РІРµС‚: {FFFFFF}30{6495ED}]",
-                    onclick = function() sampSendChat("РљР°РєР°СЏ РјР°РєСЃРёРјР°Р»СЊРЅР°СЏ СЃРєРѕСЂРѕСЃС‚СЊ СЂР°Р·СЂРµС€РµРЅР° РІ Р¶РёР»С‹С… Р·РѕРЅР°С…?") end
-                },
-                {
-                    title = "{FFFFFF}В» РЎ РєР°РєРѕР№ СЃС‚РѕСЂРѕРЅС‹ СЂР°Р·СЂРµС€РµРЅ РѕР±РіРѕРЅ {6495ED}[РћС‚РІРµС‚: {FFFFFF}РЎ Р»РµРІРѕР№{6495ED}]",
-                    onclick = function() sampSendChat("РЎ РєР°РєРѕР№ СЃС‚РѕСЂРѕРЅС‹ СЂР°Р·СЂРµС€РµРЅ РѕР±РіРѕРЅ?") end
-                },
-                {
-                    title = "{FFFFFF}В» РњРѕР¶РЅРѕ Р»Рё РѕСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊСЃСЏ РЅР° РїСЂРѕРµР·Р¶РµР№ С‡Р°СЃС‚Рё {6495ED}[РћС‚РІРµС‚: {FFFFFF}РќРµС‚{6495ED}]",
-                    onclick = function() sampSendChat("РњРѕР¶РЅРѕ Р»Рё РѕСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊСЃСЏ РЅР° РїСЂРѕРµР·Р¶РµР№ С‡Р°СЃС‚Рё?") end
-                },
-                {
-                    title = "{FFFFFF}В» Р¦РµР»СЊ РЅРѕС€РµРЅРёСЏ РѕСЂСѓР¶РёСЏ",
-                    onclick = function() sampSendChat("Р—Р°С‡РµРј РІР°Рј Р»РёС†РµРЅР·РёСЏ РЅР° РѕСЂСѓР¶РёРµ?") end
-                },
-                {
-                    title = "{FFFFFF}В» РҐСЂР°РЅРµРЅРёРµ РѕСЂСѓР¶РёСЏ",
-                    onclick = function() sampSendChat("Р“РґРµ РІС‹ Р±СѓРґРµС‚Рµ С…СЂР°РЅРёС‚СЊ РѕСЂСѓР¶РёРµ?") end
-                }
-            }
-        },
-        {
-            title = "{FFFFFF}РћРіР»Р°СЃРёС‚СЊ С†РµРЅСѓ РЅР° Р»РёР·С†РµРЅР·РёСЋ",
-            submenu = {
-                {
-                    title = "В» Р’РѕРґРёС‚РµР»СЊСЃРєРёРµ РїСЂР°РІР°",
-                    onclick = function() sampSendChat(("Р›РёС†РµРЅР·РёСЏ Р±СѓРґРµС‚ СЃС‚РѕРёС‚СЊ %s$. РћС„РѕСЂРјР»СЏРµРј?"):format(getDriveLicenseCount(id))) end
-                },
-                {
-                    title = "В» Р’РѕР·РґСѓС€РЅРёР№ С‚СЂР°РЅСЃРїРѕСЂС‚",
-                    onclick = function() sampSendChat("Р›РёС†РµРЅР·РёСЏ Р±СѓРґРµС‚ СЃС‚РѕРёС‚СЊ 10000$. РћС„РѕСЂРјР»СЏРµРј?") end
-                },
-                {
-                    title = "В» Р’РѕРґРЅС‹Р№ С‚СЂР°РЅСЃРїРѕСЂС‚",
-                    onclick = function() sampSendChat("Р›РёС†РµРЅР·РёСЏ Р±СѓРґРµС‚ СЃС‚РѕРёС‚СЊ 5000$. РћС„РѕСЂРјР»СЏРµРј?") end
-                },
-                {
-                    title = "В» Р›РёС†РµРЅР·РёСЏ РЅР° РѕСЂСѓР¶РёРµ",
-                    onclick = function() sampSendChat("Р›РёС†РµРЅР·РёСЏ Р±СѓРґРµС‚ СЃС‚РѕРёС‚СЊ 50000$. РћС„РѕСЂРјР»СЏРµРј?") end
-                },
-                {
-                    title = "В» Р›РёС†РµРЅР·РёСЏ РЅР° СЂС‹Р±РѕР»РѕРІСЃС‚РІРѕ",
-                    onclick = function() sampSendChat("Р›РёС†РµРЅР·РёСЏ Р±СѓРґРµС‚ СЃС‚РѕРёС‚СЊ 2000$. РћС„РѕСЂРјР»СЏРµРј?") end
-                },
-                {
-                    title = "В» Р›РёС†РµРЅР·РёСЏ РЅР° Р±РёР·РЅРµСЃ",
-                    onclick = function() sampSendChat("Р›РёС†РµРЅР·РёСЏ Р±СѓРґРµС‚ СЃС‚РѕРёС‚СЊ 100000$. РћС„РѕСЂРјР»СЏРµРј?") end
-                }
-            }
-        }
-    }
-end
-
-function pkmmenuPD(id)
+function pkmmenu(id)
 	return
 	{
 		{
-			title = '{ffffff}В» РќР°РґРµС‚СЊ РЅР°СЂСѓС‡РЅРёРєРё',
+			title = '{ffffff}» Надеть наручники',
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(string.format('/me %s СЂСѓРєРё %s Рё %s РЅР°СЂСѓС‡РЅРёРєРё', cfg.main.male and 'Р·Р°Р»РѕРјР°Р»' or 'Р·Р°Р»РѕРјР°Р»Р°', sampGetPlayerNickname(id):gsub("_", " "), cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
+					sampSendChat(string.format('/me %s руки %s и %s наручники', cfg.main.male and 'заломал' or 'заломала', sampGetPlayerNickname(id):gsub("_", " "), cfg.main.male and 'достал' or 'достала'))
 					wait(1400)
 					sampSendChat(string.format('/cuff %s', id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}В» Р’РµСЃС‚Рё Р·Р° СЃРѕР±РѕР№",
+			title = "{ffffff}» Вести за собой",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(string.format('/me %s РѕРґРёРЅ РёР· РєРѕРЅС†РѕРІ РЅР°СЂСѓС‡РЅРёРєРѕРІ Рє СЃРµР±Рµ, РїРѕСЃР»Рµ С‡РµРіРѕ %s Р·Р° СЃРѕР±РѕР№ %s', cfg.main.male and 'РїСЂРёСЃС‚РµРіРЅСѓР»' or 'РїСЂРёСЃС‚РµРіРЅСѓР»Р°', cfg.main.male and 'РїРѕРІРµР»' or 'РїРѕРІРµР»Р°', sampGetPlayerNickname(id):gsub("_", " ")))
+					sampSendChat(string.format('/me %s один из концов наручников к себе, после чего %s за собой %s', cfg.main.male and 'пристегнул' or 'пристегнула', cfg.main.male and 'повел' or 'повела', sampGetPlayerNickname(id):gsub("_", " ")))
 					wait(1400)
 					sampSendChat(string.format('/follow %s', id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}В» РџСЂРѕРёР·РІРµСЃС‚Рё РѕР±С‹СЃРє",
+			title = "{ffffff}» Произвести обыск",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(string.format("/me РЅР°РґРµРІ РїРµСЂС‡Р°С‚РєРё, %s СЂСѓРєР°РјРё РїРѕ С‚РѕСЂСЃСѓ", cfg.main.male and 'РїСЂРѕРІРµР»' or 'РїСЂРѕРІРµР»Р°'))
+					sampSendChat(string.format("/me надев перчатки, %s руками по торсу", cfg.main.male and 'провел' or 'провела'))
 					wait(cfg.commands.zaderjka)
 					sampSendChat(('/take %s'):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}В» РџСЂРѕРёР·РІРµСЃС‚Рё Р°СЂРµСЃС‚",
+			title = "{ffffff}» Произвести арест",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					--[[sampSendChat(('/me РґРѕСЃС‚Р°РІ РєР»СЋС‡Рё РѕС‚ РєР°РјРµСЂС‹ %s РµРµ'):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°'))
+					sampSendChat(('/me достав ключи от камеры %s ее'):format(cfg.main.male and 'открыл' or 'открыла'))
 					wait(cfg.commands.zaderjka)
-					sampSendChat(('/me %s %s РІ РєР°РјРµСЂСѓ'):format(cfg.main.male and 'Р·Р°С‚РѕР»РєРЅСѓР»' or 'Р·Р°С‚РѕР»РєРЅСѓР»Р°', sampGetPlayerNickname(id):gsub("_", " ")))
+					sampSendChat(('/me %s %s в камеру'):format(cfg.main.male and 'затолкнул' or 'затолкнула', sampGetPlayerNickname(id):gsub("_", " ")))
 					wait(cfg.commands.zaderjka)
 					sampSendChat(('/arrest %s'):format(id))
 					wait(cfg.commands.zaderjka)
-                    sampSendChat(('/me Р·Р°РєСЂС‹РІ РєР°РјРµСЂСѓ %s РєР»СЋС‡Рё РІ РєР°СЂРјР°РЅ'):format(cfg.main.male and 'СѓР±СЂР°Р»' or 'СѓР±СЂР°Р»Р°'))]]
-                    sampSendChat("/do РљР»СЋС‡Рё РѕС‚ РєР°РјРµСЂС‹ РІРёСЃСЏС‚ РЅР° РїРѕСЏСЃРµ.")
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format("/me %s РєР»СЋС‡Рё СЃ РїРѕСЏСЃР° Рё %s РєР°РјРµСЂСѓ, РїРѕСЃР»Рµ %s С‚СѓРґР° РїСЂРµСЃС‚СѓРїРЅРёРєР°", cfg.main.male and 'СЃРЅСЏР»' or 'СЃРЅСЏР»Р°', cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'Р·Р°С‚РѕР»РєРЅСѓР»' or 'Р·Р°С‚РѕР»РєРЅСѓР»Р°'))
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat('/arrest '..id)
-                    wait(cfg.commands.zaderjka)
-                    sampSendChat(string.format("/me %s РґРІРµСЂСЊ РєР°РјРµСЂС‹ Рё %s РєР»СЋС‡Рё РЅР° РїРѕСЏСЃ", cfg.main.male and 'Р·Р°РєСЂС‹Р»' or 'Р·Р°РєСЂС‹Р»Р°', cfg.main.male and 'РїРѕРІРµСЃРёР»' or 'РїРѕРІРµСЃРёР»Р°'))
+					sampSendChat(('/me закрыв камеру %s ключи в карман'):format(cfg.main.male and 'убрал' or 'убрала'))
 				end
 			end
 		},
 		{
-			title = '{ffffff}В» РЎРЅСЏС‚СЊ РЅР°СЂСѓС‡РЅРёРєРё',
+			title = '{ffffff}» Снять наручники',
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(('/me %s РЅР°СЂСѓС‡РЅРёРєРё СЃ %s'):format(cfg.main.male and 'СЃРЅСЏР»' or 'СЃРЅСЏР»Р°', sampGetPlayerNickname(id):gsub("_", " ")))
+					sampSendChat(('/me %s наручники с %s'):format(cfg.main.male and 'снял' or 'сняла', sampGetPlayerNickname(id):gsub("_", " ")))
 					wait(1400)
 					sampSendChat(('/uncuff %s'):format(id))
 				end
 			end
-        },
-        {
-            title = "{ffffff}В» РЎРЅСЏС‚СЊ РјР°СЃРєСѓ",
-            onclick = function()
-                if sampIsPlayerConnected(id) then
-                    sampSendChat(("/offmask %s"):format(id))
-                end
-            end
-        },
+		},
 		{
-			title = "{ffffff}В» Р’С‹РґР°С‚СЊ СЂРѕР·С‹СЃРє Р·Р° РїСЂРѕРЅРёРєРЅРѕРІРµРЅРёРµ",
+			title = "{ffffff}» Выдать розыск за проникновение",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(("/su %s 2 РџСЂРѕРЅРёРєРЅРѕРІРµРЅРёРµ РЅР° РѕС…СЂ. С‚РµСЂСЂРёС‚РѕСЂРёСЋ"):format(id))
+					sampSendChat(("/su %s 2 Проникновение на охр. территорию"):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}В» Р’С‹РґР°С‚СЊ СЂРѕР·С‹СЃРє Р·Р° С…СЂР°РЅРµРЅРёРµ РЅР°СЂРєРѕС‚РёРєРѕРІ",
+			title = "{ffffff}» Выдать розыск за хранение наркотиков",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(("/su %s 3 РҐСЂР°РЅРµРЅРёРµ РЅР°СЂРєРѕС‚РёРєРѕРІ"):format(id))
+					sampSendChat(("/su %s 3 Хранение наркотиков"):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}В» Р’С‹РґР°С‚СЊ СЂРѕР·С‹СЃРє Р·Р° С…СЂР°РЅРµРЅРёРµ РјР°С‚РµСЂРёР°Р»РѕРІ",
+			title = "{ffffff}» Выдать розыск за хранение материалов",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(("/su %s 3 РҐСЂР°РЅРµРЅРёРµ РјР°С‚РµСЂРёР°Р»РѕРІ"):format(id))
+					sampSendChat(("/su %s 3 Хранение материалов"):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}В» Р’С‹РґР°С‚СЊ СЂРѕР·С‹СЃРє Р·Р° РїСЂРѕРґР°Р¶Сѓ РЅР°СЂРєРѕС‚РёРєРѕРІ",
+			title = "{ffffff}» Выдать розыск за продажу наркотиков",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(('/su %s 2 РџСЂРѕРґР°Р¶Р° РЅР°СЂРєРѕС‚РёРєРѕРІ'):format(id))
+					sampSendChat(('/su %s 2 Продажа наркотиков'):format(id))
 					wait(1400)
-					sampSendChat(("/me %s СЂСѓРєРё %s Рё %s РЅР°СЂСѓС‡РЅРёРєРё"):format(cfg.main.male and 'Р·Р°Р»РѕРјР°Р»' or 'Р·Р°Р»РѕРјР°Р»Р°', sampGetPlayerNickname(id):gsub("_", " "), cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
+					sampSendChat(("/me %s руки %s и %s наручники"):format(cfg.main.male and 'заломал' or 'заломала', sampGetPlayerNickname(id):gsub("_", " "), cfg.main.male and 'достал' or 'достала'))
 				end
 			end
 		},
 		{
-			title = "{ffffff}В» Р’С‹РґР°С‚СЊ СЂРѕР·С‹СЃРє Р·Р° РїСЂРѕРґР°Р¶Сѓ РєР»СЋС‡РµР№ РѕС‚ РєР°РјРµСЂС‹",
+			title = "{ffffff}» Выдать розыск за продажу ключей от камеры",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(("/su %s 6 РџСЂРѕРґР°Р¶Р° РєР»СЋС‡РµР№ РѕС‚ РєР°РјРµСЂС‹"):format(id))
+					sampSendChat(("/su %s 6 Продажа ключей от камеры"):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}В» Р’С‹РґР°С‚СЊ СЂРѕР·С‹СЃРє Р·Р° РІРѕРѕСЂСѓР¶РµРЅРЅРѕРµ РЅР°РїР°РґРµРЅРёРµ РЅР° РџРћ",
+			title = "{ffffff}» Выдать розыск за вооруженное нападение на ПО",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					sampSendChat(("/su %s 6 Р’РѕРѕСЂСѓР¶РµРЅРЅРѕРµ РЅР°РїР°РґРµРЅРёРµ РЅР° РџРћ"):format(id))
+					sampSendChat(("/su %s 6 Вооруженное нападение на ПО"):format(id))
 				end
 			end
 		},
 		{
-			title = "{ffffff}В» Р’С‹РґР°С‚СЊ СЂРѕР·С‹СЃРє",
+			title = "{ffffff}» Выдать розыск",
 			onclick = function()
 				if sampIsPlayerConnected(id) then
-					submenus_show(sumenu(id), ('{9966cc}'..script.this.name..' {ffffff}| %s [%s]'):format(sampGetPlayerNickname(id):gsub("_", " "), id))
+					submenus_show(sumenu(id), ('{9966cc}FBI Tools {ffffff}| %s [%s]'):format(sampGetPlayerNickname(id):gsub("_", " "), id))
 				end
 			end
 		}
@@ -3317,20 +2659,11 @@ if limgui then
             local myweaponname = getweaponname(myweapon)
             imgui.SetNextWindowPos(imgui.ImVec2(cfg.main.posX, cfg.main.posY), imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(cfg.main.widehud, 160), imgui.Cond.FirstUseEver)
-            imgui.Begin(script.this.name, infbar, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoTitleBar)
-            imgui.CentrText(script.this.name)
+            imgui.Begin('FBI Tools', infbar, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoTitleBar)
+            imgui.CentrText('FBI Tools')
             imgui.Separator()
-            imgui.Text((u8"РРЅС„РѕСЂРјР°С†РёСЏ:"):format(myname, myid, myping))
-            imgui.SameLine()
-            imgui.TextColored(imgui.ImVec4(getColor(myid)), u8('%s [%s]'):format(myname, myid))
-            imgui.SameLine()
-            imgui.Text((u8"| РџРёРЅРі: %s"):format(myping))
-            --imgui.Text((u8 'РћСЂСѓР¶РёРµ: %s [%s]'):format(myweaponname, myweaponammo))
-            if getAmmoInClip() ~= 0 then
-                imgui.Text((u8 "РћСЂСѓР¶РёРµ: %s [%s/%s]"):format(myweaponname, getAmmoInClip(), myweaponammo - getAmmoInClip()))
-            else
-                imgui.Text((u8 'РћСЂСѓР¶РёРµ: %s'):format(myweaponname))
-            end
+            imgui.Text((u8"Информация: %s [%s] | Пинг: %s"):format(myname, myid, myping))
+            imgui.Text((u8 'Оружие: %s [%s]'):format(myweaponname, myweaponammo))
             if isCharInAnyCar(playerPed) then
                 local vHandle = storeCarCharIsInNoSave(playerPed)
                 local result, vID = sampGetVehicleIdByCarHandle(vHandle)
@@ -3339,25 +2672,25 @@ if limgui then
                 local speed = math.floor(carspeed)
                 local vehName = tCarsName[getCarModel(storeCarCharIsInNoSave(playerPed))-399]
                 local ncspeed = math.floor(carspeed*2)
-                imgui.Text((u8 'РўСЂР°РЅСЃРїРѕСЂС‚: %s [%s] | HP: %s | РЎРєРѕСЂРѕСЃС‚СЊ: %s'):format(vehName, vID, vHP, ncspeed))
+                imgui.Text((u8 'Транспорт: %s [%s] | HP: %s | Скорость: %s'):format(vehName, vID, vHP, ncspeed))
             else
-                imgui.Text(u8 'РўСЂР°РЅСЃРїРѕСЂС‚: РќРµС‚')
+                imgui.Text(u8 'Транспорт: Нет')
             end
             if valid and doesCharExist(ped) then 
                 local result, id = sampGetPlayerIdByCharHandle(ped)
                 if result then
                     local targetname = sampGetPlayerNickname(id)
                     local targetscore = sampGetPlayerScore(id)
-                    imgui.Text((u8 'Р¦РµР»СЊ: %s [%s] | РЈСЂРѕРІРµРЅСЊ: %s'):format(targetname, id, targetscore))
+                    imgui.Text((u8 'Цель: %s [%s] | Уровень: %s'):format(targetname, id, targetscore))
                 else
-                    imgui.Text(u8 'Р¦РµР»СЊ: РќРµС‚')
+                    imgui.Text(u8 'Цель: Нет')
                 end
             else
-                imgui.Text(u8 'Р¦РµР»СЊ: РќРµС‚')
+                imgui.Text(u8 'Цель: Нет')
             end
-            imgui.Text((u8 'РљРІР°РґСЂР°С‚: %s'):format(u8(kvadrat())))
-            imgui.Text((u8 'Р’СЂРµРјСЏ: %s'):format(os.date('%H:%M:%S')))
-            if cfg.main.group == "РџР”/Р¤Р‘Р " or cfg.main.group == "РњСЌСЂРёСЏ" then imgui.Text((u8 'Tazer: %s'):format(stazer and 'ON' or 'OFF')) end
+            imgui.Text((u8 'Квадрат: %s'):format(u8(kvadrat())))
+            imgui.Text((u8 'Время: %s'):format(os.date('%H:%M:%S')))
+            imgui.Text((u8 'Tazer: %s'):format(stazer and 'ON' or 'OFF'))
             if imgui.IsMouseClicked(0) and changetextpos then
                 changetextpos = false
                 sampToggleCursor(false)
@@ -3372,7 +2705,7 @@ if limgui then
             local btn_size = imgui.ImVec2(-0.1, 0)
             imgui.SetNextWindowSize(imgui.ImVec2(300, 300), imgui.Cond.FirstUseEver)
             imgui.SetNextWindowPos(imgui.ImVec2(x/2+300, y/2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-            imgui.Begin(u8(script.this.name..' | РњРµРіР°С„РѕРЅ'), imegaf, imgui.WindowFlags.NoResize)
+            imgui.Begin(u8'FBI Tools | Мегафон', imegaf, imgui.WindowFlags.NoResize)
             for k, v in ipairs(incar) do
                 local mx, my, mz = getCharCoordinates(PLAYER_PED)
                 if sampIsPlayerConnected(v) then
@@ -3386,21 +2719,21 @@ if limgui then
                             if imgui.Button(("%s [EVL%sX] | Distance: %s m.##%s"):format(tCarsName[carhm-399], v, dist, k), btn_size) then
                                 lua_thread.create(function()
                                     imegaf.v = false
+                                    sampSendChat(("/m Водитель а/м %s [EVL%sX]"):format(tCarsName[carhm-399], v))
+                                    wait(1400)
+                                    sampSendChat("/m Прижмитесь к обочине или мы откроем огонь!")
+                                    wait(300)
+                                    sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
+                                    sampAddChatMessage('', 0x9966cc)
+                                    sampAddChatMessage(' {ffffff}Ник: {9966cc}'..sampGetPlayerNickname(v)..' ['..v..']', 0x9966cc)
+                                    sampAddChatMessage(' {ffffff}Уровень: {9966cc}'..sampGetPlayerScore(v), 0x9966cc)
+                                    sampAddChatMessage(' {ffffff}Фракция: {9966cc}'..sampGetFraktionBySkin(v), 0x9966cc)
+                                    sampAddChatMessage('', 0x9966cc)
+                                    sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
                                     gmegafid = v
                                     gmegaflvl = sampGetPlayerScore(v)
                                     gmegaffrak = sampGetFraktionBySkin(v)
                                     gmegafcar = tCarsName[carhm-399]
-                                    sampSendChat(("/m Р’РѕРґРёС‚РµР»СЊ Р°/Рј %s [EVL%sX]"):format(tCarsName[carhm-399], v))
-                                    wait(1400)
-                                    sampSendChat("/m РџСЂРёР¶РјРёС‚РµСЃСЊ Рє РѕР±РѕС‡РёРЅРµ РёР»Рё РјС‹ РѕС‚РєСЂРѕРµРј РѕРіРѕРЅСЊ!")
-                                    wait(300)
-                                    sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
-                                    sampAddChatMessage('', 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}РќРёРє: {9966cc}'..sampGetPlayerNickname(v)..' ['..v..']', 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}РЈСЂРѕРІРµРЅСЊ: {9966cc}'..sampGetPlayerScore(v), 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}Р¤СЂР°РєС†РёСЏ: {9966cc}'..sampGetFraktionBySkin(v), 0x9966cc)
-                                    sampAddChatMessage('', 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
                                 end)
                             end
                         end
@@ -3411,28 +2744,29 @@ if limgui then
         end
         if updwindows.v then
             local updlist = ttt
+            imgui.LockPlayer = true
             imgui.ShowCursor = true
             local iScreenWidth, iScreenHeight = getScreenResolution()
             imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(700, 290), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | РћР±РЅРѕРІР»РµРЅРёРµ'), updwindows, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
-            imgui.Text(u8('Р’С‹С€Р»Рѕ РѕР±РЅРѕРІР»РµРЅРёРµ СЃРєСЂРёРїС‚Р° '..script.this.name..'! Р§С‚Рѕ Р±С‹ РѕР±РЅРѕРІРёС‚СЊСЃСЏ РЅР°Р¶РјРёС‚Рµ РєРЅРѕРїРєСѓ РІРЅРёР·Сѓ. РЎРїРёСЃРѕРє РёР·РјРµРЅРµРЅРёР№:'))
+            imgui.Begin(u8('FBI Tools | Обновление'), updwindows, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+            imgui.Text(u8('Вышло обновление скрипта FBI Tools! Что бы обновиться нажмите кнопку внизу. Список изменений:'))
             imgui.Separator()
             imgui.BeginChild("uuupdate", imgui.ImVec2(690, 200))
             for line in ttt:gmatch('[^\r\n]+') do
-                imgui.TextWrapped(line)
+                imgui.Text(line)
             end
             imgui.EndChild()
             imgui.Separator()
             imgui.PushItemWidth(305)
-            if imgui.Button(u8("РћР±РЅРѕРІРёС‚СЊ"), imgui.ImVec2(339, 25)) then
+            if imgui.Button(u8("Обновить"), imgui.ImVec2(339, 25)) then
                 lua_thread.create(goupdate)
                 updwindows.v = false
             end
             imgui.SameLine()
-            if imgui.Button(u8("РћС‚Р»РѕР¶РёС‚СЊ РѕР±РЅРѕРІР»РµРЅРёРµ"), imgui.ImVec2(339, 25)) then
+            if imgui.Button(u8("Отложить обновление"), imgui.ImVec2(339, 25)) then
                 updwindows.v = false
-                ftext("Р•СЃР»Рё РІС‹ Р·Р°С…РѕС‚РёС‚Рµ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РѕР±РЅРѕРІР»РµРЅРёРµ РІРІРµРґРёС‚Рµ РєРѕРјР°РЅРґСѓ {9966CC}/ft")
+                ftext("Если вы захотите установить обновление введите команду {9966CC}/ft")
             end
             imgui.End()
         end
@@ -3442,24 +2776,31 @@ if limgui then
             local btn_size = imgui.ImVec2(-0.1, 0)
             imgui.SetNextWindowSize(imgui.ImVec2(300, 300), imgui.Cond.FirstUseEver)
             imgui.SetNextWindowPos(imgui.ImVec2(x/2, y/2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-            imgui.Begin(u8(script.this.name..' | Р“Р»Р°РІРЅРѕРµ РјРµРЅСЋ | Р’РµСЂСЃРёСЏ: '..thisScript().version), mainw, imgui.WindowFlags.NoResize)
-            if imgui.Button(u8'Р‘РёРЅРґРµСЂ', btn_size) then
+            imgui.Begin('FBI Tools | Main Menu | Version: '..thisScript().version, mainw, imgui.WindowFlags.NoResize)
+            if imgui.Button(u8'Биндер', btn_size) then
                 bMainWindow.v = not bMainWindow.v
             end
-            if imgui.Button(u8'РљРѕРјР°РЅРґРЅС‹Р№ Р±РёРЅРґРµСЂ', btn_size) then
-                vars.mainwindow.v = not vars.mainwindow.v
+            if imgui.Button(u8(cfg.main.nwanted and 'Выключить обновленный Wanted' or 'Включить обновленный Wanted'), btn_size) then
+                cfg.main.nwanted = not cfg.main.nwanted
+                ftext(cfg.main.nwanted and 'Обновленый Wanted включен' or 'Обновленый Wanted выключен')
+                saveData(cfg, 'moonloader/config/fbitools/config.json')
             end
-            if imgui.Button(u8 'РљРѕРјР°РЅРґС‹ СЃРєСЂРёРїС‚Р°', btn_size) then cmdwind.v = not cmdwind.v end
-            if imgui.Button(u8'РќР°СЃС‚СЂРѕР№РєРё СЃРєСЂРёРїС‚Р°', btn_size) then
+            if imgui.Button(u8(cfg.main.nclear and 'Выключить дополненый Clear' or 'Включить дополненый Clear'), btn_size) then
+                cfg.main.nclear = not cfg.main.nclear
+                ftext(cfg.main.nclear and 'Дополненый Clear включен' or 'Дополненый Clear выключен')
+                saveData(cfg, 'moonloader/config/fbitools/config.json')
+            end
+            if imgui.Button(u8 'Команды скрипта', btn_size) then cmdwind.v = not cmdwind.v end
+            if imgui.Button(u8'Настройки скрипта', btn_size) then
                 setwindows.v = not setwindows.v
             end
-            if imgui.Button(u8 'РЎРѕРѕР±С‰РёС‚СЊ Рѕ РѕС€РёР±РєРµ / Р±Р°РіРµ', btn_size) then os.execute('explorer "https://vk.me/fbitools"') end
-            if canupdate then if imgui.Button(u8 '[!] Р”РѕСЃС‚СѓРїРЅРѕ РѕР±РЅРѕРІР»РµРЅРёРµ СЃРєСЂРёРїС‚Р° [!]', btn_size) then updwindows.v = not updwindows.v end end
-            if imgui.CollapsingHeader(u8 'Р”РµР№СЃС‚РІРёСЏ СЃРѕ СЃРєСЂРёРїС‚РѕРј', btn_size) then
-                if imgui.Button(u8'РџРµСЂРµР·Р°РіСЂСѓР·РёС‚СЊ СЃРєСЂРёРїС‚', btn_size) then
+            if imgui.Button(u8 'Сообщить о ошибке / баге', btn_size) then lua_thread.create(function() sendReport('hello') end) end
+            if canupdate then if imgui.Button(u8 '[!] Доступно обновление скрипта [!]', btn_size) then updwindows.v = not updwindows.v end end
+            if imgui.CollapsingHeader(u8 'Действия со скриптом', btn_size) then
+                if imgui.Button(u8'Перезагрузить скрипт', btn_size) then
                     thisScript():reload()
                 end
-                if imgui.Button(u8 'РћС‚РєР»СЋС‡РёС‚СЊ СЃРєСЂРёРїС‚', btn_size) then
+                if imgui.Button(u8 'Отключить скрипт', btn_size) then
                     thisScript():unload()
                 end
             end
@@ -3468,110 +2809,22 @@ if limgui then
                 local x, y = getScreenResolution()
                 imgui.SetNextWindowSize(imgui.ImVec2(500, 500), imgui.Cond.FirstUseEver)
                 imgui.SetNextWindowPos(imgui.ImVec2(x/2, y/2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-                imgui.Begin(u8(script.this.name..' | РљРѕРјР°РЅРґС‹'), cmdwind)
+                imgui.Begin(u8'FBI Tools | Команды', cmdwind)
                 for k, v in ipairs(fthelp) do
                     if imgui.CollapsingHeader(v['cmd']..'##'..k) then
-                        imgui.TextWrapped(u8('РћРїРёСЃР°РЅРёРµ: %s'):format(u8(v['desc'])))
-                        imgui.TextWrapped(u8("РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ: %s"):format(u8(v['use'])))
+                        imgui.TextWrapped(u8('Описание: %s'):format(u8(v['desc'])))
+                        imgui.TextWrapped(u8("Использование: %s"):format(u8(v['use'])))
                     end
-                end
-                imgui.End()
-            end
-            if vars.mainwindow.v then
-                local sX, sY = getScreenResolution()
-                imgui.SetNextWindowPos(imgui.ImVec2(sX/2, sY/2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-                imgui.SetNextWindowSize(imgui.ImVec2(891, 380), imgui.Cond.FirstUseEver)
-                imgui.Begin(u8(script.this.name.." | РЎРїРёСЃРѕРє РєРѕРјР°РЅРґ"), vars.mainwindow, imgui.WindowFlags.NoResize)
-                imgui.BeginChild("##commandlist", imgui.ImVec2(170 ,320), true)
-                for k, v in pairs(commands) do
-                    if imgui.Selectable(u8(("%s. /%s##%s"):format(k, v.cmd, k)), vars.menuselect == k) then 
-                        vars.menuselect     = k 
-                        vars.cmdbuf.v       = u8(v.cmd) 
-                        vars.cmdparams.v    = v.params
-                        vars.cmdtext.v      = u8(v.text)
-                    end
-                end
-                imgui.EndChild()
-                imgui.SameLine()
-                imgui.BeginChild("##commandsetting", imgui.ImVec2(700, 320), true)
-                for k, v in pairs(commands) do
-                    if vars.menuselect == k then
-                        imgui.InputText(u8 "Р’РІРµРґРёС‚Рµ СЃР°РјСѓ РєРѕРјР°РЅРґСѓ", vars.cmdbuf)
-                        imgui.InputInt(u8 "Р’РІРµРґРёС‚Рµ РєРѕР»-РІРѕ РїР°СЂР°РјРµС‚СЂРѕРІ РєРѕРјР°РЅРґС‹", vars.cmdparams, 0)
-                        imgui.InputTextMultiline(u8 "##cmdtext", vars.cmdtext, imgui.ImVec2(678, 200))
-                        imgui.TextWrapped(u8 "РљР»СЋС‡Рё РїР°СЂР°РјРµС‚СЂРѕРІ: {param:1}, {param:2} Рё С‚.Рґ (РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІ С‚РµРєСЃС‚Рµ РЅР° РјРµСЃС‚Рµ РїР°СЂР°РјРµС‚СЂР°)\nРљР»СЋС‡ Р·Р°РґРµСЂР¶РєРё: {wait:РєРѕР»-РІРѕ РјРёР»Р»РёСЃРµРєСѓРЅРґ} (РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РЅР° РЅРѕРІРѕР№ СЃС‚СЂРѕРєРµ)")
-                        if imgui.Button(u8 "РЎРѕС…СЂР°РЅРёС‚СЊ РєРѕРјР°РЅРґСѓ") then
-                            sampUnregisterChatCommand(v.cmd)
-                            v.cmd = u8:decode(vars.cmdbuf.v)
-                            v.params = vars.cmdparams.v
-                            v.text = u8:decode(vars.cmdtext.v)
-                            saveData(commands, "moonloader/config/fbitools/cmdbinder.json")
-                            registerCommandsBinder()
-                            ftext("РљРѕРјР°РЅРґР° СЃРѕС…СЂР°РЅРµРЅР°")
-                        end
-                        imgui.SameLine()
-                        if imgui.Button(u8 "РЈРґР°Р»РёС‚СЊ РєРѕРјР°РЅРґСѓ") then
-                            imgui.OpenPopup(u8 "РЈРґР°Р»РµРЅРёРµ РєРѕРјР°РЅРґС‹##"..k)
-                        end
-                        if imgui.BeginPopupModal(u8 "РЈРґР°Р»РµРЅРёРµ РєРѕРјР°РЅРґС‹##"..k, _, imgui.WindowFlags.AlwaysAutoResize) then
-                            imgui.SetCursorPosX(imgui.GetWindowWidth()/2 - imgui.CalcTextSize(u8 "Р’С‹ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ С…РѕС‚РёС‚Рµ СѓРґР°Р»РёС‚СЊ РєРѕРјР°РЅРґСѓ?").x / 2)
-                            imgui.Text(u8 "Р’С‹ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ С…РѕС‚РёС‚Рµ СѓРґР°Р»РёС‚СЊ РєРѕРјР°РЅРґСѓ?")
-                            if imgui.Button(u8 "РЈРґР°Р»РёС‚СЊ##"..k, imgui.ImVec2(170, 20)) then
-                                sampUnregisterChatCommand(v.cmd)
-                                vars.menuselect     = 0
-                                vars.cmdbuf.v       = ""
-                                vars.cmdparams.v    = 0
-                                vars.cmdtext.v      = ""
-                                table.remove(commands, k)
-                                saveData(commands, "moonloader/config/fbitools/cmdbinder.json")
-                                registerCommandsBinder()
-                                ftext("РљРѕРјР°РЅРґР° СѓРґР°Р»РµРЅР°")
-                                imgui.CloseCurrentPopup()
-                            end
-                            imgui.SameLine()
-                            if imgui.Button(u8 "РћС‚РјРµРЅР°##"..k, imgui.ImVec2(170, 20)) then
-                                imgui.CloseCurrentPopup()
-                            end
-                            imgui.EndPopup()
-                        end
-                        imgui.SameLine()
-                        if imgui.Button(u8 'РљР»СЋС‡Рё', imgui.ImVec2(170, 20)) then imgui.OpenPopup('##bindkey') end
-                        if imgui.BeginPopup('##bindkey') then
-                            imgui.Text(u8 'РСЃРїРѕР»СЊР·СѓР№С‚Рµ РєР»СЋС‡Рё Р±РёРЅРґРµСЂР° РґР»СЏ Р±РѕР»РµРµ СѓРґРѕР±РЅРѕРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ Р±РёРЅРґРµСЂР°')
-                            imgui.Text(u8 'РџСЂРёРјРµСЂ: /su {targetid} 6 Р’РѕРѕСЂСѓР¶РµРЅРЅРѕРµ РЅР°РїР°РґРµРЅРёРµ РЅР° РџРћ')
-                            imgui.Separator()
-                            imgui.Text(u8 '{myid} - ID РІР°С€РµРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р° | '..select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
-                            imgui.Text(u8 '{myrpnick} - Р Рџ РЅРёРє РІР°С€РµРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р° | '..sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' '))
-                            imgui.Text(u8 ('{naparnik} - Р’Р°С€Рё РЅР°РїР°СЂРЅРёРєРё | '..naparnik()))
-                            imgui.Text(u8 ('{kv} - Р’Р°С€ С‚РµРєСѓС‰РёР№ РєРІР°РґСЂР°С‚ | '..kvadrat()))
-                            imgui.Text(u8 '{targetid} - ID РёРіСЂРѕРєР° РЅР° РєРѕС‚РѕСЂРѕРіРѕ РІС‹ С†РµР»РёС‚РµСЃСЊ | '..targetid)
-                            imgui.Text(u8 '{targetrpnick} - Р Рџ РЅРёРє РёРіСЂРѕРєР° РЅР° РєРѕС‚РѕСЂРѕРіРѕ РІС‹ С†РµР»РёС‚РµСЃСЊ | '..sampGetPlayerNicknameForBinder(targetid):gsub('_', ' '))
-                            imgui.Text(u8 '{smsid} - РџРѕСЃР»РµРґРЅРёР№ ID С‚РѕРіРѕ, РєС‚Рѕ РІР°Рј РЅР°РїРёСЃР°Р» РІ SMS | '..smsid)
-                            imgui.Text(u8 '{smstoid} - РџРѕСЃР»РµРґРЅРёР№ ID С‚РѕРіРѕ, РєРѕРјСѓ РІС‹ РЅР°РїРёСЃР°Р»Рё РІ SMS | '..smstoid)
-                            imgui.Text(u8 '{megafid} - ID РёРіСЂРѕРєР°, Р·Р° РєРѕС‚РѕСЂС‹Рј Р±С‹Р»Р° РЅР°С‡Р°С‚Р° РїРѕРіРѕРЅСЏ | '..gmegafid)
-                            imgui.Text(u8 '{rang} - Р’Р°С€Рµ Р·РІР°РЅРёРµ | '..u8(rang))
-                            imgui.Text(u8 '{frak} - Р’Р°С€Р° С„СЂР°РєС†РёСЏ | '..u8(frak))
-                            imgui.Text(u8 '{dl} - ID Р°РІС‚Рѕ, РІ РєРѕС‚РѕСЂРѕРј РІС‹ СЃРёРґРёС‚Рµ | '..mcid)
-                            imgui.Text(u8 '{noe} - РћСЃС‚Р°РІРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РІ РїРѕР»Р»Рµ РІРІРѕРґР° Р° РЅРµ РѕС‚РїСЂР°РІР»СЏС‚СЊ РµРіРѕ РІ С‡Р°С‚ (РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІ СЃР°РјРѕРј РЅР°С‡Р°Р»Рµ)')
-                            imgui.Text(u8 '{wait:sek} - Р—Р°РґРµСЂР¶РєР° РјРµР¶РґСѓ СЃС‚СЂРѕРєР°РјРё, РіРґРµ sek - РєРѕР»-РІРѕ РјРёР»Р»РёСЃРµРєСѓРЅРґ. РџСЂРёРјРµСЂ: {wait:2000} - Р·Р°РґРµСЂР¶РєР° 2 СЃРµРєСѓРЅРґС‹. (РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕС‚РґРµР»СЊРЅРѕ РЅР° РЅРѕРІРѕР№ СЃС‚СЂРѕС‡РєРµ)')
-                            imgui.Text(u8 '{screen} - РЎРґРµР»Р°С‚СЊ СЃРєСЂРёРЅС€РѕС‚ СЌРєСЂР°РЅР° (РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕС‚РґРµР»СЊРЅРѕ РЅР° РЅРѕРІРѕР№ СЃС‚СЂРѕС‡РєРµ)')
-                            imgui.EndPopup()
-                        end
-                    end
-                end
-                imgui.EndChild()
-                if imgui.Button(u8 "Р”РѕР±Р°РІРёС‚СЊ РєРѕРјР°РЅРґСѓ", imgui.ImVec2(170, 20)) then
-                    table.insert(commands, {cmd = "", params = 0, text = ""})
-                    saveData(commands, "moonloader/config/fbitools/cmdbinder.json")
                 end
                 imgui.End()
             end
             if bMainWindow.v then
+                imgui.LockPlayer = true
                 imgui.ShowCursor = true
                 local iScreenWidth, iScreenHeight = getScreenResolution()
                 imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
                 imgui.SetNextWindowSize(imgui.ImVec2(1000, 510), imgui.Cond.FirstUseEver)
-                imgui.Begin(u8(script.this.name.." | Р‘РёРЅРґРµСЂ##main"), bMainWindow, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+                imgui.Begin(u8("FBI Tools | Биндер##main"), bMainWindow, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
                 imgui.BeginChild("##bindlist", imgui.ImVec2(995, 442))
                 for k, v in ipairs(tBindList) do
                     if imadd.HotKey("##HK" .. k, v, tLastKeys, 100) then
@@ -3586,49 +2839,48 @@ if limgui then
                     imgui.SameLine()
                     imgui.CentrText(u8(v.name))
                     imgui.SameLine(850)
-                    if imgui.Button(u8 'Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ Р±РёРЅРґ##'..k) then imgui.OpenPopup(u8 "Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ Р±РёРЅРґРµСЂР°##editbind"..k) 
+                    if imgui.Button(u8 'Редактировать бинд##'..k) then imgui.OpenPopup(u8 "Редактирование биндера##editbind"..k) 
                         bindname.v = u8(v.name) 
                         bindtext.v = u8(v.text)
                     end
-                    if imgui.BeginPopupModal(u8 'Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ Р±РёРЅРґРµСЂР°##editbind'..k, _, imgui.WindowFlags.NoResize) then
-                        imgui.Text(u8 "Р’РІРµРґРёС‚Рµ РЅР°Р·РІР°РЅРёРµ Р±РёРЅРґРµСЂР°:")
-                        imgui.InputText("##Р’РІРµРґРёС‚Рµ РЅР°Р·РІР°РЅРёРµ Р±РёРЅРґРµСЂР°", bindname)
-                        imgui.Text(u8 "Р’РІРµРґРёС‚Рµ С‚РµРєСЃС‚ Р±РёРЅРґРµСЂР°:")
-                        imgui.InputTextMultiline("##Р’РІРµРґРёС‚Рµ С‚РµРєСЃС‚ Р±РёРЅРґРµСЂР°", bindtext, imgui.ImVec2(500, 200))
+                    if imgui.BeginPopupModal(u8 'Редактирование биндера##editbind'..k, _, imgui.WindowFlags.NoResize) then
+                        imgui.Text(u8 "Введите название биндера:")
+                        imgui.InputText("##Введите название биндера", bindname)
+                        imgui.Text(u8 "Введите текст биндера:")
+                        imgui.InputTextMultiline("##Введите текст биндера", bindtext, imgui.ImVec2(500, 200))
                         imgui.Separator()
-                        if imgui.Button(u8 'РљР»СЋС‡Рё', imgui.ImVec2(90, 20)) then imgui.OpenPopup('##bindkey') end
+                        if imgui.Button(u8 'Ключи', imgui.ImVec2(90, 20)) then imgui.OpenPopup('##bindkey') end
                         if imgui.BeginPopup('##bindkey') then
-                            imgui.Text(u8 'РСЃРїРѕР»СЊР·СѓР№С‚Рµ РєР»СЋС‡Рё Р±РёРЅРґРµСЂР° РґР»СЏ Р±РѕР»РµРµ СѓРґРѕР±РЅРѕРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ Р±РёРЅРґРµСЂР°')
-                            imgui.Text(u8 'РџСЂРёРјРµСЂ: /su {targetid} 6 Р’РѕРѕСЂСѓР¶РµРЅРЅРѕРµ РЅР°РїР°РґРµРЅРёРµ РЅР° РџРћ')
+                            imgui.Text(u8 'Используйте ключи биндера для более удобного использования биндера')
+                            imgui.Text(u8 'Пример: /su {targetid} 6 Вооруженное нападение на ПО')
                             imgui.Separator()
-                            imgui.Text(u8 '{myid} - ID РІР°С€РµРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р° | '..select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
-                            imgui.Text(u8 '{myrpnick} - Р Рџ РЅРёРє РІР°С€РµРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р° | '..sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' '))
-                            imgui.Text(u8 ('{naparnik} - Р’Р°С€Рё РЅР°РїР°СЂРЅРёРєРё | '..naparnik()))
-                            imgui.Text(u8 ('{kv} - Р’Р°С€ С‚РµРєСѓС‰РёР№ РєРІР°РґСЂР°С‚ | '..kvadrat()))
-                            imgui.Text(u8 '{targetid} - ID РёРіСЂРѕРєР° РЅР° РєРѕС‚РѕСЂРѕРіРѕ РІС‹ С†РµР»РёС‚РµСЃСЊ | '..targetid)
-                            imgui.Text(u8 '{targetrpnick} - Р Рџ РЅРёРє РёРіСЂРѕРєР° РЅР° РєРѕС‚РѕСЂРѕРіРѕ РІС‹ С†РµР»РёС‚РµСЃСЊ | '..sampGetPlayerNicknameForBinder(targetid):gsub('_', ' '))
-                            imgui.Text(u8 '{smsid} - РџРѕСЃР»РµРґРЅРёР№ ID С‚РѕРіРѕ, РєС‚Рѕ РІР°Рј РЅР°РїРёСЃР°Р» РІ SMS | '..smsid)
-                            imgui.Text(u8 '{smstoid} - РџРѕСЃР»РµРґРЅРёР№ ID С‚РѕРіРѕ, РєРѕРјСѓ РІС‹ РЅР°РїРёСЃР°Р»Рё РІ SMS | '..smstoid)
-                            imgui.Text(u8 '{megafid} - ID РёРіСЂРѕРєР°, Р·Р° РєРѕС‚РѕСЂС‹Рј Р±С‹Р»Р° РЅР°С‡Р°С‚Р° РїРѕРіРѕРЅСЏ | '..gmegafid)
-                            imgui.Text(u8 '{rang} - Р’Р°С€Рµ Р·РІР°РЅРёРµ | '..u8(rang))
-                            imgui.Text(u8 '{frak} - Р’Р°С€Р° С„СЂР°РєС†РёСЏ | '..u8(frak))
-                            imgui.Text(u8 '{dl} - ID Р°РІС‚Рѕ, РІ РєРѕС‚РѕСЂРѕРј РІС‹ СЃРёРґРёС‚Рµ | '..mcid)
-                            imgui.Text(u8 '{f6} - РћС‚РїСЂР°РІРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РІ С‡Р°С‚ С‡РµСЂРµР· СЌРјСѓР»СЏС†РёСЋ С‡Р°С‚Р° (РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІ СЃР°РјРѕРј РЅР°С‡Р°Р»Рµ)')
-                            imgui.Text(u8 '{noe} - РћСЃС‚Р°РІРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РІ РїРѕР»Р»Рµ РІРІРѕРґР° Р° РЅРµ РѕС‚РїСЂР°РІР»СЏС‚СЊ РµРіРѕ РІ С‡Р°С‚ (РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІ СЃР°РјРѕРј РЅР°С‡Р°Р»Рµ)')
-                            imgui.Text(u8 '{wait:sek} - Р—Р°РґРµСЂР¶РєР° РјРµР¶РґСѓ СЃС‚СЂРѕРєР°РјРё, РіРґРµ sek - РєРѕР»-РІРѕ РјРёР»Р»РёСЃРµРєСѓРЅРґ. РџСЂРёРјРµСЂ: {wait:2000} - Р·Р°РґРµСЂР¶РєР° 2 СЃРµРєСѓРЅРґС‹. (РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕС‚РґРµР»СЊРЅРѕ РЅР° РЅРѕРІРѕР№ СЃС‚СЂРѕС‡РєРµ)')
-                            imgui.Text(u8 '{screen} - РЎРґРµР»Р°С‚СЊ СЃРєСЂРёРЅС€РѕС‚ СЌРєСЂР°РЅР° (РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕС‚РґРµР»СЊРЅРѕ РЅР° РЅРѕРІРѕР№ СЃС‚СЂРѕС‡РєРµ)')
+                            imgui.Text(u8 '{myid} - ID вашего персонажа | '..select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
+                            imgui.Text(u8 '{myrpnick} - РП ник вашего персонажа | '..sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub('_', ' '))
+                            imgui.Text(u8 ('{naparnik} - Ваши напарники | '..naparnik()))
+                            imgui.Text(u8 ('{kv} - Ваш текущий квадрат | '..kvadrat()))
+                            imgui.Text(u8 '{targetid} - ID игрока на которого вы целитесь | '..targetid)
+                            imgui.Text(u8 '{targetrpnick} - РП ник игрока на которого вы целитесь | '..sampGetPlayerNicknameForBinder(targetid):gsub('_', ' '))
+                            imgui.Text(u8 '{smsid} - Последний ID того, кто вам написал в SMS | '..smsid)
+                            imgui.Text(u8 '{smstoid} - Последний ID того, кому вы написали в SMS | '..smstoid)
+                            imgui.Text(u8 '{megafid} - ID игрока, за которым была начата погоня | '..gmegafid)
+                            imgui.Text(u8 '{rang} - Ваше звание | '..u8(rang))
+                            imgui.Text(u8 '{frak} - Ваша фракция | '..u8(frak))
+                            imgui.Text(u8 '{f6} - Отправить сообщение в чат через эмуляцию чата (использовать в самом начале)')
+                            imgui.Text(u8 '{noe} - Оставить сообщение в полле ввода а не отправлять его в чат (использовать в самом начале)')
+                            imgui.Text(u8 '{wait:sek} - Задержка между строками, где sek - кол-во миллисекунд. Пример: {wait:2000} - задержка 2 секунды. (использовать отдельно на новой строчке)')
+                            imgui.Text(u8 '{screen} - Сделать скриншот экрана (использовать отдельно на новой строчке)')
                             imgui.EndPopup()
                         end
                         imgui.SameLine()
                         imgui.SetCursorPosX((imgui.GetWindowWidth() - 90 - imgui.GetStyle().ItemSpacing.x))
-                        if imgui.Button(u8 "РЈРґР°Р»РёС‚СЊ Р±РёРЅРґ##"..k, imgui.ImVec2(90, 20)) then
+                        if imgui.Button(u8 "Удалить бинд##"..k, imgui.ImVec2(90, 20)) then
                             table.remove(tBindList, k)
                             saveData(tBindList, fileb)
                             imgui.CloseCurrentPopup()
                         end
                         imgui.SameLine()
                         imgui.SetCursorPosX((imgui.GetWindowWidth() - 180 + imgui.GetStyle().ItemSpacing.x) / 2)
-                        if imgui.Button(u8 "РЎРѕС…СЂР°РЅРёС‚СЊ##"..k, imgui.ImVec2(90, 20)) then
+                        if imgui.Button(u8 "Сохранить##"..k, imgui.ImVec2(90, 20)) then
                             v.name = u8:decode(bindname.v)
                             v.text = u8:decode(bindtext.v)
                             bindname.v = ''
@@ -3637,425 +2889,250 @@ if limgui then
                             imgui.CloseCurrentPopup()
                         end
                         imgui.SameLine()
-                        if imgui.Button(u8 "Р—Р°РєСЂС‹С‚СЊ##"..k, imgui.ImVec2(90, 20)) then imgui.CloseCurrentPopup() end
+                        if imgui.Button(u8 "Закрыть##"..k, imgui.ImVec2(90, 20)) then imgui.CloseCurrentPopup() end
                         imgui.EndPopup()
                     end
                 end
                 imgui.EndChild()
                 imgui.Separator()
-                if imgui.Button(u8"Р”РѕР±Р°РІРёС‚СЊ РєР»Р°РІРёС€Сѓ") then
-                    tBindList[#tBindList + 1] = {text = "", v = {}, time = 0, name = "Р‘РёРЅРґ"..#tBindList + 1}
+                if imgui.Button(u8"Добавить клавишу") then
+                    tBindList[#tBindList + 1] = {text = "", v = {}, time = 0, name = "Бинд"..#tBindList + 1}
                     saveData(tBindList, fileb)
                 end
                 imgui.End()
             end
             if setwindows.v then
-                --
-                cput            = imgui.ImBool(cfg.commands.cput)
-                ceject          = imgui.ImBool(cfg.commands.ceject)
-                ftazer          = imgui.ImBool(cfg.commands.ftazer)
-                deject          = imgui.ImBool(cfg.commands.deject)
-                kmdcb           = imgui.ImBool(cfg.commands.kmdctime)
-                carb            = imgui.ImBool(cfg.main.autocar)
-                stateb          = imgui.ImBool(cfg.main.male)
-                tagf            = imgui.ImBuffer(u8(cfg.main.tar), 256)
-                parolf          = imgui.ImBuffer(u8(tostring(cfg.main.parol)), 256)
-                tagb            = imgui.ImBool(cfg.main.tarb)
-                xcord           = imgui.ImInt(cfg.main.posX)
-                ycord           = imgui.ImInt(cfg.main.posY)
-                clistbuffer     = imgui.ImInt(cfg.main.clist)
-                waitbuffer      = imgui.ImInt(cfg.commands.zaderjka)
-                clistb          = imgui.ImBool(cfg.main.clistb)
-                parolb          = imgui.ImBool(cfg.main.parolb)
-                offptrlb        = imgui.ImBool(cfg.main.offptrl)
-                offwntdb        = imgui.ImBool(cfg.main.offwntd)
-                ticketb         = imgui.ImBool(cfg.commands.ticket)
-                tchatb          = imgui.ImBool(cfg.main.tchat)
-                strobbsb        = imgui.ImBool(cfg.main.strobs)
-                megafb          = imgui.ImBool(cfg.main.megaf)
-                infbarb         = imgui.ImBool(cfg.main.hud)
-                autobpb         = imgui.ImBool(cfg.main.autobp)
-                deagleb         = imgui.ImBool(cfg.autobp.deagle)
-                shotb           = imgui.ImBool(cfg.autobp.shot)
-                smgb            = imgui.ImBool(cfg.autobp.smg)
-                m4b             = imgui.ImBool(cfg.autobp.m4)
-                rifleb          = imgui.ImBool(cfg.autobp.rifle)
-                armourb         = imgui.ImBool(cfg.autobp.armour)
-                specb           = imgui.ImBool(cfg.autobp.spec)
-                dvadeagleb      = imgui.ImBool(cfg.autobp.dvadeagle)
-                dvashotb        = imgui.ImBool(cfg.autobp.dvashot)
-                dvasmgb         = imgui.ImBool(cfg.autobp.dvasmg)
-                dvam4b          = imgui.ImBool(cfg.autobp.dvam4)
-                dvarifleb       = imgui.ImBool(cfg.autobp.dvarifle)
-                googlecodeb     = imgui.ImBuffer(tostring(cfg.main.googlecode), 256)
-                googlecodebb    = imgui.ImBool(cfg.main.googlecodeb)
-                nwantedb        = imgui.ImBool(cfg.main.nwanted)
-                nclearb         = imgui.ImBool(cfg.main.nclear)
-                --
+                imgui.LockPlayer = true
+                local cput =  imgui.ImBool(cfg.commands.cput)
+                local ceject = imgui.ImBool(cfg.commands.ceject)
+                local ftazer = imgui.ImBool(cfg.commands.ftazer)
+                local deject = imgui.ImBool(cfg.commands.deject)
+                local kmdcb = imgui.ImBool(cfg.commands.kmdctime)
+                local carb = imgui.ImBool(cfg.main.autocar)
+                local stateb = imgui.ImBool(cfg.main.male)
+                local tagf = imgui.ImBuffer(u8(cfg.main.tar), 256)
+                local parolf = imgui.ImBuffer(u8(tostring(cfg.main.parol)), 256)
+                local tagb = imgui.ImBool(cfg.main.tarb)
+                local xcord = imgui.ImInt(cfg.main.posX)
+                local ycord = imgui.ImInt(cfg.main.posY)
+                local clistbuffer = imgui.ImInt(cfg.main.clist)
+                local waitbuffer = imgui.ImInt(cfg.commands.zaderjka)
+                local clistb = imgui.ImBool(cfg.main.clistb)
+                local parolb = imgui.ImBool(cfg.main.parolb)
+                local offptrlb = imgui.ImBool(cfg.main.offptrl)
+                local offwntdb = imgui.ImBool(cfg.main.offwntd)
+                local ticketb = imgui.ImBool(cfg.commands.ticket)
+                local tchatb = imgui.ImBool(cfg.main.tchat)
+                local strobbsb = imgui.ImBool(cfg.main.strobs)
+                local megafb = imgui.ImBool(cfg.main.megaf)
+                local infbarb = imgui.ImBool(cfg.main.hud)
                 local iScreenWidth, iScreenHeight = getScreenResolution()
-                imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-                imgui.SetNextWindowSize(imgui.ImVec2(1161, 436), imgui.Cond.FirstUseEver)
-                imgui.Begin(u8'РќР°СЃС‚СЂРѕР№РєРё##1', setwindows, imgui.WindowFlags.NoResize)
-                --ftext(("w: %s / h: %s"):format(imgui.GetWindowWidth(), imgui.GetWindowHeight()))
-                if cfg.main.group ~= 'unknown' then
-                    imgui.BeginChild('##set', imgui.ImVec2(140, 400), true)
-                    if imgui.Selectable(u8'РћСЃРЅРѕРІРЅС‹Рµ', show == 1) then show = 1 end
-                    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then if imgui.Selectable(u8'РљРѕРјР°РЅРґС‹', show == 2) then show = 2 end end
-                    if imgui.Selectable(u8'РљР»Р°РІРёС€Рё', show == 3) then show = 3 end
-                    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then if imgui.Selectable(u8'РђРІС‚Рѕ-Р‘Рџ', show == 4) then show = 4 end end
-                    imgui.EndChild()
-                    imgui.SameLine()
-                    imgui.BeginChild('##set1', imgui.ImVec2(1000, 400), true)
-                    if show == 1 then
-                        if imadd.ToggleButton(u8 'РРЅС„РѕР±Р°СЂ', infbarb) then cfg.main.hud = infbarb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine() imgui.Text(u8 "РРЅС„Рѕ-Р±Р°СЂ")
-                        if infbarb.v then
-                            imgui.SameLine()
-                            if imgui.Button(u8 'РР·РјРµРЅРёС‚СЊ РјРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ') then
-                                mainw.v = false
-                                changetextpos = true
-                                ftext('РџРѕ Р·Р°РІРµС€РµРЅРёСЋ РЅР°Р¶РјРёС‚Рµ Р»РµРІСѓСЋ РєРЅРѕРїРєСѓ РјС‹С€Рё')
-                            end
-                        end
-                        if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
-                            if imadd.ToggleButton(u8'РЎРєСЂС‹РІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ Рѕ РЅР°С‡Р°Р»Рµ РїСЂРµСЃР»РµРґРѕРІР°РЅРёСЏ', offptrlb) then cfg.main.offptrl = offptrlb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'РЎРєСЂС‹РІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ Рѕ РЅР°С‡Р°Р»Рµ РїСЂРµСЃР»РµРґРѕРІР°РЅРёСЏ')
-                            if imadd.ToggleButton(u8'РЎРєСЂС‹РІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ Рѕ РІС‹РґР°С‡Рµ СЂРѕР·С‹СЃРєР°', offwntdb) then cfg.main.offwntd = offwntdb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'РЎРєСЂС‹РІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ Рѕ РІС‹РґР°С‡Рµ СЂРѕР·С‹СЃРєР°')
-                            if imadd.ToggleButton(u8'РќРѕРІС‹Р№ wanted', nwantedb) then cfg.main.nwanted = nwantedb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'РћР±РЅРѕРІР»РµРЅРЅС‹Р№ Wanted')
-                            if imadd.ToggleButton(u8'РґРѕРїclear', nclearb) then cfg.main.nclear = nclearb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Р”РѕРїРѕР»РЅРµРЅС‹Р№ Clear')
-                        end
-                        if imadd.ToggleButton(u8'РњСѓР¶СЃРєРёРµ РѕС‚С‹РіСЂРѕРІРєРё', stateb) then cfg.main.male = stateb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'РњСѓР¶СЃРєРёРµ РѕС‚С‹РіСЂРѕРІРєРё')
-                        if imadd.ToggleButton(u8'РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р°РІС‚РѕС‚РµРі', tagb) then cfg.main.tarb = tagb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р°РІС‚РѕС‚РµРі')
-                        if tagb.v then
-                            if imgui.InputText(u8'Р’РІРµРґРёС‚Рµ РІР°С€ РўРµРі.', tagf) then cfg.main.tar = u8:decode(tagf.v) saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        end
-                        if imadd.ToggleButton(u8'РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р°РІС‚Рѕ Р»РѕРіРёРЅ', parolb) then cfg.main.parolb = parolb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р°РІС‚Рѕ Р»РѕРіРёРЅ')
-                        if parolb.v then
-                            if imgui.InputText(u8'Р’РІРµРґРёС‚Рµ РІР°С€ РїР°СЂРѕР»СЊ.', parolf, imgui.InputTextFlags.Password) then cfg.main.parol = u8:decode(parolf.v) saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                            if imgui.Button(u8'РЈР·РЅР°С‚СЊ РїР°СЂРѕР»СЊ') then ftext('Р’Р°С€ РїР°СЂРѕР»СЊ: {9966cc}'..cfg.main.parol) end
-                        end
-                        if imadd.ToggleButton(u8'РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р°РІС‚Рѕ g-auth', googlecodebb) then cfg.main.googlecodeb = googlecodebb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р°РІС‚Рѕ g-auth')
-                        if googlecodebb.v then
-                            if imgui.InputText(u8'Р’РІРµРґРёС‚Рµ РІР°С€ РіСѓРіР» РєРѕРґ(РєРѕС‚РѕСЂС‹Р№ РїСЂРёС€РµР» РІР°Рј РЅР° РїРѕС‡С‚Сѓ).', googlecodeb, imgui.InputTextFlags.Password) then cfg.main.googlecode = googlecodeb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                            if imgui.Button(u8'РЈР·РЅР°С‚СЊ РіСѓРіР» РєРѕРґ') then ftext('Р’Р°С€ РіСѓРіР» РєРѕРґ: {9966cc}'..cfg.main.googlecode) end
-                            if #tostring(cfg.main.googlecode) == 16 then imgui.SameLine() imgui.Text(u8(("РЎРіРµРЅРµСЂРёСЂРѕРІР°РЅС‹Р№ РєРѕРґ: %s"):format(genCode(tostring(cfg.main.googlecode))))) end
-                        end
-                        if imadd.ToggleButton(u8'РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р°РІС‚РѕРєР»РёСЃС‚', clistb) then cfg.main.clistb = clistb.v end; imgui.SameLine() saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.Text(u8 'РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р°РІС‚РѕРєР»РёСЃС‚')
-                        if clistb.v then
-                            if imgui.SliderInt(u8"Р’С‹Р±РµСЂРёС‚Рµ Р·РЅР°С‡РµРЅРёРµ РєР»РёСЃС‚Р°", clistbuffer, 0, 33) then cfg.main.clist = clistbuffer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        end
-                        if imadd.ToggleButton(u8'РћС‚РєСЂС‹РІР°С‚СЊ С‡Р°С‚ РЅР° T', tchatb) then cfg.main.tchat = tchatb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'РћС‚РєСЂС‹РІР°С‚СЊ С‡Р°С‚ РЅР° T')
-                        if imadd.ToggleButton(u8 'РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРё Р·Р°РІРѕРґРёС‚СЊ Р°РІС‚Рѕ', carb) then cfg.main.autocar = carb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРё Р·Р°РІРѕРґРёС‚СЊ Р°РІС‚Рѕ')
-                        if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
-                            if imadd.ToggleButton(u8 'РЎС‚СЂРѕР±РѕСЃРєРѕРїС‹', strobbsb) then cfg.main.strobs = strobbsb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'РЎС‚СЂРѕР±РѕСЃРєРѕРїС‹')
-                            if imadd.ToggleButton(u8 'Р Р°СЃС€РёСЂРµРЅРЅС‹Р№ РјРµРіР°С„РѕРЅ', megafb) then cfg.main.megaf = megafb.v end saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.SameLine(); imgui.Text(u8 'Р Р°СЃС€РёСЂРµРЅРЅС‹Р№ РјРµРіР°С„РѕРЅ')
-                        end
-                        if imgui.InputInt(u8'Р—Р°РґРµСЂР¶РєР° РІ РѕС‚С‹РіСЂРѕРІРєР°С…', waitbuffer) then cfg.commands.zaderjka = waitbuffer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        imgui.Separator()
-                        if imgui.Button(u8 'РЎР±СЂРѕСЃРёС‚СЊ РіСЂСѓРїРїСѓ') then imgui.OpenPopup(u8 'РЎР±СЂРѕСЃСЃ РіСЂСѓРїРїС‹') end
+                imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(15,6))
+                imgui.Begin(u8'Настройки##1', setwindows, imgui.WindowFlags.NoResize)
+                imgui.BeginChild('##set', imgui.ImVec2(140, 400), true)
+                if imgui.Selectable(u8'Основные', show == 1) then show = 1 end
+                if imgui.Selectable(u8'Команды', show == 2) then show = 2 end
+                if imgui.Selectable(u8'Клавиши', show == 3) then show = 3 end
+                imgui.EndChild()
+                imgui.SameLine()
+                imgui.BeginChild('##set1', imgui.ImVec2(800, 400), true)
+                if show == 1 then
+                    if imadd.ToggleButton(u8 'Инфобар', infbarb) then cfg.main.hud = infbarb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine() imgui.Text(u8 "Инфо-бар")
+                    if infbarb.v then
                         imgui.SameLine()
-                        imgui.Text(u8 'РўРµРєСѓС‰Р°СЏ РіСЂСѓРїРїР° С„СЂР°РєС†РёР№: '..u8(cfg.main.group))
-                        if imgui.BeginPopupModal(u8 'РЎР±СЂРѕСЃСЃ РіСЂСѓРїРїС‹', _, imgui.WindowFlags.NoResize) then
-                            imgui.CentrText(u8 'Р’С‹ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ С…РѕС‚РёС‚Рµ СЃР±СЂРѕСЃРёС‚СЊ РіСЂСѓРїРїСѓ С„СЂР°РєС†РёР№?')
-                            if imgui.Button(u8 'Р”Р°##РіСЂСѓРїРїР°', imgui.ImVec2(170, 20)) then cfg.main.group = 'unknown'
-                                saveData(cfg, 'moonloader/config/fbitools/config.json')
-                                registerCommands()
-                                imgui.CloseCurrentPopup()
-                            end
-                            imgui.SameLine()
-                            if imgui.Button(u8 'РќРµС‚##РіСЂСѓРїРїР°', imgui.ImVec2(170, 20)) then imgui.CloseCurrentPopup() end
-                            imgui.EndPopup()
+                        if imgui.Button(u8 'Изменить местоположение') then
+                            mainw.v = false
+                            changetextpos = true
+                            ftext('По завешению нажмите левую кнопку мыши')
                         end
                     end
-                    if show == 2 then
-                        if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
-                            if imadd.ToggleButton(u8('РћС‚С‹РіСЂРѕРІРєР° /cput'), cput) then cfg.commands.cput = cput.v end; imgui.SameLine(); imgui.Text(u8 'РћС‚С‹РіСЂРѕРІРєР° /cput')
-                            if imadd.ToggleButton(u8('РћС‚С‹РіСЂРѕРІРєР° /ceject'), ceject) then cfg.commands.ceject = ceject.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'РћС‚С‹РіСЂРѕРІРєР° /ceject')
-                            if imadd.ToggleButton(u8('РћС‚С‹РіСЂРѕРІРєР° /ftazer'), ftazer) then cfg.commands.ftazer = ftazer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'РћС‚С‹РіСЂРѕРІРєР° /ftazer')
-                            if imadd.ToggleButton(u8('РћС‚С‹РіСЂРѕРІРєР° /deject'), deject) then cfg.commands.deject = deject.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'РћС‚С‹РіСЂРѕРІРєР° /deject')
-                            if imadd.ToggleButton(u8('РћС‚С‹РіСЂРѕРІРєР° /ticket'), ticketb) then cfg.commands.ticket = ticketb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'РћС‚С‹РіСЂРѕРІРєР° /ticket')
-                            if imadd.ToggleButton(u8('РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ /time F8 РїСЂРё /kmdc'), kmdcb) then cfg.commands.kmdctime = kmdcb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ /time F8 РїСЂРё /kmdc')
-                        end
+                    if imadd.ToggleButton(u8'Скрывать сообщения о начале преследования', offptrlb) then cfg.main.offptrl = offptrlb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Скрывать сообщения о начале преследования')
+                    if imadd.ToggleButton(u8'Скрывать сообщения о выдаче розыска', offwntdb) then cfg.main.offwntd = offwntdb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Скрывать сообщения о выдаче розыска')
+                    if imadd.ToggleButton(u8'Мужские отыгровки', stateb) then cfg.main.male = stateb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Мужские отыгровки')
+                    if imadd.ToggleButton(u8'Использовать автотег', tagb) then cfg.main.tarb = tagb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end imgui.SameLine(); imgui.Text(u8 'Использовать автотег')
+                    if tagb.v then
+                        if imgui.InputText(u8'Введите ваш Тег.', tagf) then cfg.main.tar = u8:decode(tagf.v) saveData(cfg, 'moonloader/config/fbitools/config.json') end
                     end
-                    if show == 3 then
-                        if cfg.main.group ~= "РњСЌСЂРёСЏ" then
-                            if imadd.HotKey(u8'##РљР»Р°РІРёС€Р° РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ РёРіСЂРѕРєРѕРј', config_keys.vzaimkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(vzaimbind, config_keys.vzaimkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.vzaimkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8 'РљР»Р°РІРёС€Р° РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ РёРіСЂРѕРєРѕРј (СЃСЂР°Р±Р°С‚С‹РІР°РµС‚ РїРѕСЃР»Рµ РїСЂРёС†РµР»РёРІР°РЅРёСЏ РЅР° РёРіСЂРѕРєР°)')
-                            if imadd.HotKey('##fastmenu', config_keys.fastmenukey, tLastKeys, 100) then
-                                rkeys.changeHotKey(fastmenubind, config_keys.fastmenukey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.fastmenukey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('РљР»Р°РІРёС€Р° Р±С‹СЃС‚СЂРѕРіРѕ РјРµРЅСЋ'))
-                        end
-                        if cfg.main.group == 'РџР”/Р¤Р‘Р ' or cfg.main.group == 'РњСЌСЂРёСЏ' then
-                            if imadd.HotKey(u8'##РљР»Р°РІРёС€Р° Р±С‹СЃС‚СЂРѕРіРѕ С‚Р°Р·РµСЂР°', config_keys.tazerkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(tazerbind, config_keys.tazerkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.tazerkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8'РљР»Р°РІРёС€Р° Р±С‹СЃС‚СЂРѕРіРѕ С‚Р°Р·РµСЂР°')
-                        end
-                        if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
-                            if imadd.HotKey('##oopda', config_keys.oopda, tLastKeys, 100) then
-                                rkeys.changeHotKey(oopdabind, config_keys.oopda.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.oopda.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('РљР»Р°РІРёС€Р° РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ'))
-                            if imadd.HotKey('##oopnet', config_keys.oopnet, tLastKeys, 100) then
-                                rkeys.changeHotKey(oopnetbind, config_keys.oopnet.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('РљР»Р°РІРёС€Р° РѕС‚РјРµРЅС‹'))
-                            if imadd.HotKey('##megaf', config_keys.megafkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(megafbind, config_keys.megafkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.megafkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('РљР»Р°РІРёС€Р° РјРµРіР°С„РѕРЅР°'))
-                            if imadd.HotKey('##dkld', config_keys.dkldkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(dkldbind, config_keys.dkldkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.dkldkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('РљР»Р°РІРёС€Р° РґРѕРєР»Р°РґР°'))
-                            if imadd.HotKey('##cuff', config_keys.cuffkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(cuffbind, config_keys.cuffkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.cuffkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('РќР°РґРµС‚СЊ РЅР°СЂСѓС‡РЅРёРєРё РЅР° РїСЂРµСЃС‚СѓРїРЅРёРєР°'))
-                            if imadd.HotKey('##uncuff', config_keys.uncuffkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(uncuffbind, config_keys.uncuffkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.uncuffkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('РЎРЅСЏС‚СЊ РЅР°СЂСѓС‡РЅРёРєРё'))
-                            if imadd.HotKey('##follow', config_keys.followkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(followbind, config_keys.followkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.followkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('Р’РµСЃС‚Рё РїСЂРµСЃС‚СѓРїРЅРёРєР° Р·Р° СЃРѕР±РѕР№'))
-                            if imadd.HotKey('##cput', config_keys.cputkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(cputbind, config_keys.cputkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.cputkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('РџРѕСЃР°РґРёС‚СЊ РїСЂРµСЃС‚СѓРїРЅРёРєР° РІ Р°РІС‚Рѕ'))
-                            if imadd.HotKey('##ceject', config_keys.cejectkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(cejectbind, config_keys.cejectkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.cejectkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('Р’С‹СЃР°РґРёС‚СЊ РїСЂРµСЃС‚СѓРїРЅРёРєР° РІ СѓС‡Р°СЃС‚РѕРє'))
-                            if imadd.HotKey('##take', config_keys.takekey, tLastKeys, 100) then
-                                rkeys.changeHotKey(takebind, config_keys.takekey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.takekey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('РћР±С‹СЃРєР°С‚СЊ РїСЂРµСЃС‚СѓРїРЅРёРєР°'))
-                            if imadd.HotKey('##arrest', config_keys.arrestkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(arrestbind, config_keys.arrestkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.arrestkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('РђСЂРµСЃС‚РѕРІР°С‚СЊ РїСЂРµСЃС‚СѓРїРЅРёРєР°'))
-                            if imadd.HotKey('##deject', config_keys.dejectkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(dejectbind, config_keys.dejectkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.dejectkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('Р’С‹С‚Р°С‰РёС‚СЊ РїСЂРµСЃС‚СѓРїРЅРёРєР° РёР· Р°РІС‚Рѕ'))
-                            if imadd.HotKey('##siren', config_keys.sirenkey, tLastKeys, 100) then
-                                rkeys.changeHotKey(sirenbind, config_keys.sirenkey.v)
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.sirenkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end
-                            imgui.SameLine()
-                            imgui.Text(u8('Р’РєР»СЋС‡РёС‚СЊ / РІС‹РєР»СЋС‡РёС‚СЊ СЃРёСЂРµРЅСѓ РЅР° Р°РІС‚Рѕ'))
-                        end
-                        if cfg.main.group == 'РњСЌСЂРёСЏ' then
-                            if imadd.HotKey('##hik', config_keys.hikey, tLastKeys, 100) then 
-                                rkeys.changeHotKey(hibind, config_keys.hikey.v) 
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.hikey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end imgui.SameLine() imgui.Text(u8 'РџСЂРёРІРµС‚СЃС‚РІРёРµ')
-                            if imadd.HotKey('##sumk', config_keys.summakey, tLastKeys, 100) then 
-                                rkeys.changeHotKey(summabind, config_keys.summakey.v) 
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.summakey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end imgui.SameLine() imgui.Text(u8 'РћРіР»Р°СЃРёС‚СЊ СЃСѓРјРјСѓ')
-                            if imadd.HotKey('##freenk', config_keys.freenalkey, tLastKeys, 100) then 
-                                rkeys.changeHotKey(freenalbind, config_keys.freenalkey.v) 
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.freenalkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end imgui.SameLine() imgui.Text(u8 'Р’С‹РїСѓСЃС‚РёС‚СЊ РЅР°Р»РёС‡РЅС‹РјРё')
-                            if imadd.HotKey('##freebk', config_keys.freebankkey, tLastKeys, 100) then 
-                                rkeys.changeHotKey(freebankbind, config_keys.freebankkey.v) 
-                                ftext('РљР»Р°РІРёС€Р° СѓСЃРїРµС€РЅРѕ РёР·РјРµРЅРµРЅР°. РЎС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | РќРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ: '.. table.concat(rkeys.getKeysName(config_keys.freebankkey.v), " + "))
-                                saveData(config_keys, 'moonloader/config/fbitools/keys.json')
-                            end imgui.SameLine() imgui.Text(u8 'Р’С‹РїСѓСЃС‚РёС‚СЊ С‡РµСЂРµР· Р±Р°РЅРє')
-                        end
-                    elseif show == 4 then
-                        if imadd.ToggleButton(u8 'РђРІС‚РѕР±Рї', autobpb) then cfg.main.autobp = autobpb.v end saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.SameLine(); imgui.Text(u8 'РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРё Р±СЂР°С‚СЊ Р±РѕРµРїСЂРёРїР°СЃС‹')
-                        if imgui.Checkbox(u8 "Desert Eagle", deagleb) then cfg.autobp.deagle = deagleb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        if deagleb.v then
-                            imgui.SameLine(110)
-                            if imgui.Checkbox(u8 'Р”РІР° РєРѕРјРїРµРєС‚Р°##1', dvadeagleb) then cfg.autobp.dvadeagle = dvadeagleb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        end
-                        if imgui.Checkbox(u8 "Shotgun", shotb) then cfg.autobp.shot = shotb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        if shotb.v then
-                            imgui.SameLine(110)
-                            if imgui.Checkbox(u8 'Р”РІР° РєРѕРјРїРµРєС‚Р°##2', dvashotb) then cfg.autobp.dvashot = dvashotb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        end
-                        if imgui.Checkbox(u8 "SMG", smgb) then cfg.autobp.smg = smgb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        if smgb.v then
-                            imgui.SameLine(110)
-                            if imgui.Checkbox(u8 'Р”РІР° РєРѕРјРїРµРєС‚Р°##3', dvasmgb) then cfg.autobp.dvasmg = dvasmgb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        end
-                        if imgui.Checkbox(u8 "M4A1", m4b) then cfg.autobp.m4 = m4b.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        if m4b.v then
-                            imgui.SameLine(110)
-                            if imgui.Checkbox(u8 'Р”РІР° РєРѕРјРїРµРєС‚Р°##4', dvam4b) then cfg.autobp.dvam4 = dvam4b.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        end
-                        if imgui.Checkbox(u8 "Rifle", rifleb) then cfg.autobp.rifle = rifleb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        if rifleb.v then
-                            imgui.SameLine(110)
-                            if imgui.Checkbox(u8 'Р”РІР° РєРѕРјРїРµРєС‚Р°##5', dvarifleb) then cfg.autobp.dvarifle = dvarifleb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
-                        end
-                        if imgui.Checkbox(u8 "Р‘СЂРѕРЅСЏ", armourb) then cfg.autobp.armour = armourb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end 
-                        if imgui.Checkbox(u8 "РЎРїРµС†. РѕСЂСѓР¶РёРµ", specb)then cfg.autobp.spec = specb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                    if imadd.ToggleButton(u8'Использовать авто логин', parolb) then cfg.main.parolb = parolb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Использовать авто логин')
+                    if parolb.v then
+                        if imgui.InputText(u8'Введите ваш пароль.', parolf, imgui.InputTextFlags.Password) then cfg.main.parol = u8:decode(parolf.v) saveData(cfg, 'moonloader/config/fbitools/config.json') end
+                        if imgui.Button(u8'Узнать пароль') then ftext('Ваш пароль: {9966cc}'..cfg.main.parol) end
                     end
-                    imgui.EndChild()
-                else
-                    imgui.SetCursorPosX( imgui.GetWindowWidth()/2 - imgui.CalcTextSize(u8 "Р’С‹Р±РµСЂРёС‚Рµ РІР°С€Сѓ РіСЂСѓРїРїСѓ С„СЂР°РєС†РёР№").x/2 - 50 )
-                    imgui.SetCursorPosY( imgui.GetWindowHeight()/2 )
-                    imgui.PushItemWidth(100)
-                    imgui.Combo(u8 'Р’С‹Р±РµСЂРёС‚Рµ РІР°С€Сѓ РіСЂСѓРїРїСѓ С„СЂР°РєС†РёР№', groupInt, groupNames)
-                    imgui.SetCursorPosX( imgui.GetWindowWidth()/2 - 50 )
-                    if imgui.Button(u8 'РџРѕРґС‚РІРµСЂРґРёС‚СЊ') then
-                        ftext(("Р’С‹ РІС‹Р±СЂР°Р»Рё РіСЂСѓРїРїСѓ: {9966CC}%s"):format(u8:decode(groupNames[groupInt.v + 1])))
-                        cfg.main.group = u8:decode(groupNames[groupInt.v + 1])
-                        saveData(cfg, 'moonloader/config/fbitools/config.json')
-                        registerCommands()
+                    if imadd.ToggleButton(u8'Использовать автоклист', clistb) then cfg.main.clistb = clistb.v end; imgui.SameLine() saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.Text(u8 'Использовать автоклист')
+                    if clistb.v then
+                        if imgui.SliderInt(u8"Выберите значение клиста", clistbuffer, 0, 33) then cfg.main.clist = clistbuffer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                     end
+                    if imadd.ToggleButton(u8'Открывать чат на T', tchatb) then cfg.main.tchat = tchatb.v end saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.SameLine(); imgui.Text(u8 'Открывать чат на T')
+                    if imadd.ToggleButton(u8 'Автоматически заводить авто', carb) then cfg.main.autocar = carb.v end saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.SameLine(); imgui.Text(u8 'Автоматически заводить авто')
+                    if imadd.ToggleButton(u8 'Стробоскопы', strobbsb) then cfg.main.strobs = strobbsb.v end saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.SameLine(); imgui.Text(u8 'Стробоскопы')
+                    if imadd.ToggleButton(u8'Расширенный мегафон', megafb) then cfg.main.megaf = megafb.v end saveData(cfg, 'moonloader/config/fbitools/config.json'); imgui.SameLine(); imgui.Text(u8 'Расширенный мегафон')
+                    if imgui.InputInt(u8'Задержка в отыгровках', waitbuffer) then cfg.commands.zaderjka = waitbuffer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end
                 end
+                if show == 2 then
+                    if imadd.ToggleButton(u8('Отыгровка /cput'), cput) then cfg.commands.cput = cput.v end; imgui.SameLine(); imgui.Text(u8 'Отыгровка /cput')
+                    if imadd.ToggleButton(u8('Отыгровка /ceject'), ceject) then cfg.commands.ceject = ceject.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Отыгровка /ceject')
+                    if imadd.ToggleButton(u8('Отыгровка /ftazer'), ftazer) then cfg.commands.ftazer = ftazer.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Отыгровка /ftazer')
+                    if imadd.ToggleButton(u8('Отыгровка /deject'), deject) then cfg.commands.deject = deject.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Отыгровка /deject')
+                    if imadd.ToggleButton(u8('Отыгровка /ticket'), ticketb) then cfg.commands.ticket = ticketb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Отыгровка /ticket')
+                    if imadd.ToggleButton(u8('Использовать /time F8 при /kmdc'), kmdcb) then cfg.commands.kmdctime = kmdcb.v saveData(cfg, 'moonloader/config/fbitools/config.json') end; imgui.SameLine(); imgui.Text(u8 'Использовать /time F8 при /kmdc')
+                end
+                if show == 3 then
+                    if imadd.HotKey(u8'##Клавиша быстрого тазера', config_keys.tazerkey, tLastKeys, 100) then
+                        rkeys.changeHotKey(tazerbind, config_keys.tazerkey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.tazerkey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8'Клавиша быстрого тазера')
+                    if imadd.HotKey('##fastmenu', config_keys.fastmenukey, tLastKeys, 100) then
+                        rkeys.changeHotKey(fastmenubind, config_keys.fastmenukey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.fastmenukey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Клавиша быстрого меню'))
+                    if imadd.HotKey('##oopda', config_keys.oopda, tLastKeys, 100) then
+                        rkeys.changeHotKey(oopdabind, config_keys.oopda.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.oopda.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Клавиша подтверждения'))
+                    if imadd.HotKey('##oopnet', config_keys.oopnet, tLastKeys, 100) then
+                        rkeys.changeHotKey(oopnetbind, config_keys.oopnet.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Клавиша отмены'))
+                    if imadd.HotKey('##megaf', config_keys.megafkey, tLastKeys, 100) then
+                        rkeys.changeHotKey(megafbind, config_keys.megafkey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.megafkey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Клавиша мегафона'))
+                    if imadd.HotKey('##dkld', config_keys.dkldkey, tLastKeys, 100) then
+                        rkeys.changeHotKey(dkldbind, config_keys.dkldkey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.dkldkey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Клавиша доклада'))
+                    if imadd.HotKey('##cuff', config_keys.cuffkey, tLastKeys, 100) then
+                        rkeys.changeHotKey(cuffbind, config_keys.cuffkey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.cuffkey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Надеть наручники на преступника'))
+                    if imadd.HotKey('##uncuff', config_keys.uncuffkey, tLastKeys, 100) then
+                        rkeys.changeHotKey(uncuffbind, config_keys.uncuffkey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.uncuffkey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Снять наручники'))
+                    if imadd.HotKey('##follow', config_keys.followkey, tLastKeys, 100) then
+                        rkeys.changeHotKey(followbind, config_keys.followkey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.followkey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Вести преступника за собой'))
+                    if imadd.HotKey('##cput', config_keys.cputkey, tLastKeys, 100) then
+                        rkeys.changeHotKey(cputbind, config_keys.cputkey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.cputkey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Посадить преступника в авто'))
+                    if imadd.HotKey('##ceject', config_keys.cejectkey, tLastKeys, 100) then
+                        rkeys.changeHotKey(cejectbind, config_keys.cejectkey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.cejectkey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Высадить преступника в участок'))
+                    if imadd.HotKey('##take', config_keys.takekey, tLastKeys, 100) then
+                        rkeys.changeHotKey(takebind, config_keys.takekey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.takekey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Обыскать преступника'))
+                    if imadd.HotKey('##arrest', config_keys.arrestkey, tLastKeys, 100) then
+                        rkeys.changeHotKey(arrestbind, config_keys.arrestkey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.arrestkey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Арестовать преступника'))
+                    if imadd.HotKey('##deject', config_keys.dejectkey, tLastKeys, 100) then
+                        rkeys.changeHotKey(dejectbind, config_keys.dejectkey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.dejectkey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Вытащить преступника из авто'))
+                    if imadd.HotKey('##siren', config_keys.sirenkey, tLastKeys, 100) then
+                        rkeys.changeHotKey(sirenbind, config_keys.sirenkey.v)
+                        ftext('Клавиша успешно изменена. Старое значение: '.. table.concat(rkeys.getKeysName(tLastKeys.v), " + ") .. ' | Новое значение: '.. table.concat(rkeys.getKeysName(config_keys.sirenkey.v), " + "))
+                        saveData(config_keys, 'moonloader/config/fbitools/keys.json')
+                    end
+                    imgui.SameLine()
+                    imgui.Text(u8('Включить / выключить сирену на авто'))
+                end
+                imgui.EndChild()
                 imgui.End()
             end
         end
         if shpwindow.v then
+            imgui.LockPlayer = true
             imgui.ShowCursor = true
             local iScreenWidth, iScreenHeight = getScreenResolution()
             imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(iScreenWidth/2, iScreenHeight / 2), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | РЁРїРѕСЂР°'), shpwindow)
+            imgui.Begin(u8('FBI Tools | Шпора'), shpwindow)
             for line in io.lines('moonloader\\fbitools\\shp.txt') do
                 imgui.TextWrapped(u8(line))
             end
             imgui.End()
         end
         if akwindow.v then
+            imgui.LockPlayer = true
             imgui.ShowCursor = true
             local iScreenWidth, iScreenHeight = getScreenResolution()
             imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(iScreenWidth/2, iScreenHeight / 2), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | РђРґРјРёРЅРёСЃС‚СЂР°С‚РёРІРЅС‹Р№ РєРѕРґРµРєСЃ'), akwindow)
+            imgui.Begin(u8('FBI Tools | Административный кодекс'), akwindow)
             for line in io.lines('moonloader\\fbitools\\ak.txt') do
                 imgui.TextWrapped(u8(line))
             end
             imgui.End()
         end
         if fpwindow.v then
+            imgui.LockPlayer = true
             imgui.ShowCursor = true
             local iScreenWidth, iScreenHeight = getScreenResolution()
             imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(iScreenWidth/2, iScreenHeight / 2), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | Р¤РµРґРµСЂР°Р»СЊРЅРѕРµ РїРѕСЃС‚Р°РЅРѕРІР»РµРЅРёРµ'), fpwindow)
+            imgui.Begin(u8('FBI Tools | Федеральное постановление'), fpwindow)
             for line in io.lines('moonloader\\fbitools\\fp.txt') do
                 imgui.TextWrapped(u8(line))
             end
             imgui.End()
         end
         if ykwindow.v then
+            imgui.LockPlayer = true
             imgui.ShowCursor = true
             local iScreenWidth, iScreenHeight = getScreenResolution()
             imgui.SetNextWindowPos(imgui.ImVec2(iScreenWidth / 2, iScreenHeight / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
             imgui.SetNextWindowSize(imgui.ImVec2(iScreenWidth/2, iScreenHeight / 2), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | РЈРіРѕР»РѕРІРЅС‹Р№ РєРѕРґРµРєСЃ'), ykwindow)
+            imgui.Begin(u8('FBI Tools | Уголовный кодекс'), ykwindow)
             for line in io.lines('moonloader\\fbitools\\yk.txt') do
                 imgui.TextWrapped(u8(line))
             end
-            imgui.End()
-        end
-        if memw.v then
-            imgui.ShowCursor = true
-            local sw, sh = getScreenResolution()
-            --imgui.SetWindowPos('##' .. thisScript().name, imgui.ImVec2(sw/2 - imgui.GetWindowSize().x/2, sh/2 - imgui.GetWindowSize().y/2))
-            --imgui.SetWindowSize('##' .. thisScript().name, imgui.ImVec2(670, 500))
-            imgui.SetNextWindowPos(imgui.ImVec2(sw / 2, sh / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-            imgui.SetNextWindowSize(imgui.ImVec2(670, 330), imgui.Cond.FirstUseEver)
-            imgui.Begin(u8(script.this.name..' | РЎРїРёСЃРѕРє СЃРѕС‚СЂСѓРґРЅРёРєРѕРІ [Р’СЃРµРіРѕ: %s]'):format(#tMembers), memw, imgui.WindowFlags.NoResize)
-            imgui.BeginChild('##1', imgui.ImVec2(670, 300))
-            imgui.Columns(5, _)
-            imgui.SetColumnWidth(-1, 180) imgui.Text(u8 'РќРёРє РёРіСЂРѕРєР°'); imgui.NextColumn()
-            imgui.SetColumnWidth(-1, 190) imgui.Text(u8 'Р”РѕР»Р¶РЅРѕСЃС‚СЊ');  imgui.NextColumn()
-            imgui.SetColumnWidth(-1, 80) imgui.Text(u8 'РЎС‚Р°С‚СѓСЃ') imgui.NextColumn()
-            imgui.SetColumnWidth(-1, 120) imgui.Text(u8 'Р”Р°С‚Р° РїСЂРёРµРјР°') imgui.NextColumn() 
-            imgui.SetColumnWidth(-1, 70) imgui.Text(u8 'AFK') imgui.NextColumn() 
-            imgui.Separator()
-            for _, v in ipairs(tMembers) do
-                imgui.TextColored(imgui.ImVec4(getColor(v.id)), u8('%s [%s]'):format(v.nickname, v.id))
-                if imgui.IsItemHovered() then
-                    imgui.BeginTooltip();
-                    imgui.PushTextWrapPos(450.0);
-                    imgui.TextColored(imgui.ImVec4(getColor(v.id)), u8("%s\nРЈСЂРѕРІРµРЅСЊ: %s"):format(v.nickname, sampGetPlayerScore(v.id)))
-                    imgui.PopTextWrapPos();
-                    imgui.EndTooltip();
-                end
-                imgui.NextColumn()
-                imgui.Text(('%s [%s]'):format(v.sRang, v.iRang))
-                imgui.NextColumn()
-                if v.status ~= u8("РќР° СЂР°Р±РѕС‚Рµ") then
-                    imgui.TextColored(imgui.ImVec4(0.80, 0.00, 0.00, 1.00), v.status);
-                else
-                    imgui.TextColored(imgui.ImVec4(0.00, 0.80, 0.00, 1.00), v.status);
-                end
-                imgui.NextColumn()
-                imgui.Text(v.invite)
-                imgui.NextColumn()
-                if v.sec ~= 0 then
-                    if v.sec < 360 then 
-                        imgui.TextColored(getColorForSeconds(v.sec), tostring(v.sec .. u8(' СЃРµРє.')));
-                    else
-                        imgui.TextColored(getColorForSeconds(v.sec), tostring("360+" .. u8(' СЃРµРє.')));
-                    end
-                else
-                    imgui.TextColored(imgui.ImVec4(0.00, 0.80, 0.00, 1.00), u8("РќРµС‚"));
-                end
-                imgui.NextColumn()
-            end
-            imgui.Columns(1)
-            imgui.EndChild()
             imgui.End()
         end
     end
@@ -4066,10 +3143,10 @@ if lsampev then
         if gmegafhandle ~= -1 and id == gmegafid then
             sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
             sampAddChatMessage('', 0x9966cc)
-            sampAddChatMessage(' {ffffff}РРіСЂРѕРє: {9966cc}'..sampGetPlayerNickname(gmegafid)..'['..gmegafid..'] {ffffff}РІС‹С€РµР» РёР· РёРіСЂС‹', 0x9966cc)
-            sampAddChatMessage(' {ffffff}РЈСЂРѕРІРµРЅСЊ: {9966cc}'..gmegaflvl, 0x9966cc)
-            sampAddChatMessage(' {ffffff}Р¤СЂР°РєС†РёСЏ: {9966cc}'..gmegaffrak, 0x9966cc)
-            sampAddChatMessage(' {ffffff}РџСЂРёС‡РёРЅР° РІС‹С…РѕРґР°: {9966cc}'..quitReason[reason], 0x9966CC)
+            sampAddChatMessage(' {ffffff}Игрок: {9966cc}'..sampGetPlayerNickname(gmegafid)..'['..gmegafid..'] {ffffff}вышел из игры', 0x9966cc)
+            sampAddChatMessage(' {ffffff}Уровень: {9966cc}'..gmegaflvl, 0x9966cc)
+            sampAddChatMessage(' {ffffff}Фракция: {9966cc}'..gmegaffrak, 0x9966cc)
+            sampAddChatMessage(' {ffffff}Причина выхода: {9966cc}'..quitReason[reason], 0x9966CC)
             sampAddChatMessage('', 0x9966cc)
             sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
             gmegafid = -1
@@ -4083,29 +3160,25 @@ if lsampev then
         if cfg.main.clistb and rabden then
             lua_thread.create(function()
                 wait(1400)
-                ftext('Р¦РІРµС‚ РЅРёРєР° СЃРјРµРЅРµРЅ РЅР°: {9966cc}' .. cfg.main.clist)
+                ftext('Цвет ника сменен на: {9966cc}' .. cfg.main.clist)
                 sampSendChat('/clist '..cfg.main.clist)
             end)
         end
     end
 
     function sp.onServerMessage(color, text)
-        if text:find("РЈ РґР°РЅРЅРѕРіРѕ РёРіСЂРѕРєР° СѓР¶Рµ РµСЃС‚СЊ") and ins.isLicense then
-            ins.isLicense = false
-            ins.list = nil
-        end
-        if text:match(" ^Р’С‹ РЅР°С‡Р°Р»Рё РїСЂРµСЃР»РµРґРѕРІР°РЅРёРµ Р·Р° РїСЂРµСЃС‚СѓРїРЅРёРєРѕРј %S!$") then
-            local nick = text:match(" ^Р’С‹ РЅР°С‡Р°Р»Рё РїСЂРµСЃР»РµРґРѕРІР°РЅРёРµ Р·Р° РїСЂРµСЃС‚СѓРїРЅРёРєРѕРј (%S)!$")
+        if text:match(" ^Вы начали преследование за преступником %S!$") then
+            local nick = text:match(" ^Вы начали преследование за преступником (%S)!$")
             local id = sampGetPlayerIdByNickname(nick)
             gmegafid = id
             gmegaflvl = sampGetPlayerScore(id)
             gmegaffrak = sampGetFraktionBySkin(id)
         end
         if nazhaloop then
-            if text:match('РџРѕСЃС‹Р»Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РІ /d РјРѕР¶РЅРѕ СЂР°Р· РІ 10 СЃРµРєСѓРЅРґ!') then
+            if text:match('Посылать сообщение в /d можно раз в 10 секунд!') then
                 zaproop = true
-                ftext('РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕРґР°С‚СЊ РІ РћРћРџ РёРіСЂРѕРєР° {9966cc}'..nikk..'{ffffff}. РџРѕРІС‚РѕСЂРёС‚СЊ РїРѕРїС‹С‚РєСѓ?')
-                ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "))
+                ftext('Не удалось подать в ООП игрока {9966cc}'..nikk..'{ffffff}. Повторить попытку?')
+                ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "))
             end
             if nikk == nil then
                 dmoop = false
@@ -4120,13 +3193,14 @@ if lsampev then
                 zaproop = false
                 aroop = false
                 nazhaloop = false
+                ftext("Рассмотр дела отменен.", -1)
             end
         end
-        if (text:match('РґРµР»Рѕ РЅР° РёРјСЏ .+ СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ') or text:match('РґРµР»Рѕ .+ СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚ %- РћРћРџ.')) and color == -8224086 then
+        if (text:match('дело на имя .+ рассмотрению не подлежит, ООП') or text:match('дело .+ рассмотрению не подлежит %- ООП.')) and color == -8224086 then
             local ooptext = text:match('Mayor, (.+)')
             table.insert(ooplistt, ooptext)
         end
-        if text:find('{00AB06}Р§С‚РѕР±С‹ Р·Р°РІРµСЃС‚Рё РґРІРёРіР°С‚РµР»СЊ, РЅР°Р¶РјРёС‚Рµ РєР»Р°РІРёС€Сѓ {FFFFFF}"2"{00AB06} РёР»Рё РІРІРµРґРёС‚Рµ РєРѕРјР°РЅРґСѓ {FFFFFF}"/en"') then
+        if text:find('{00AB06}Чтобы завести двигатель, нажмите клавишу {FFFFFF}"2"{00AB06} или введите команду {FFFFFF}"/en"') then
             if cfg.main.autocar then
                 lua_thread.create(function()
                     while not isCharInAnyCar(PLAYER_PED) do wait(0) end
@@ -4147,42 +3221,42 @@ if lsampev then
             local colors = ("{%06X}"):format(bit.rshift(color, 8))
             table.insert(radio, os.date(colors.."[%H:%M:%S] ") .. text)
         end
-        if color == -3669760 and text:match('%[Wanted %d+: .+%] %[РЎРѕРѕР±С‰Р°РµС‚%: .+%] %[.+%]') then
+        if color == -3669760 and text:match('%[Wanted %d+: .+%] %[Сообщает%: .+%] %[.+%]') then
             local colors = ("{%06X}"):format(bit.rshift(color, 8))
             table.insert(wanted, os.date(colors.."[%H:%M:%S] ") .. text)
         end
-        if color == -65366 and (text:match('SMS%: .+. РћС‚РїСЂР°РІРёС‚РµР»СЊ%: .+') or text:match('SMS%: .+. РџРѕР»СѓС‡Р°С‚РµР»СЊ%: .+')) then
-            if text:match('SMS%: .+. РћС‚РїСЂР°РІРёС‚РµР»СЊ%: .+%[%d+%]') then smsid = text:match('SMS%: .+. РћС‚РїСЂР°РІРёС‚РµР»СЊ%: .+%[(%d+)%]') elseif text:match('SMS%: .+. РџРѕР»СѓС‡Р°С‚РµР»СЊ%: .+%[%d+%]') then smstoid = text:match('SMS%: .+. РџРѕР»СѓС‡Р°С‚РµР»СЊ%: .+%[(%d+)%]') end
+        if color == -65366 and (text:match('SMS%: .+. Отправитель%: .+') or text:match('SMS%: .+. Получатель%: .+')) then
+            if text:match('SMS%: .+. Отправитель%: .+%[%d+%]') then smsid = text:match('SMS%: .+. Отправитель%: .+%[(%d+)%]') elseif text:match('SMS%: .+. Получатель%: .+%[%d+%]') then smstoid = text:match('SMS%: .+. Получатель%: .+%[(%d+)%]') end
             local colors = ("{%06X}"):format(bit.rshift(color, 8))
             table.insert(sms, os.date(colors.."[%H:%M:%S] ") .. text)
         end
         if mcheckb then
-            if text:find('---======== РњРћР‘РР›Р¬РќР«Р™ РљРћРњРџР¬Р®РўР•Р  Р”РђРќРќР«РҐ ========---') then
+            if text:find('---======== МОБИЛЬНЫЙ КОМПЬЮТЕР ДАННЫХ ========---') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
             end
-            if text:find('РРјСЏ:') then
+            if text:find('Имя:') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
             end
-            if text:find('РћСЂРіР°РЅРёР·Р°С†РёСЏ:') then
+            if text:find('Организация:') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
             end
-            if text:find('РџСЂРµСЃС‚СѓРїР»РµРЅРёРµ:') then
+            if text:find('Преступление:') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
             end
-            if text:find('РЎРѕРѕР±С‰РёР»:') then
+            if text:find('Сообщил:') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
             end
-            if text:find('РЈСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°:') then
+            if text:find('Уровень розыска:') then
                 local open = io.open("moonloader/fbitools/mcheck.txt", 'a')
                 open:write(string.format('%s\n', text))
                 open:close()
@@ -4194,52 +3268,45 @@ if lsampev then
                 open:close()
             end
         end
-        if text:find('Р’С‹ РїРѕСЃР°РґРёР»Рё РІ С‚СЋСЂСЊРјСѓ') then
-            local nik, sek = text:match('Р’С‹ РїРѕСЃР°РґРёР»Рё РІ С‚СЋСЂСЊРјСѓ (%S+) РЅР° (%d+) СЃРµРєСѓРЅРґ')
+        if text:find('Вы посадили в тюрьму') then
+            local nik, sek = text:match('Вы посадили в тюрьму (%S+) на (%d+) секунд')
             if sek == '3600' or sek == '3000'  then
                 lua_thread.create(function()
                     nikk = nik:gsub('_', ' ')
                     aroop = true
                     wait(3000)
-                    ftext(string.format("Р—Р°РїСЂРµС‚РёС‚СЊ СЂР°СЃСЃРјРѕС‚СЂ РґРµР»Р° РЅР° РёРјСЏ {9966cc}%s", nikk), -1)
-                    ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                    ftext(string.format("Запретить рассмотр дела на имя {9966cc}%s", nikk), -1)
+                    ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                 end)
             end
         end
-        if text:find('Р’С‹ РїРѕСЃР°РґРёР»Рё РїСЂРµСЃС‚СѓРїРЅРёРєР° РЅР°') then
-            local sekk = text:match('Р’С‹ РїРѕСЃР°РґРёР»Рё РїСЂРµСЃС‚СѓРїРЅРёРєР° РЅР° (.+) СЃРµРєСѓРЅРґ!')
+        if text:find('Вы посадили преступника на') then
+            local sekk = text:match('Вы посадили преступника на (.+) секунд!')
             if sekk == '3000' or sekk == '3600' then
                 lua_thread.create(function()
                     nikk = sampGetPlayerNickname(tdmg)
                     dmoop = true
                     wait(50)
-                    ftext(string.format("Р—Р°РїСЂРµС‚РёС‚СЊ СЂР°СЃСЃРјРѕС‚СЂ РґРµР»Р° РЅР° РёРјСЏ {9966cc}%s", nikk:gsub('_', ' ')), -1)
-                    ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+                    ftext(string.format("Запретить рассмотр дела на имя {9966cc}%s", nikk:gsub('_', ' ')), -1)
+                    ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
                 end)
             end
         end
         if status then
-            if text:find("ID: %d+ | .+ | %g+: .+%[%d+%] %- %{......%}.+%{......%}") then
-                if not text:find("AFK") then
-                    local id, invDate, nickname, sRang, iRang, status = text:match("ID: (%d+) | (.+) | (%g+): (.+)%[(%d+)%] %- %{.+%}(.+)%{.+%}")
-                    table.insert(tMembers, Player:new(id, sRang, iRang, status, invDate, false, 0, nickname))
-                else
-                    local id, invDate, nickname, sRang, iRang, status, sec = text:match("ID: (%d+) | (.+) | (%g+): (.+)%[(%d+)%] %- %{.+%}(.+)%{.+%} | %{.+%}%[AFK%]: (%d+).+")
-                    table.insert(tMembers, Player:new(id, sRang, iRang, status, invDate, true, sec, nickname))
+            if text:match('ID: .+ | .+: .+ %- .+') and not fstatus then
+                gosmb = true
+                local id, nick, mrang, stat = text:match('ID: (%d+) | (.+): (.+) %- (.+)')
+                local color = ("%06X"):format(bit.band(sampGetPlayerColor(id), 0xFFFFFF))
+                local nmrang = mrang:match('.+%[(%d+)%]')
+                if stat:find('Выходной') and tonumber(nmrang) < 11 then
+                    table.insert(vixodid, id)
                 end
+                table.insert(players2, string.format('{'..color..'}%s [%s]{ffffff}\t%s\t%s', nick, id, mrang, stat))
                 return false
             end
-            if text:find("ID: %d+ | .+ | %g+: .+%[%d+%]") then
-                if not text:find("AFK") then
-                    local id, invDate, nickname, sRang, iRang = text:match("ID: (%d+) | (.+) | (%g+): (.+)%[(%d+)%]")
-                    table.insert(tMembers, Player:new(id, sRang, iRang, "РќРµРґРѕСЃС‚СѓРїРЅРѕ", invDate, false, 0, nickname))
-                else
-                    local id, invDate, nickname, sRang, iRang, sec = text:match("ID: (%d+) | (.+) | (%g+): (.+)%[(%d+)%] | %{.+%}%[AFK%]: (%d+).+")
-                    table.insert(tMembers, Player:new(id, sRang, iRang, "РќРµРґРѕСЃС‚СѓРїРЅРѕ", invDate, true, sec, nickname))
-                end
-                return false
-            end
-            if text:match('Р’СЃРµРіРѕ: %d+ С‡РµР»РѕРІРµРє') then
+            if text:match('Всего: %d+ человек') then
+                local count = text:match('Всего: (%d+) человек')
+                gcount = count
                 gotovo = true
                 return false
             end
@@ -4249,64 +3316,53 @@ if lsampev then
             if color == 647175338 then
                 return false
             end
-        end
-        if fnrstatus then
-            if text:match("^ ID: %d+") then 
-                if text:find("Р’С‹С…РѕРґРЅРѕР№") then
-                    table.insert(vixodid, tonumber(text:match("ID: (%d+)")))
-                end
-                return false
-            end
-            if text:match('Р’СЃРµРіРѕ: %d+ С‡РµР»РѕРІРµРє') then
-                gotovo = true
-                return false
-            end
-            if color == -1 then
-                return false
-            end
-            if color == 647175338 then
+            if text:match('ID: .+ | .+: .+') and not fstatus then
+                krimemb = true
+                local id, nick, rang = text:match('ID: (%d+) | (.+): (.+)')
+                local color = ("%06X"):format(bit.band(sampGetPlayerColor(id), 0xFFFFFF))
+                table.insert(players1, string.format('{'..color..'}%s [%s]{ffffff}\t%s', nick, id, rang))
                 return false
             end
         end
         if warnst then
-            if text:find('РћСЂРіР°РЅРёР·Р°С†РёСЏ:') then
-                local wcfrac = text:match('РћСЂРіР°РЅРёР·Р°С†РёСЏ: (.+)')
+            if text:find('Организация:') then
+                local wcfrac = text:match('Организация: (.+)')
                 wfrac = wcfrac
-                if wcfrac == 'РђСЂРјРёСЏ РЎР¤' or wcfrac == 'РђСЂРјРёСЏ Р›Р’' or wcfrac == 'Р¤Р‘Р ' then
+                if wcfrac == 'Армия СФ' or wcfrac == 'Армия ЛВ' or wcfrac == 'ФБР' then
                     wfrac = longtoshort(wcfrac)
                 end
             end
         end
-        if text:find('Р Р°Р±РѕС‡РёР№ РґРµРЅСЊ РЅР°С‡Р°С‚') and color ~= -1 then
+        if text:find('Рабочий день начат') and color ~= -1 then
             if cfg.main.clistb then
                 lua_thread.create(function()
                     wait(100)
-                    ftext('Р¦РІРµС‚ РЅРёРєР° СЃРјРµРЅРµРЅ РЅР°: {9966cc}'..cfg.main.clist)
+                    ftext('Цвет ника сменен на: {9966cc}'..cfg.main.clist)
                     sampSendChat('/clist '..tonumber(cfg.main.clist))
                     rabden = true
                 end)
             end
         end
-        if text:find('Р Р°Р±РѕС‡РёР№ РґРµРЅСЊ РѕРєРѕРЅС‡РµРЅ') and color ~= -1 then
+        if text:find('Рабочий день окончен') and color ~= -1 then
             rabden = false
         end
-        if text:find('Р’С‹ РїРѕРјРµРЅСЏР»Рё РїСѓР»Рё РЅР° СЂРµР·РёРЅРѕРІС‹Рµ') then
+        if text:find('Вы поменяли пули на резиновые') then
             stazer = true
         end
-        if text:find('Р’С‹ РїРѕРјРµРЅСЏР»Рё РїСѓР»Рё РЅР° РѕР±С‹С‡РЅС‹Рµ') then
+        if text:find('Вы поменяли пули на обычные') then
             stazer = false
         end
         if cfg.main.nclear then
-            if text:find('СѓРґР°Р»РёР» РёР· СЂРѕР·С‹СЃРєРёРІР°РµРјС‹С…') then
-                local chist, jertva = text:match('%[Clear%] (.+) СѓРґР°Р»РёР» РёР· СЂРѕР·С‹СЃРєРёРІР°РµРјС‹С… (.+)')
+            if text:find('удалил из розыскиваемых') then
+                local chist, jertva = text:match('%[Clear%] (.+) удалил из розыскиваемых (.+)')
                 printStringNow(chist..' cleared '..jertva..' from BD', 3000)
             end
         end
-        if text:find('Wanted') and text:find('РЎРѕРѕР±С‰Р°РµС‚') then
-            local id, prestp, police, prichin = text:match('%[Wanted (%d+): (.+)%] %[РЎРѕРѕР±С‰Р°РµС‚: (.+)%] %[(.+)%]')
+        if text:find('Wanted') and text:find('Сообщает') then
+            local id, prestp, police, prichin = text:match('%[Wanted (%d+): (.+)%] %[Сообщает: (.+)%] %[(.+)%]')
             if not cfg.main.offwntd then
                 if cfg.main.nwanted then
-                    return {0x9966CCFF, ' [{ffffff}Wanted '..id..': '..prestp..'{9966cc}] [{ffffff}РЎРѕРѕР±С‰Р°РµС‚: '..police..'{9966cc}] [{ffffff}'..prichin..'{9966cc}]'}
+                    return {0x9966CCFF, ' [{ffffff}Wanted '..id..': '..prestp..'{9966cc}] [{ffffff}Сообщает: '..police..'{9966cc}] [{ffffff}'..prichin..'{9966cc}]'}
                 end
             else
                 local mynick = sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
@@ -4314,16 +3370,16 @@ if lsampev then
                     return false
                 else
                     if cfg.main.nwanted then
-                        return {0x9966CCFF, ' [{ffffff}Wanted '..id..': '..prestp..'{9966cc}] [{ffffff}РЎРѕРѕР±С‰Р°РµС‚: '..police..'{9966cc}] [{ffffff}'..prichin..'{9966cc}]'}
+                        return {0x9966CCFF, ' [{ffffff}Wanted '..id..': '..prestp..'{9966cc}] [{ffffff}Сообщает: '..police..'{9966cc}] [{ffffff}'..prichin..'{9966cc}]'}
                     end
                 end
             end
         end
-        if text:find('РЅР°С‡Р°Р» РїСЂРµСЃР»РµРґРѕРІР°РЅРёРµ Р·Р° РїСЂРµСЃС‚СѓРїРЅРёРєРѕРј') then
-            local polic, prest, yrvn = text:match('РџРѕР»РёС†РµР№СЃРєРёР№ (.+) РЅР°С‡Р°Р» РїСЂРµСЃР»РµРґРѕРІР°РЅРёРµ Р·Р° РїСЂРµСЃС‚СѓРїРЅРёРєРѕРј (.+) %(РЈСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°: (.+)%)')
+        if text:find('начал преследование за преступником') then
+            local polic, prest, yrvn = text:match('Полицейский (.+) начал преследование за преступником (.+) %(Уровень розыска: (.+)%)')
             if not cfg.main.offptrl then
                 if cfg.main.nwanted then
-                    return {0xFFFFFFFF, ' РџРѕР»РёС†РµР№СЃРєРёР№ {9966cc}'..polic..' {ffffff}РЅР°С‡Р°Р» РїСЂРµСЃР»РµРґРѕРІР°РЅРёРµ Р·Р° {9966cc}'..prest..' {ffffff}(РЈСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°: {9966cc}'..yrvn..'{ffffff})'}
+                    return {0xFFFFFFFF, ' Полицейский {9966cc}'..polic..' {ffffff}начал преследование за {9966cc}'..prest..' {ffffff}(Уровень розыска: {9966cc}'..yrvn..'{ffffff})'}
                 end
             else
                 local mynick = sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
@@ -4331,38 +3387,32 @@ if lsampev then
                     return false
                 else
                     if cfg.main.nwanted then
-                        return {0xFFFFFFFF, ' РџРѕР»РёС†РµР№СЃРєРёР№ {9966cc}'..polic..' {ffffff}РЅР°С‡Р°Р» РїСЂРµСЃР»РµРґРѕРІР°РЅРёРµ Р·Р° {9966cc}'..prest..' {ffffff}(РЈСЂРѕРІРµРЅСЊ СЂРѕР·С‹СЃРєР°: {9966cc}'..yrvn..'{ffffff})'}
+                        return {0xFFFFFFFF, ' Полицейский {9966cc}'..polic..' {ffffff}начал преследование за {9966cc}'..prest..' {ffffff}(Уровень розыска: {9966cc}'..yrvn..'{ffffff})'}
                     end
                 end
             end
         end
         if cfg.main.nwanted then
-            if text:find('СѓРґР°Р»РёР» РёР· СЂРѕР·С‹СЃРєРёРІР°РµРјС‹С…') then
-                local chist, jertva = text:match('%[Clear%] (.+) СѓРґР°Р»РёР» РёР· СЂРѕР·С‹СЃРєРёРІР°РµРјС‹С… (.+)')
-                return {0x9966CCFF, ' [{ffffff}Clear{9966cc}] '..chist..'{ffffff} СѓРґР°Р»РёР» РёР· СЂРѕР·С‹СЃРєРёРІР°РµРјС‹С… {9966cc}'..jertva}
+            if text:find('удалил из розыскиваемых') then
+                local chist, jertva = text:match('%[Clear%] (.+) удалил из розыскиваемых (.+)')
+                return {0x9966CCFF, ' [{ffffff}Clear{9966cc}] '..chist..'{ffffff} удалил из розыскиваемых {9966cc}'..jertva}
             end
-            if text:find('<<') and text:find('РћС„РёС†РµСЂ') and text:find('Р°СЂРµСЃС‚РѕРІР°Р»') and text:find('>>') then
-                local arr, arre = text:match('<< РћС„РёС†РµСЂ (.+) Р°СЂРµСЃС‚РѕРІР°Р» (.+) >>')
-                return {0xFFFFFFFF, ' В« РћС„РёС†РµСЂ {9966CC}'..arr..' {ffffff}Р°СЂРµСЃС‚РѕРІР°Р» {9966cc}'..arre..' {ffffff}В»'}
+            if text:find('<<') and text:find('Офицер') and text:find('арестовал') and text:find('>>') then
+                local arr, arre = text:match('<< Офицер (.+) арестовал (.+) >>')
+                return {0xFFFFFFFF, ' « Офицер {9966CC}'..arr..' {ffffff}арестовал {9966cc}'..arre..' {ffffff}»'}
             end
-            if text:find('<<') and text:find('РђРіРµРЅС‚ FBI') and text:find('Р°СЂРµСЃС‚РѕРІР°Р»') and text:find('>>') then
-                local arrr, arrre = text:match('<< РђРіРµРЅС‚ FBI (.+) Р°СЂРµСЃС‚РѕРІР°Р» (.+) >>')
-                return {0xFFFFFFFF, ' В« РђРіРµРЅС‚ FBI {9966CC}'..arrr..' {ffffff}Р°СЂРµСЃС‚РѕРІР°Р» {9966cc}'..arrre..' {ffffff}В»'}
+            if text:find('<<') and text:find('Агент FBI') and text:find('арестовал') and text:find('>>') then
+                local arrr, arrre = text:match('<< Агент FBI (.+) арестовал (.+) >>')
+                return {0xFFFFFFFF, ' « Агент FBI {9966CC}'..arrr..' {ffffff}арестовал {9966cc}'..arrre..' {ffffff}»'}
             end
-            if text:find('Р’С‹ РїРѕСЃР°РґРёР»Рё РїСЂРµСЃС‚СѓРїРЅРёРєР° РЅР°') then
-                local sekund = text:match('Р’С‹ РїРѕСЃР°РґРёР»Рё РїСЂРµСЃС‚СѓРїРЅРёРєР° РЅР° (%d+) СЃРµРєСѓРЅРґ!')
-                return {0xFFFFFFFF, ' Р’С‹ РїРѕСЃР°РґРёР»Рё РїСЂРµСЃС‚СѓРїРЅРёРєР° РЅР° {9966cc}'..sekund..' {ffffff}СЃРµРєСѓРЅРґ!'}
+            if text:find('Вы посадили преступника на') then
+                local sekund = text:match('Вы посадили преступника на (%d+) секунд!')
+                return {0xFFFFFFFF, ' Вы посадили преступника на {9966cc}'..sekund..' {ffffff}секунд!'}
             end
         end
     end
 
     function sp.onShowDialog(id, style, title, button1, button2, text)
-        if id == 7777 and ins.isLicense then
-            sampSendDialogResponse(id, 1, ins.list, _)
-            ins.isLicense = false
-            ins.list = nil
-            return false
-        end
         if id == 50 and msda then
             sampSendDialogResponse(id, 1, getMaskList(msvidat), _)
             msid = nil
@@ -4374,51 +3424,14 @@ if lsampev then
             sampSendDialogResponse(id, 1, _, tostring(cfg.main.parol))
             return false
         end
-        if id == 16 and cfg.main.googlecodeb and #tostring(cfg.main.googlecode) == 16 then
-            if lsha1 and lbasexx then
-                sampSendDialogResponse(id, 1, _, genCode(tostring(cfg.main.googlecode)))
-                return false
-            end
-        end
         if id == 0 and checkstat then
-            frak = text:match('.+РћСЂРіР°РЅРёР·Р°С†РёСЏ%:%s+(.+)%s+Р Р°РЅРі')
-            rang = text:match('.+Р Р°РЅРі%:%s+(.+)%s+Р Р°Р±РѕС‚Р°')
+            frak = text:match('.+Организация%:%s+(.+)%s+Ранг')
+            rang = text:match('.+Ранг%:%s+(.+)%s+Работа')
             print(frak)
             print(rang)
             checkstat = false
             sampSendDialogResponse(id, 1, _, _)
             return false
-        end
-        if cfg.main.autobp == true and id == 5225 then
-            --[[lua_thread.create(function()
-                wait(250)
-                if autoBP == 6 and repeatgun then
-                    autoBP = 0
-                    sampCloseCurrentDialogWithButton(0)
-                    repeatgun = false
-                    return
-                elseif autoBP == 6 and not repeatgun then
-                    autoBP = 0
-                    repeatgun = true
-                    return
-                end
-                sampSendDialogResponse(5225, 1, autoBP, "")
-                autoBP = autoBP + 1
-                if autoBP == 2 then autoBP = 3 end
-                return
-            end)]]
-            local guns = getCompl()
-            lua_thread.create(function()
-                wait(250)
-                if autoBP == #guns + 1 then
-                    autoBP = 1
-                    sampCloseCurrentDialogWithButton(0)
-                    return
-                end
-                sampSendDialogResponse(5225, 1, guns[autoBP], "")
-                autoBP = autoBP + 1
-                return
-            end)
         end
     end
 
@@ -4445,107 +3458,57 @@ function Sphere.onEnterSphere(id)
 end
 
 function registerCommands()
-    if sampIsChatCommandDefined('yk') then sampUnregisterChatCommand('yk') end
-    if sampIsChatCommandDefined('fp') then sampUnregisterChatCommand('fp') end
-    if sampIsChatCommandDefined('ak') then sampUnregisterChatCommand('ak') end
-    if sampIsChatCommandDefined('shp') then sampUnregisterChatCommand('shp') end
-    if sampIsChatCommandDefined('ft') then sampUnregisterChatCommand('ft') end
-    if sampIsChatCommandDefined('fnr') then sampUnregisterChatCommand('fnr') end
-    if sampIsChatCommandDefined('fkv') then sampUnregisterChatCommand('fkv') end
-    if sampIsChatCommandDefined('ooplist') then sampUnregisterChatCommand('ooplist') end
-    if sampIsChatCommandDefined('ticket') then sampUnregisterChatCommand('ticket') end
-    if sampIsChatCommandDefined('dlog') then sampUnregisterChatCommand('dlog') end
-    if sampIsChatCommandDefined('rlog') then sampUnregisterChatCommand('rlog') end
-    if sampIsChatCommandDefined('sulog') then sampUnregisterChatCommand('sulog') end
-    if sampIsChatCommandDefined('smslog') then sampUnregisterChatCommand('smslog') end
-    if sampIsChatCommandDefined('ftazer') then sampUnregisterChatCommand('ftazer') end
-    if sampIsChatCommandDefined('kmdc') then sampUnregisterChatCommand('kmdc') end
-    if sampIsChatCommandDefined('su') then sampUnregisterChatCommand('ssu') end
-    if sampIsChatCommandDefined('megaf') then sampUnregisterChatCommand('megaf') end
-    if sampIsChatCommandDefined('tazer') then sampUnregisterChatCommand('tazer') end
-    if sampIsChatCommandDefined('keys') then sampUnregisterChatCommand('keys') end
-    if sampIsChatCommandDefined('oop') then sampUnregisterChatCommand('oop') end
-    if sampIsChatCommandDefined('cput') then sampUnregisterChatCommand('cput') end
-    if sampIsChatCommandDefined('ceject') then sampUnregisterChatCommand('ceject') end
-    if sampIsChatCommandDefined('st') then sampUnregisterChatCommand('st') end
-    if sampIsChatCommandDefined('deject') then sampUnregisterChatCommand('deject') end
-    if sampIsChatCommandDefined('rh') then sampUnregisterChatCommand('rh') end
-    if sampIsChatCommandDefined('ak') then sampUnregisterChatCommand('ak') end
-    if sampIsChatCommandDefined('gr') then sampUnregisterChatCommand('gr') end
-    if sampIsChatCommandDefined('warn') then sampUnregisterChatCommand('warn') end
-    if sampIsChatCommandDefined('ms') then sampUnregisterChatCommand('ms') end
-    if sampIsChatCommandDefined('ar') then sampUnregisterChatCommand('ar') end
-    if sampIsChatCommandDefined('r') then sampUnregisterChatCommand('r') end
-    if sampIsChatCommandDefined('f') then sampUnregisterChatCommand('f') end
-    if sampIsChatCommandDefined('rt') then sampUnregisterChatCommand('rt') end
-    if sampIsChatCommandDefined('fst') then sampUnregisterChatCommand('fst') end
-    if sampIsChatCommandDefined('fsw') then sampUnregisterChatCommand('fsw') end
-    if sampIsChatCommandDefined('fshp') then sampUnregisterChatCommand('fshp') end
-    if sampIsChatCommandDefined('fyk') then sampUnregisterChatCommand('fyk') end
-    if sampIsChatCommandDefined('ffp') then sampUnregisterChatCommand('ffp') end
-    if sampIsChatCommandDefined('fak') then sampUnregisterChatCommand('fak') end
-    if sampIsChatCommandDefined('dmb') then sampUnregisterChatCommand('dmb') end
-    if sampIsChatCommandDefined('dkld') then sampUnregisterChatCommand('dkld') end
-    if sampIsChatCommandDefined('fvz') then sampUnregisterChatCommand('fvz') end
-    if sampIsChatCommandDefined('fbd') then sampUnregisterChatCommand('fbd') end
-    if sampIsChatCommandDefined('blg') then sampUnregisterChatCommand('blg') end
-    if sampIsChatCommandDefined('cc') then sampUnregisterChatCommand('cc') end
-    if sampIsChatCommandDefined('df') then sampUnregisterChatCommand('df') end
-    if sampIsChatCommandDefined('mcheck') then sampUnregisterChatCommand('mcheck') end
-    if sampIsChatCommandDefined('z') then sampUnregisterChatCommand('z') end
-    if sampIsChatCommandDefined('pr') then sampUnregisterChatCommand('pr') end
-    if isSampfuncsConsoleCommandDefined('gppc') then sampfuncsUnregisterConsoleCommand('gppc') end
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
-        sampRegisterChatCommand('fkv', fkv)
-        sampRegisterChatCommand('ticket', ticket)
-        sampRegisterChatCommand('sulog', sulog)
-        sampRegisterChatCommand('ftazer', ftazer)
-        sampRegisterChatCommand('kmdc', kmdc)
-        sampRegisterChatCommand('su', su)
-        sampRegisterChatCommand('ssu', ssu)
-        sampRegisterChatCommand('megaf', megaf)
-        sampRegisterChatCommand('tazer', tazer)
-        sampRegisterChatCommand('oop', oop)
-        sampRegisterChatCommand('keys', keys)
-        sampRegisterChatCommand('cput', cput)
-        sampRegisterChatCommand('ceject', ceject)
-        sampRegisterChatCommand('st', st)
-        sampRegisterChatCommand('deject', deject)
-        sampRegisterChatCommand('rh', rh)
-        sampRegisterChatCommand('gr', gr)
-        sampRegisterChatCommand('warn', warn)
-        sampRegisterChatCommand('ms', ms)
-        sampRegisterChatCommand('ar', ar)
-        sampRegisterChatCommand('fshp', fshp)
-        sampRegisterChatCommand('fyk', fyk)
-        sampRegisterChatCommand('ffp', ffp)
-        sampRegisterChatCommand('fak', fak)
-        sampRegisterChatCommand('dkld', dkld)
-        sampRegisterChatCommand('fvz', fvz)
-        sampRegisterChatCommand('fbd', fbd)
-        sampRegisterChatCommand('df', df)
-        sampRegisterChatCommand('mcheck', mcheck)
-        sampRegisterChatCommand('z', ssuz)
-        sampRegisterChatCommand("pr", pr)
-    end
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' or cfg.main.group == 'РњСЌСЂРёСЏ' then sampRegisterChatCommand('ooplist', ooplist) end
-    sampRegisterChatCommand('fnr', fnr)
     sampRegisterChatCommand('yk', function() ykwindow.v = not ykwindow.v end)
     sampRegisterChatCommand('fp', function() fpwindow.v = not fpwindow.v end)
+    if sampIsChatCommandDefined('ak') then sampUnregisterChatCommand('ak') end
     sampRegisterChatCommand('ak', function() akwindow.v = not akwindow.v end)
     sampRegisterChatCommand('shp',function() shpwindow.v = not shpwindow.v end)
     sampRegisterChatCommand('ft', function() mainw.v = not mainw.v end)
+    sampRegisterChatCommand('fnr', fnr)
+    sampRegisterChatCommand('fkv', fkv)
+    sampRegisterChatCommand('ooplist', ooplist)
+    sampRegisterChatCommand('ticket', ticket)
     sampRegisterChatCommand('dlog', dlog)
     sampRegisterChatCommand('rlog', rlog)
+    sampRegisterChatCommand('sulog', sulog)
     sampRegisterChatCommand('smslog', smslog)
+    sampRegisterChatCommand('ftazer', ftazer)
+    sampRegisterChatCommand('kmdc', kmdc)
+    sampRegisterChatCommand('su', su)
+    sampRegisterChatCommand('ssu', ssu)
+    sampRegisterChatCommand('megaf', megaf)
+    sampRegisterChatCommand('tazer', tazer)
+    sampRegisterChatCommand('keys', keys)
+    sampRegisterChatCommand('oop', oop)
+    sampRegisterChatCommand('cput', cput)
+    sampRegisterChatCommand('ceject', ceject)
+    if sampIsChatCommandDefined('st') then sampUnregisterChatCommand('st') end
+    sampRegisterChatCommand('st', st)
+    sampRegisterChatCommand('deject', deject)
+    sampRegisterChatCommand('rh', rh)
+    sampRegisterChatCommand('gr', gr)
+    sampRegisterChatCommand('warn', warn)
+    sampRegisterChatCommand('ms', ms)
+    sampRegisterChatCommand('ar', ar)
     sampRegisterChatCommand('r', r)
     sampRegisterChatCommand('f', f)
     sampRegisterChatCommand('rt', rt)
     sampRegisterChatCommand("fst", fst)
     sampRegisterChatCommand("fsw", fsw)
+    sampRegisterChatCommand('fshp', fshp)
+    sampRegisterChatCommand('fyk', fyk)
+    sampRegisterChatCommand('ffp', ffp)
+    sampRegisterChatCommand('fak', fak)
     sampRegisterChatCommand('dmb', dmb)
+    sampRegisterChatCommand('dkld', dkld)
+    sampRegisterChatCommand('fvz', fvz)
+    sampRegisterChatCommand('fbd', fbd)
     sampRegisterChatCommand('blg', blg)
     sampRegisterChatCommand('cc', cc)
+    sampRegisterChatCommand('df', df)
+    sampRegisterChatCommand('mcheck', mcheck)
+    sampRegisterChatCommand('z', ssuz)
+    sampfuncsRegisterConsoleCommand('gppc', function() print(getCharCoordinates(PLAYER_PED)) end)
     sampfuncsRegisterConsoleCommand('gppc', function()
         local mxx, myy, mzz = getCharCoordinates(PLAYER_PED)
         print(string.format('%s, %s, %s', mxx, myy, mzz))
@@ -4553,67 +3516,46 @@ function registerCommands()
 end
 
 function registerSphere()
-    Sphere.createSphere(-1984.6375732422, 106.85540008545, 27.42943572998, 50.0)-- -1984.6375732422 106.85540008545 27.42943572998 -- РђР’РЎР¤ [1]
-    Sphere.createSphere(-2055.283203125, -84.472702026367, 35.064281463623, 50.0)-- -2055.283203125 -84.472702026367 35.064281463623 -- РђРЁ [2]
-    Sphere.createSphere(-1521.4412841797, 503.20678710938, 6.7215604782104, 40.0)-- -1521.4412841797 503.20678710938 6.7215604782104 -- РЎР¤Р° [3]
-    Sphere.createSphere(-1702.3824462891, 684.79150390625, 25.01790618896, 30.0)-- -1702.3824462891 684.79150390625 25.017906188965 -- РџРѕСЃС‚ Р’ РЎР¤РџР” [4]
-    Sphere.createSphere(-1574.4406738281, 662.24047851563, 7.3254537582397, 20.0)-- -1574.4406738281 662.24047851563 7.3254537582397 РџРѕСЃС‚ Рђ РЎР¤РџР” [5]
-    Sphere.createSphere(-2013.1629638672, 464.77380371094, 35.313331604004, 30.0)-- -2013.1629638672 464.77380371094 35.313331604004 -- РЎР¤РЅ [6]
-    Sphere.createSphere(-1749.7822265625, -591.34033203125, 16.62273979187, 100.0)-- -1749.7822265625 -591.34033203125 16.62273979187 -- РўРѕРЅРЅРµР»СЊ [7]
-    Sphere.createSphere(1481.77734375, -1739.9536132813, 13.546875, 70.0)-- 1481.77734375 -1739.9536132813 13.546875 -- РњСЌСЂРёСЏ [8]
-    Sphere.createSphere(-2448.3591308594, 725.09326171875, 34.756977081299, 70.0)-- -2448.3591308594 725.09326171875 34.756977081299 -- РҐРѕС‚-Р”РѕРіРё [9]
-    Sphere.createSphere(1186.5642089844, -1322.2257080078,13.098788261414, 50.0)-- 1186.5642089844 -1322.2257080078 13.098788261414 -- Р‘РѕР»СЊРЅРёС†Р° Р›РЎ [10]
-    Sphere.createSphere(1195.8181152344, -1741.1024169922, 13.131011962891, 70.0)-- 1195.8181152344 -1741.1024169922 13.131011962891 -- РђР’ Р›РЎ [11]
-    Sphere.createSphere(1667.1462402344, -768.31890869141, 54.092594146729, 70.0)-- 1667.1462402344 -768.31890869141 54.092594146729 -- РњРѕСЃС‚ Р›РЎ-Р›Р’ [12]
-    Sphere.createSphere(1766.12109375,   874.89379882813,   10.887091636658, 70.0)-- 1820.5036621094 816.41632080078 10.8203125 -- РџРµСЂРµРєСЂРѕСЃС‚РѕРє LVPD [13]
-    Sphere.createSphere(1155.6971435547, 831.9443359375, 10.409364700317, 80.0)-- 1155.6971435547 831.9443359375 10.409364700317 Р Р°Р·РІРёР»РєР° LVPD [14]
-    Sphere.createSphere(2033.3028564453, 1007.163269043, 10.8203125, 50.0)-- 2033.3028564453 1007.163269043 10.8203125 РџРѕСЃС‚РѕРІРѕР№ Р’ LVPD [4 Р”СЂР°РєРѕРЅР°] [15]
-    Sphere.createSphere(2824.7353515625, 1292.9085693359, 10.764576911926, 50.0)-- 2824.7353515625 1292.9085693359 10.764576911926 РџРѕСЃС‚РѕРІРѕР№ Рђ LVPD [РђР’Р›Р’] [16]
-    Sphere.createSphere(2180.99609375, 1676.2248535156, 11.060985565186, 50.0)-- 2180.99609375 1676.2248535156 11.060985565186 РџРѕСЃС‚РѕРІРѕР№ Р’ LVPD [РљР°Р»Р»РёРіСѓР»Р°] [17]
-    Sphere.createSphere(1727.3302001953, 1618.9171142578, 9.8169927597046, 50.0)-- 1727.3302001953 1618.9171142578 9.8169927597046 -- РџРѕСЃС‚ РЎ LVPD [18]
-    Sphere.createSphere(1545.6296386719, -1631.2828369141, 13.3828125, 50.0)-- 1545.6296386719 -1631.2828369141 13.3828125 -- РљРџРџ Р›РЎРџР” [19]
-    Sphere.createSphere(2753.5388183594, -2432.2268066406, 13.64318561554, 80.0)-- 2753.5388183594 -2432.2268066406 13.64318561554 -- РџРѕСЂС‚ Р›РЎ[20]
-    Sphere.createSphere(2293.4145507813, -1584.8774414063, 3.5703411102295, 670.0)--  2293.4145507813 -1584.8774414063 3.5703411102295 -- РџР°С‚СЂСѓР»СЊ РіРµС‚С‚Рѕ [21]
-    Sphere.createSphere(186.95843505859, 1901.0294189453, 17.640625, 300.0)-- 186.95843505859 1901.0294189453 17.640625 -- РџР°С‚СЂСѓР»СЊ Р›Р’Р° [22]
-    Sphere.createSphere(-422, -1195, 60, 500.0)-- -422 -1195 60 --Р®СЂРёСЃРґРёРєС†РёСЏ Р›РЎ - РЎР¤ [23]
-    Sphere.createSphere(1644, -25, 36, 300.0)-- 1644 -25 36 --Р®СЂРёСЃРґРёРєС†РёСЏ Р›РЎ - Р›Р’ [24]
-    Sphere.createSphere(413, 625, 18, 300.0)-- 413 625 18 Р®СЂРёСЃРґРёРєС†РёСЏ Р›РЎ- Р›Р’ 2 [25]
-    Sphere.createSphere(-129, 518, 8, 300.0)-- -129 518 8 Р®СЂРёСЃРґРёРєС†РёСЏ Р›РЎ - Р›Р’ 3 [26]
-    Sphere.createSphere(-1003, 1285, 40, 300.0)-- -1003 1285 40 Р®СЂРёСЃРґРёРєС†РёСЏ РЎР¤ - Р›Р’ [27]
-    Sphere.createSphere(-2126, 2654, 53, 300.0)-- -2126 2654 53 Р®СЂРёСЃРґРёРєС†РёСЏ РЎР¤ - Р›Р’ 2 [28]
-    Sphere.createSphere(-1006, -442, 36, 300.0)-- -1006 -442 36 Р®СЂРёСЃРґРёРєС†РёСЏ Р›РЎ - РЎР¤ 2 [29]
-    Sphere.createSphere(-1126, -2574, 72, 300.0)-- -1126 -2574 72 Р®СЂРёСЃРґРёРєС†РёСЏ Р›РЎ - РЎР¤ 3 [30]
-    Sphere.createSphere(-1248, -2867, 64, 300.0)-- -1248 -2867 64 Р®СЂРёСЃРґРёРєС†РёСЏ Р›РЎ- РЎР¤ 4 [31]
-    Sphere.createSphere(2238.6533203125,   2449.4895019531,   11.037217140198, 10.0) -- 2238.6533203125   2449.4895019531   11.037217140198 -- РљРџРџ Р›Р’РџР” [32]
+    Sphere.createSphere(-1984.6375732422, 106.85540008545, 27.42943572998, 50.0)-- -1984.6375732422 106.85540008545 27.42943572998 -- АВСФ [1]
+    Sphere.createSphere(-2055.283203125, -84.472702026367, 35.064281463623, 50.0)-- -2055.283203125 -84.472702026367 35.064281463623 -- АШ [2]
+    Sphere.createSphere(-1521.4412841797, 503.20678710938, 6.7215604782104, 40.0)-- -1521.4412841797 503.20678710938 6.7215604782104 -- СФа [3]
+    Sphere.createSphere(-1702.3824462891, 684.79150390625, 25.01790618896, 30.0)-- -1702.3824462891 684.79150390625 25.017906188965 -- Пост В СФПД [4]
+    Sphere.createSphere(-1574.4406738281, 662.24047851563, 7.3254537582397, 20.0)-- -1574.4406738281 662.24047851563 7.3254537582397 Пост А СФПД [5]
+    Sphere.createSphere(-2013.1629638672, 464.77380371094, 35.313331604004, 30.0)-- -2013.1629638672 464.77380371094 35.313331604004 -- СФн [6]
+    Sphere.createSphere(-1749.7822265625, -591.34033203125, 16.62273979187, 100.0)-- -1749.7822265625 -591.34033203125 16.62273979187 -- Тоннель [7]
+    Sphere.createSphere(1481.77734375, -1739.9536132813, 13.546875, 70.0)-- 1481.77734375 -1739.9536132813 13.546875 -- Мэрия [8]
+    Sphere.createSphere(-2448.3591308594, 725.09326171875, 34.756977081299, 70.0)-- -2448.3591308594 725.09326171875 34.756977081299 -- Хот-Доги [9]
+    Sphere.createSphere(1186.5642089844, -1322.2257080078,13.098788261414, 50.0)-- 1186.5642089844 -1322.2257080078 13.098788261414 -- Больница ЛС [10]
+    Sphere.createSphere(1195.8181152344, -1741.1024169922, 13.131011962891, 70.0)-- 1195.8181152344 -1741.1024169922 13.131011962891 -- АВ ЛС [11]
+    Sphere.createSphere(1667.1462402344, -768.31890869141, 54.092594146729, 70.0)-- 1667.1462402344 -768.31890869141 54.092594146729 -- Мост ЛС-ЛВ [12]
+    Sphere.createSphere(1766.12109375,   874.89379882813,   10.887091636658, 70.0)-- 1820.5036621094 816.41632080078 10.8203125 -- Перекросток LVPD [13]
+    Sphere.createSphere(1155.6971435547, 831.9443359375, 10.409364700317, 80.0)-- 1155.6971435547 831.9443359375 10.409364700317 Развилка LVPD [14]
+    Sphere.createSphere(2033.3028564453, 1007.163269043, 10.8203125, 50.0)-- 2033.3028564453 1007.163269043 10.8203125 Постовой В LVPD [4 Дракона] [15]
+    Sphere.createSphere(2824.7353515625, 1292.9085693359, 10.764576911926, 50.0)-- 2824.7353515625 1292.9085693359 10.764576911926 Постовой А LVPD [АВЛВ] [16]
+    Sphere.createSphere(2180.99609375, 1676.2248535156, 11.060985565186, 50.0)-- 2180.99609375 1676.2248535156 11.060985565186 Постовой В LVPD [Каллигула] [17]
+    Sphere.createSphere(1727.3302001953, 1618.9171142578, 9.8169927597046, 50.0)-- 1727.3302001953 1618.9171142578 9.8169927597046 -- Пост С LVPD [18]
+    Sphere.createSphere(1545.6296386719, -1631.2828369141, 13.3828125, 50.0)-- 1545.6296386719 -1631.2828369141 13.3828125 -- КПП ЛСПД [19]
+    Sphere.createSphere(2753.5388183594, -2432.2268066406, 13.64318561554, 80.0)-- 2753.5388183594 -2432.2268066406 13.64318561554 -- Порт ЛС[20]
+    Sphere.createSphere(2293.4145507813, -1584.8774414063, 3.5703411102295, 670.0)--  2293.4145507813 -1584.8774414063 3.5703411102295 -- Патруль гетто [21]
+    Sphere.createSphere(186.95843505859, 1901.0294189453, 17.640625, 300.0)-- 186.95843505859 1901.0294189453 17.640625 -- Патруль ЛВа [22]
+    Sphere.createSphere(-422, -1195, 60, 500.0)-- -422 -1195 60 --Юрисдикция ЛС - СФ [23]
+    Sphere.createSphere(1644, -25, 36, 300.0)-- 1644 -25 36 --Юрисдикция ЛС - ЛВ [24]
+    Sphere.createSphere(413, 625, 18, 300.0)-- 413 625 18 Юрисдикция ЛС- ЛВ 2 [25]
+    Sphere.createSphere(-129, 518, 8, 300.0)-- -129 518 8 Юрисдикция ЛС - ЛВ 3 [26]
+    Sphere.createSphere(-1003, 1285, 40, 300.0)-- -1003 1285 40 Юрисдикция СФ - ЛВ [27]
+    Sphere.createSphere(-2126, 2654, 53, 300.0)-- -2126 2654 53 Юрисдикция СФ - ЛВ 2 [28]
+    Sphere.createSphere(-1006, -442, 36, 300.0)-- -1006 -442 36 Юрисдикция ЛС - СФ 2 [29]
+    Sphere.createSphere(-1126, -2574, 72, 300.0)-- -1126 -2574 72 Юрисдикция ЛС - СФ 3 [30]
+    Sphere.createSphere(-1248, -2867, 64, 300.0)-- -1248 -2867 64 Юрисдикция ЛС- СФ 4 [31]
+    Sphere.createSphere(2238.6533203125,   2449.4895019531,   11.037217140198, 10.0) -- 2238.6533203125   2449.4895019531   11.037217140198 -- КПП ЛВПД [32]
     Sphere.createSphere(2458.4575195313,   1340.5772705078,   10.9765625, 30) -- 2458.4575195313   1340.5772705078   10.9765625 -- LVPD D [33]
-    Sphere.createSphere(373.66720581055,   173.75173950195,   1008.3893432617, 30) -- 373.66720581055,   173.75173950195,   1008.3893432617 -- РҐРѕР»Р» РјСЌСЂРёРё [34]
-    Sphere.createSphere(361.3515, -1785.0653, 5.4350, 30) -- 361.3515,-1785.0653,5.4350 -- РђРІС‚РѕСЏСЂРјР°СЂРєР° [35]
+    Sphere.createSphere(373.66720581055,   173.75173950195,   1008.3893432617, 30) -- 373.66720581055,   173.75173950195,   1008.3893432617 -- Холл мэрии [34]
+    Sphere.createSphere(361.3515, -1785.0653, 5.4350, 30) -- 361.3515,-1785.0653,5.4350 -- Автоярмарка [35]
 end
 
 function registerHotKey()
-    --all
-    vzaimbind = rkeys.registerHotKey(config_keys.vzaimkey.v, true, vzaimk)
-    --pd/fbi
-    tazerbind = rkeys.registerHotKey(config_keys.tazerkey.v, true, function() 
-        if cfg.main.group == 'РџР”/Р¤Р‘Р ' or cfg.main.group == 'РњСЌСЂРёСЏ' then
-            sampSendChat('/tazer')
-        end
-    end)
-    fastmenubind = rkeys.registerHotKey(config_keys.fastmenukey.v, true, function() 
-        if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
-            lua_thread.create(function() 
-                submenus_show(fthmenuPD, '{9966cc}'..script.this.name.." {FFFFFF}| Р‘С‹СЃС‚СЂРѕРµ РјРµРЅСЋ") 
-            end) 
-        elseif cfg.main.group == 'РђРІС‚РѕС€РєРѕР»Р°' then
-            lua_thread.create(function() 
-                submenus_show(fthmenuAS, '{9966cc}'..script.this.name.." {FFFFFF}| Р‘С‹СЃС‚СЂРѕРµ РјРµРЅСЋ") 
-            end)
-        elseif cfg.main.group == "РњРµРґРёРєРё" then
-            lua_thread.create(function() 
-                submenus_show(fthmenuMOH, '{9966cc}'..script.this.name.." {FFFFFF}| Р‘С‹СЃС‚СЂРѕРµ РјРµРЅСЋ") 
-            end)
-        end
-    end)
+    tazerbind = rkeys.registerHotKey(config_keys.tazerkey.v, true, function() sampSendChat('/tazer') end)
+    fastmenubind = rkeys.registerHotKey(config_keys.fastmenukey.v, true, function() lua_thread.create(function() submenus_show(fthmenu, '{9966cc}FBI Tools') end) end)
     oopdabind = rkeys.registerHotKey(config_keys.oopda.v, true, oopdakey)
     oopnetbind = rkeys.registerHotKey(config_keys.oopnet.v, true, oopnetkey)
     megafbind = rkeys.registerHotKey(config_keys.megafkey.v, true, megaf)
@@ -4627,220 +3569,209 @@ function registerHotKey()
     uncuffbind = rkeys.registerHotKey(config_keys.uncuffkey.v, true, uncuffk)
     dejectbind = rkeys.registerHotKey(config_keys.dejectkey.v, true, dejectk)
     sirenbind = rkeys.registerHotKey(config_keys.sirenkey.v, true, sirenk)
-    --mayor
-    hibind = rkeys.registerHotKey(config_keys.hikey.v, true, hikeyk)
-	summabind = rkeys.registerHotKey(config_keys.summakey.v, true, summakeyk)
-	freenalbind = rkeys.registerHotKey(config_keys.freenalkey.v, true, freenalkeyk)
-	freebankbind = rkeys.registerHotKey(config_keys.freebankkey.v, true, freebankkeyk)
 end
 
 function oopchat()
 	while true do wait(0)
-        stext, sprefix, scolor, spcolor = sampGetChatString(99)
-        if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
-            if zaproop then
-                if nikk ~= nil then
-                    if stext:find(nikk) and scolor == 4294935170 then
-                        local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
-                        local myname = sampGetPlayerNickname(myid)
-                        if not stext:find(myname) then
-                            zaproop = false
-                            nikk = nil
-                            wait(100)
-                            ftext('РљРѕРјР°РЅРґСѓ РІС‹РїРѕР»РЅРёР» РґСЂСѓРіРѕР№ СЃРѕС‚СЂСѓРґРЅРёРє.', -1)
-                        end
-                    end
-                end
-            end
-            --if scolor == 4287467007 or scolor == 9276927 then
-                if frak == 'FBI' then
-                    if rang == 'Р“Р»Р°РІР° DEA' or rang == 'Р“Р»Р°РІР° CID' or rang == 'РРЅСЃРїРµРєС‚РѕСЂ FBI' or rang == 'Р—Р°Рј.Р”РёСЂРµРєС‚РѕСЂР° FBI' or rang == 'Р”РёСЂРµРєС‚РѕСЂ FBI' then
-                        if stext:match('РџРµСЂРµРѕРґРµР»СЃСЏ РІ РєРѕСЃС‚СЋРј Р°РіРµРЅС‚Р°') then
-                            local msrang, msnick = stext:match('(.+) (.+): РџРµСЂРµРѕРґРµР»СЃСЏ РІ РєРѕСЃС‚СЋРј Р°РіРµРЅС‚Р°')
-                            if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
-                                mssnyat = true
-                                msoffid = sampGetPlayerIdByNickname(msnick)
-                                ftext(('РђРіРµРЅС‚ {9966cc}%s {ffffff}С…РѕС‡РµС‚ cРЅСЏС‚СЊ РјР°СЃРєРёСЂРѕРІРєСѓ'):format(msnick:gsub('_', ' ')))
-                                ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
-                            end
-                        end
-                        if stext:match('РџРµСЂРµРѕРґРµР»Р°СЃСЊ РІ РєРѕСЃС‚СЋРј Р°РіРµРЅС‚Р°') then
-                            local msrang, msnick = stext:match('(.+) (.+): РџРµСЂРµРѕРґРµР»Р°СЃСЊ РІ РєРѕСЃС‚СЋРј Р°РіРµРЅС‚Р°')
-                            if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
-                                mssnyat = true
-                                msoffid = sampGetPlayerIdByNickname(msnick)
-                                ftext(('РђРіРµРЅС‚ {9966cc}%s {ffffff}С…РѕС‡РµС‚ cРЅСЏС‚СЊ РјР°СЃРєРёСЂРѕРІРєСѓ'):format(msnick:gsub('_', ' ')))
-                                ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
-                            end
-                        end
-                        if stext:match('РџРµСЂРµРѕРґРµР»СЃСЏ РІ СЃРѕС‚СЂСѓРґРЅРёРєР° Р»Р°Р±РѕСЂР°С‚РѕСЂРёРё') then
-                            local msrang, msnick = stext:match('(.+) (.+): РџРµСЂРµРѕРґРµР»СЃСЏ РІ СЃРѕС‚СЂСѓРґРЅРёРєР° Р»Р°Р±РѕСЂР°С‚РѕСЂРёРё')
-                            if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
-                                msid = sampGetPlayerIdByNickname(msnick)
-                                msvidat = "Р»Р°Р±РѕСЂР°С‚РѕСЂРёСЏ"
-                                ftext(('РђРіРµРЅС‚ {9966cc}%s {ffffff}С…РѕС‡РµС‚ РІР·СЏС‚СЊ С„РѕСЂРјСѓ {9966cc}СЃРѕС‚СЂСѓРґРЅРёРєР° Р»Р°Р±РѕСЂР°С‚РѕСЂРёРё{ffffff}'):format(msnick:gsub('_', ' ')))
-                                ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
-                            end
-                        end
-                        if stext:match('РџРµСЂРµРѕРґРµР»Р°СЃСЊ РІ СЃРѕС‚СЂСѓРґРЅРёРєР° Р»Р°Р±РѕСЂР°С‚РѕСЂРёРё') then
-                            local msrang, msnick = stext:match('(.+) (.+): РџРµСЂРµРѕРґРµР»Р°СЃСЊ РІ СЃРѕС‚СЂСѓРґРЅРёРєР° Р»Р°Р±РѕСЂР°С‚РѕСЂРёРё')
-                            if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
-                                msid = sampGetPlayerIdByNickname(msnick)
-                                msvidat = "Р»Р°Р±РѕСЂР°С‚РѕСЂРёСЏ"
-                                ftext(('РђРіРµРЅС‚ {9966cc}%s {ffffff}С…РѕС‡РµС‚ РІР·СЏС‚СЊ С„РѕСЂРјСѓ {9966cc}СЃРѕС‚СЂСѓРґРЅРёРєР° Р»Р°Р±РѕСЂР°С‚РѕСЂРёРё{ffffff}'):format(msnick:gsub('_', ' ')))
-                                ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
-                            end
-                        end
-                        if stext:match('РџРµСЂРµРѕРґРµР»СЃСЏ РІ С„РѕСЂРјСѓ .+. РџСЂРёС‡РёРЅР°: .+') then
-                            local msrang, msnick, msforma, msreason = stext:match('(.+) (.+): РџРµСЂРµРѕРґРµР»СЃСЏ РІ С„РѕСЂРјСѓ (.+). РџСЂРёС‡РёРЅР°: (.+)')
-                            if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
-                                msid = sampGetPlayerIdByNickname(msnick)
-                                msvidat = msforma
-                                ftext(('РђРіРµРЅС‚ {9966cc}%s {ffffff}С…РѕС‡РµС‚ РІР·СЏС‚СЊ РјР°СЃРєРёСЂРѕРІРєСѓ {9966cc}%s{ffffff}. РџСЂРёС‡РёРЅР°: {9966cc}%s'):format(msnick:gsub('_', ' '), msforma, msreason))
-                                ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
-                            end
-                        end
-                        if stext:match('РџРµСЂРµРѕРґРµР»Р°СЃСЊ РІ С„РѕСЂРјСѓ .+. РџСЂРёС‡РёРЅР°: .+') then
-                            local msrang, msnick, msforma, msreason = stext:match('(.+) (.+): РџРµСЂРµРѕРґРµР»Р°СЃСЊ РІ С„РѕСЂРјСѓ (.+). РџСЂРёС‡РёРЅР°: (.+)')
-                            if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
-                                msid = sampGetPlayerIdByNickname(msnick)
-                                msvidat = forma
-                                ftext(('РђРіРµРЅС‚ {9966cc}%s {ffffff}С…РѕС‡РµС‚ РІР·СЏС‚СЊ РјР°СЃРєРёСЂРѕРІРєСѓ {9966cc}%s{ffffff}. РџСЂРёС‡РёРЅР°: {9966cc}%s'):format(msnick:gsub('_', ' '), msforma, msreason))
-                                ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
-                            end
-                        end
-                    end
-                end
-                if rang ~= 'РљР°РґРµС‚' and rang ~= 'РћС„РёС†РµСЂ' and rang ~= 'РњР».РЎРµСЂР¶Р°РЅС‚' and  rang ~= 'РЎРµСЂР¶Р°РЅС‚' and  rang ~= 'РџСЂР°РїРѕСЂС‰РёРє' then
-                    if stext:find('Р”РµР»Рѕ РЅР° РёРјСЏ .+ %(%d+%) СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ, РѕР±СЉСЏРІРёС‚Рµ.') then
-                        local name, id = stext:match('Р”РµР»Рѕ РЅР° РёРјСЏ (.+) %((%d+)%) СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ, РѕР±СЉСЏРІРёС‚Рµ.')
-                        zaproop = true
-                        nikk = name
-                        if nikk ~= nil then
-                            ftext(string.format("РџРѕСЃС‚СѓРїРёР» Р·Р°РїСЂРѕСЃ РЅР° РѕР±СЉСЏРІР»РµРЅРёРµ РћРћРџ РёРіСЂРѕРєР° {9966cc}%s", nikk:gsub('_', ' ')), -1)
-                            ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
-                        else
-                            zaproop = false
-                        end
-                    end
-                    if stext:match('Р”РµР»Рѕ .+ СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚ %- РћРћРџ.') then
-                        local name = stext:match('Р”РµР»Рѕ (.+) СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚ %- РћРћРџ.')
-                        zaproop = true
-                        nikk = name
-                        if nikk ~= nil then
-                            ftext(string.format("РџРѕСЃС‚СѓРїРёР» Р·Р°РїСЂРѕСЃ РЅР° РѕР±СЉСЏРІР»РµРЅРёРµ РћРћРџ РёРіСЂРѕРєР° {9966cc}%s", nikk:gsub('_', ' ')), -1)
-                            ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
-                        else
-                            zaproop = false
-                        end
-                    end
-                    if stext:match('Р”РµР»Рѕ РЅР° РёРјСЏ .+ СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ.') then
-                        local name = stext:match('Р”РµР»Рѕ РЅР° РёРјСЏ (.+) СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ.')
-                        zaproop = true
-                        nikk = name
-                        if nikk ~= nil then
-                            ftext(string.format("РџРѕСЃС‚СѓРїРёР» Р·Р°РїСЂРѕСЃ РЅР° РѕР±СЉСЏРІР»РµРЅРёРµ РћРћРџ РёРіСЂРѕРєР° {9966cc}%s", nikk:gsub('_', ' ')), -1)
-                            ftext('РџРѕРґС‚РІРµСЂРґРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | РћС‚РјРµРЅРёС‚СЊ: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
-                        else
-                            zaproop = false
-                        end
-                    end
-                end
-            --end
-            if nikk == nil then
-                if aroop then aroop = false end
-                if zaproop then zaproop = false end
-                if dmoop then dmoop = false end
-            end
-        end
+	    stext, sprefix, scolor, spcolor = sampGetChatString(99)
+	    if zaproop then
+	        if nikk ~= nil then
+	            if stext:find(nikk) and scolor == 4294935170 then
+	                local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+	                local myname = sampGetPlayerNickname(myid)
+	                if not stext:find(myname) then
+	                    zaproop = false
+	                    nikk = nil
+	                    wait(100)
+	                    ftext('Команду выполнил другой сотрудник.', -1)
+	                end
+	            end
+	        end
+	    end
+	    --if scolor == 4287467007 or scolor == 9276927 then
+			if frak == 'FBI' then
+				if rang == 'Глава DEA' or rang == 'Глава CID' or rang == 'Инспектор FBI' or rang == 'Зам.Директора FBI' or rang == 'Директор FBI' then
+					if stext:match('Переоделся в костюм агента') then
+						local msrang, msnick = stext:match('(.+) (.+): Переоделся в костюм агента')
+						if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
+							mssnyat = true
+							msoffid = sampGetPlayerIdByNickname(msnick)
+							ftext(('Агент {9966cc}%s {ffffff}хочет cнять маскировку'):format(msnick:gsub('_', ' ')))
+							ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+						end
+					end
+					if stext:match('Переоделась в костюм агента') then
+						local msrang, msnick = stext:match('(.+) (.+): Переоделась в костюм агента')
+						if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
+							mssnyat = true
+							msoffid = sampGetPlayerIdByNickname(msnick)
+							ftext(('Агент {9966cc}%s {ffffff}хочет cнять маскировку'):format(msnick:gsub('_', ' ')))
+							ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+						end
+					end
+					if stext:match('Переоделся в сотрудника лаборатории') then
+						local msrang, msnick = stext:match('(.+) (.+): Переоделся в сотрудника лаборатории')
+						if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
+							msid = sampGetPlayerIdByNickname(msnick)
+							msvidat = "лаборатория"
+							ftext(('Агент {9966cc}%s {ffffff}хочет взять форму {9966cc}сотрудника лаборатории{ffffff}'):format(msnick:gsub('_', ' ')))
+							ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+						end
+					end
+					if stext:match('Переоделась в сотрудника лаборатории') then
+						local msrang, msnick = stext:match('(.+) (.+): Переоделась в сотрудника лаборатории')
+						if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
+							msid = sampGetPlayerIdByNickname(msnick)
+							msvidat = "лаборатория"
+							ftext(('Агент {9966cc}%s {ffffff}хочет взять форму {9966cc}сотрудника лаборатории{ffffff}'):format(msnick:gsub('_', ' ')))
+							ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+						end
+					end
+					if stext:match('Переоделся в форму .+. Причина: .+') then
+						local msrang, msnick, msforma, msreason = stext:match('(.+) (.+): Переоделся в форму (.+). Причина: (.+)')
+						if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
+							msid = sampGetPlayerIdByNickname(msnick)
+							msvidat = msforma
+							ftext(('Агент {9966cc}%s {ffffff}хочет взять маскировку {9966cc}%s{ffffff}. Причина: {9966cc}%s'):format(msnick:gsub('_', ' '), msforma, msreason))
+							ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+						end
+					end
+					if stext:match('Переоделась в форму .+. Причина: .+') then
+						local msrang, msnick, msforma, msreason = stext:match('(.+) (.+): Переоделась в форму (.+). Причина: (.+)')
+						if msnick ~= sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))) then
+							msid = sampGetPlayerIdByNickname(msnick)
+							msvidat = forma
+							ftext(('Агент {9966cc}%s {ffffff}хочет взять маскировку {9966cc}%s{ffffff}. Причина: {9966cc}%s'):format(msnick:gsub('_', ' '), msforma, msreason))
+							ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+						end
+					end
+				end
+			end
+	        if rang ~= 'Кадет' and rang ~= 'Офицер' and rang ~= 'Мл.Сержант' and  rang ~= 'Сержант' and  rang ~= 'Прапорщик' then
+	            if stext:find('Дело на имя .+ %(%d+%) рассмотрению не подлежит, ООП, объявите.') then
+	                local name, id = stext:match('Дело на имя (.+) %((%d+)%) рассмотрению не подлежит, ООП, объявите.')
+	                zaproop = true
+	                nikk = name
+	                if nikk ~= nil then
+	                    ftext(string.format("Поступил запрос на объявление ООП игрока {9966cc}%s", nikk:gsub('_', ' ')), -1)
+	                    ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+	                else
+	                    zaproop = false
+	                end
+	            end
+	            if stext:match('Дело .+ рассмотрению не подлежит %- ООП.') then
+	                local name = stext:match('Дело (.+) рассмотрению не подлежит %- ООП.')
+	                zaproop = true
+	                nikk = name
+	                if nikk ~= nil then
+	                    ftext(string.format("Поступил запрос на объявление ООП игрока {9966cc}%s", nikk:gsub('_', ' ')), -1)
+	                    ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+	                else
+	                    zaproop = false
+	                end
+	            end
+	            if stext:match('Дело на имя .+ рассмотрению не подлежит, ООП.') then
+	                local name = stext:match('Дело на имя (.+) рассмотрению не подлежит, ООП.')
+	                zaproop = true
+	                nikk = name
+	                if nikk ~= nil then
+	                    ftext(string.format("Поступил запрос на объявление ООП игрока {9966cc}%s", nikk:gsub('_', ' ')), -1)
+	                    ftext('Подтвердить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopda.v), " + ")..'{ffffff} | Отменить: {9966cc}'..table.concat(rkeys.getKeysName(config_keys.oopnet.v), " + "), -1)
+	                else
+	                    zaproop = false
+	                end
+	            end
+	        end
+	    --end
+	    if nikk == nil then
+	        if aroop then aroop = false end
+	        if zaproop then zaproop = false end
+	        if dmoop then dmoop = false end
+	    end
 	end
 end
 
 function oopdakey()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
-        if msvidat then
-            msda = true
-            sampSendChat('/spy '..msid)
-        end
-        if mssnyat then
-            sampSendChat('/spyoff '..msoffid)
-            msoffid = nil
-            mssnyat = false
-        end
-        if opyatstat then
-            lua_thread.create(checkStats)
-            opyatstat = false
-        end
-        if zaproop then
-            sampSendChat(string.format('/d Mayor, РґРµР»Рѕ РЅР° РёРјСЏ %s СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ', nikk:gsub('_', ' ')))
-            zaproop = false
-            nazhaloop = true
-        end
-        if dmoop then
-            if frak == 'FBI' or frak == 'LSPD' or frak == 'SFPD' or frak == 'LVPD' then
-                if rang == 'РљР°РґРµС‚' or rang == 'РћС„РёС†РµСЂ' or rang == 'РњР».РЎРµСЂР¶Р°РЅС‚' or  rang == 'РЎРµСЂР¶Р°РЅС‚' or  rang == 'РџСЂР°РїРѕСЂС‰РёРє' then
-                    if not cfg.main.tarb then
-                        sampSendChat(string.format('/r Р”РµР»Рѕ РЅР° РёРјСЏ %s СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ.', nikk:gsub('_', ' ')))
-                        dmoop = false
-                    else
-                        sampSendChat(string.format('/r [%s]: Р”РµР»Рѕ РЅР° РёРјСЏ %s СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ.', cfg.main.tar, nikk:gsub('_', ' ')))
-                        dmoop = false
-                    end
-                else
-                    sampSendChat(string.format('/d Mayor, РґРµР»Рѕ РЅР° РёРјСЏ %s СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ РљРџР— LSPD.', nikk:gsub('_', ' ')))
+	if msvidat then
+		msda = true
+		sampSendChat('/spy '..msid)
+	end
+	if mssnyat then
+		sampSendChat('/spyoff '..msoffid)
+		msoffid = nil
+		mssnyat = false
+	end
+    if opyatstat then
+        lua_thread.create(checkStats)
+        opyatstat = false
+    end
+    if zaproop then
+        sampSendChat(string.format('/d Mayor, дело на имя %s рассмотрению не подлежит, ООП', nikk:gsub('_', ' ')))
+        zaproop = false
+        nazhaloop = true
+    end
+    if dmoop then
+        if frak == 'FBI' or frak == 'LSPD' or frak == 'SFPD' or frak == 'LVPD' then
+            if rang == 'Кадет' or rang == 'Офицер' or rang == 'Мл.Сержант' or  rang == 'Сержант' or  rang == 'Прапорщик' then
+                if not cfg.main.tarb then
+                    sampSendChat(string.format('/r Дело на имя %s рассмотрению не подлежит, ООП.', nikk:gsub('_', ' ')))
                     dmoop = false
-                    nazhaloop = true
+                else
+                    sampSendChat(string.format('/r [%s]: Дело на имя %s рассмотрению не подлежит, ООП.', cfg.main.tar, nikk:gsub('_', ' ')))
+                    dmoop = false
                 end
+            else
+                sampSendChat(string.format('/d Mayor, дело на имя %s рассмотрению не подлежит, ООП КПЗ LSPD.', nikk:gsub('_', ' ')))
+                dmoop = false
+                nazhaloop = true
             end
         end
-        if aroop then
-            if frak == 'FBI' or frak == 'LSPD' or frak == 'SFPD' or frak == 'LVPD' then
-                if rang == 'РљР°РґРµС‚' or rang == 'РћС„РёС†РµСЂ' or rang == 'РњР».РЎРµСЂР¶Р°РЅС‚' or  rang == 'РЎРµСЂР¶Р°РЅС‚' or  rang == 'РџСЂР°РїРѕСЂС‰РёРє' then
-                    if not cfg.main.tarb then
-                        sampSendChat(string.format('/r Р”РµР»Рѕ РЅР° РёРјСЏ %s СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ.', nikk:gsub('_', ' ')))
-                        aroop = false
-                        nikk = nil
-                    else
-                        sampSendChat(string.format('/r [%s]: Р”РµР»Рѕ РЅР° РёРјСЏ %s СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ.', cfg.main.tar, nikk:gsub('_', ' ')))
-                        aroop = false
-                        nikk = nil
-                    end
-                else
-                    sampSendChat(string.format("/d Mayor, РґРµР»Рѕ РЅР° РёРјСЏ %s СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ.", nikk:gsub('_', ' ')))
+    end
+    if aroop then
+        if frak == 'FBI' or frak == 'LSPD' or frak == 'SFPD' or frak == 'LVPD' then
+            if rang == 'Кадет' or rang == 'Офицер' or rang == 'Мл.Сержант' or  rang == 'Сержант' or  rang == 'Прапорщик' then
+                if not cfg.main.tarb then
+                    sampSendChat(string.format('/r Дело на имя %s рассмотрению не подлежит, ООП.', nikk:gsub('_', ' ')))
                     aroop = false
-                    --nikk = nil
-                    nazhaloop = true
+                    nikk = nil
+                else
+                    sampSendChat(string.format('/r [%s]: Дело на имя %s рассмотрению не подлежит, ООП.', cfg.main.tar, nikk:gsub('_', ' ')))
+                    aroop = false
+                    nikk = nil
                 end
+            else
+                sampSendChat(string.format("/d Mayor, дело на имя %s рассмотрению не подлежит, ООП.", nikk:gsub('_', ' ')))
+                aroop = false
+                --nikk = nil
+                nazhaloop = true
             end
         end
     end
 end
 
 function oopnetkey()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
-        msid = nil
-        msda = false
-        msvidat = nil
-        mssnyat = false
-        msoffid = nil
-        if opyatstat then
-            opyatstat = false
-        end
-        if dmoop == true then
-            dmoop = false
-            nikk = nil
-            ftext("Р Р°СЃСЃРјРѕС‚СЂ РґРµР»Р° РѕС‚РјРµРЅРµРЅ.", -1)
-        end
-        if zaproop == true then
-            zaproop = false
-            nikk = nil
-            ftext("Р Р°СЃСЃРјРѕС‚СЂ РґРµР»Р° РѕС‚РјРµРЅРµРЅ.", -1)
-        end
-        if aroop == true then
-            aroop = false
-            nikk = nil
-            ftext("Р Р°СЃСЃРјРѕС‚СЂ РґРµР»Р° РѕС‚РјРµРЅРµРЅ.", -1)
-        end
+	msid = nil
+	msda = false
+	msvidat = nil
+	mssnyat = false
+	msoffid = nil
+    if opyatstat then
+        opyatstat = false
+    end
+    if dmoop == true then
+        dmoop = false
+        nikk = nil
+        ftext("Рассмотр дела отменен.", -1)
+    end
+    if zaproop == true then
+        zaproop = false
+        nikk = nil
+        ftext("Рассмотр дела отменен.", -1)
+    end
+    if aroop == true then
+        aroop = false
+        nikk = nil
+        ftext("Рассмотр дела отменен.", -1)
     end
 end
 
@@ -4856,37 +3787,9 @@ function main()
         if file then
             cfg = decodeJson(file:read('*a'))
             if cfg.main.megaf == nil then cfg.main.megaf = true end
-            if cfg.main.autobp == nil then cfg.main.autobp = false end
-            if cfg.autobp == nil then cfg.autobp = {
-                deagle = true,
-                dvadeagle = true,
-                shot = true,
-                dvashot = true,
-                smg = true,
-                dvasmg = true,
-                m4 = true,
-                dvam4 = true,
-                rifle = true,
-                dvarifle = true,
-                armour = true,
-                spec = true
-            }
-            end
-            if cfg.main.googlecode == nil then cfg.main.googlecode = '' end
-            if cfg.main.googlecodeb == nil then cfg.main.googlecodeb = false end
-            if cfg.main.group == nil then cfg.main.group = 'unknown' end
-            if cfg.main.nwanted == nil then cfg.main.nwanted = false end
-            if cfg.main.nclear == nil then cfg.main.nclear = false end
         end
     end
     saveData(cfg, 'moonloader/config/fbitools/config.json')
-    if doesFileExist("moonloader/config/fbitools/cmdbinder.json") then
-        local file = io.open('moonloader/config/fbitools/cmdbinder.json', 'r')
-        if file then
-            commands = decodeJson(file:read('*a'))
-        end
-    end
-    saveData(commands, "moonloader/config/fbitools/cmdbinder.json")
     if not doesFileExist("moonloader/config/fbitools/keys.json") then
         local fa = io.open("moonloader/config/fbitools/keys.json", "w")
 		fa:write(encodeJson(config_keys))
@@ -4895,11 +3798,6 @@ function main()
         local fa = io.open("moonloader/config/fbitools/keys.json", 'r')
         if fa then
             config_keys = decodeJson(fa:read('*a'))
-            if config_keys.hikey == nil then config_keys.hikey = {v = {key.VK_I}} end
-            if config_keys.summakey == nil then config_keys.summakey = {v = {key.VK_L}} end
-            if config_keys.freenalkey == nil then config_keys.freenalkey = {v = {key.VK_Y}} end
-            if config_keys.freebankkey == nil then config_keys.freebankkey = {v = {key.VK_U}} end
-            if config_keys.vzaimkey == nil then config_keys.vzaimkey = {v = {key.VK_Z}} end
         end
     end
     saveData(config_keys, 'moonloader/config/fbitools/keys.json')
@@ -4914,35 +3812,28 @@ function main()
             [1] = {
                 text = "",
                 v = {},
-                name = 'Р‘РёРЅРґ1'
+                name = 'Бинд1'
             },
             [2] = {
                 text = "",
                 v = {},
-                name = 'Р‘РёРЅРґ2'
+                name = 'Бинд2'
             },
             [3] = {
                 text = "",
                 v = {},
-                name = 'Р‘РёРЅРґ3'
+                name = 'Бинд3'
             }
         }
     end
     saveData(tBindList, fileb)
     repeat wait(0) until isSampAvailable()
-    ftext(script.this.name..' СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅ. Р’РІРµРґРёС‚Рµ: /ft С‡С‚Рѕ Р±С‹ РїРѕР»СѓС‡РёС‚СЊ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ.')
-    ftext('РђРІС‚РѕСЂС‹: '..table.concat(script.this.authors))
-    print(("%s v%s: РЈСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР¶РµРЅ"):format(script.this.name, script.this.version))
+    ftext(script.this.name..' успешно загружен. Введите: /ft что бы получить дополнительную информацию.')
+    ftext('Авторы: '..table.concat(script.this.authors))
     libs()
     registerCommands()
     registerSphere()
     registerHotKey()
-    registerCommandsBinder()
-    if cfg.main.group == 'unknown' then ftext("РЎРµР№С‡Р°СЃ Сѓ РІР°СЃ РЅРµ РІС‹Р±СЂР°РЅР° РіСЂСѓРїРїР° С„СЂР°РєС†РёР№. Р‘РѕР»СЊС€РёРЅСЃС‚РІРѕ С„СѓРЅРєС†РёР№ СЃРєСЂРёРїС‚Р° РЅРµРґРѕСЃС‚СѓРїРЅС‹.")
-        ftext("РќР°СЃС‚СЂРѕРёС‚СЊ РіСЂСѓРїРїСѓ РјРѕР¶РЅРѕ РІ РЅР°СЃС‚СЂРѕР№РєР°С… СЃРєСЂРёРїС‚Р°.") 
-    else 
-        ftext("Р—Р°РіСЂСѓР¶РµРЅС‹ РЅР°СЃС‚СЂРѕР№РєРё РґР»СЏ РіСЂСѓРїРїС‹: {9966CC}"..cfg.main.group) 
-    end
     update()
     mcheckf()
     shpf()
@@ -4956,7 +3847,7 @@ function main()
     for k, v in pairs(tBindList) do
         rkeys.registerHotKey(v.v, true, onHotKey)
         if v.time ~= nil then v.time = nil end
-        if v.name == nil then v.name = "Р‘РёРЅРґ"..k end
+        if v.name == nil then v.name = "Бинд"..k end
         v.text = v.text:gsub("%[enter%]", ""):gsub("{noenter}", "{noe}")
     end
     saveData(tBindList, fileb)
@@ -4972,16 +3863,8 @@ function main()
                 end
             end
             if wparam == key.VK_ESCAPE then
-                if not sampIsChatInputActive() and not sampIsDialogActive() and not sampIsScoreboardOpen() then
-                    if mainw.v then mainw.v = false consumeWindowMessage(true, true) end
-                    if imegaf.v then imegaf.v = false consumeWindowMessage(true, true) end
-                    if shpwindow.v then shpwindow.v = false consumeWindowMessage(true, true) end
-                    if ykwindow.v then ykwindow.v = false consumeWindowMessage(true, true) end
-                    if fpwindow.v then fpwindow.v = false consumeWindowMessage(true, true) end
-                    if akwindow.v then akwindow.v = false consumeWindowMessage(true, true) end
-                    if updwindows.v then updwindows.v = false consumeWindowMessage(true, true) end
-                    if memw.v then memw.v = false consumeWindowMessage(true, true) end
-                end
+                if mainw.v then mainw.v = false consumeWindowMessage(true, true) end
+                if imegaf.v then imegaf.v = false consumeWindowMessage(true, true) end
             end
         end
     end)
@@ -4992,23 +3875,16 @@ function main()
         lua_thread.create(checkStats)
     end
     while true do wait(0)
-        if isCharInAnyCar(PLAYER_PED) then mcid = select(2, sampGetVehicleIdByCarHandle(storeCarCharIsInNoSave(PLAYER_PED))) end
         if gmegafid == nil then gmegafid = -1 end
         if #departament > 25 then table.remove(departament, 1) end
         if #radio > 25 then table.remove(radio, 1) end
         if #wanted > 25 then table.remove(wanted, 1) end
         if #sms > 25 then table.remove(sms, 1) end
         infbar = imgui.ImBool(cfg.main.hud)
-        local myid = select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))
-        imgui.Process = infbar.v or mainw.v or shpwindow.v or ykwindow.v or fpwindow.v or akwindow.v or updwindows.v or imegaf.v or memw.v
+        imgui.Process = infbar.v or mainw.v or shpwindow.v or ykwindow.v or fpwindow.v or akwindow.v or updwindows.v or imegaf.v
         local myskin = getCharModel(PLAYER_PED)
         if myskin == 280 or myskin == 265 or myskin == 266 or myskin == 267 or myskin == 281 or myskin == 282 or myskin == 288 or myskin == 284 or myskin == 285 or myskin == 304 or myskin == 305 or myskin == 306 or myskin == 307 or myskin == 309 or myskin == 283 or myskin == 286 or myskin == 287 or myskin == 252 or myskin == 279 or myskin == 163 or myskin == 164 or myskin == 165 or myskin == 166 then
             rabden = true
-        end
-        if cfg.main.group == 'РџР”/Р¤Р‘Р ' then if sampGetFraktionBySkin(myid) == 'РџРѕР»РёС†РёСЏ' or sampGetFraktionBySkin(myid) == 'FBI' or sampGetFraktionBySkin(myid) == 'Army' then rabden = true end
-        elseif cfg.main.group == 'РђРІС‚РѕС€РєРѕР»Р°' then if sampGetFraktionBySkin(myid) == 'РђРІС‚РѕС€РєРѕР»Р°' then rabden = true end
-        elseif cfg.main.group == 'РњРћРќ' then if sampGetFraktionBySkin(myid) == 'РњРµРґРёРєРё' then rabden = true end
-        elseif cfg.main.group == 'РњСЌСЂРёСЏ' then if sampGetFraktionBySkin(myid) == 'РњСЌСЂРёСЏ' then rabden = true end
         end
         if sampIsDialogActive() == false and not isPauseMenuActive() and isPlayerPlaying(playerHandle) and sampIsChatInputActive() == false then
             if coordX ~= nil and coordY ~= nil then
@@ -5016,14 +3892,14 @@ function main()
                 cX = math.ceil(cX)
                 cY = math.ceil(cY)
                 cZ = math.ceil(cZ)
-                ftext('РњРµС‚РєР° СѓСЃС‚Р°РЅРѕРІР»РµРЅР° РЅР° '..kvadY..'-'..kvadX)
+                ftext('Метка установлена на '..kvadY..'-'..kvadX)
                 placeWaypoint(coordX, coordY, 0)
                 coordX = nil
                 coordY = nil
             end
         end
         if not doesCharExist(gmegafhandle) and gmegafhandle ~= nil then
-            ftext(string.format('РРіСЂРѕРє {9966cc}%s [%s] {ffffff}РїРѕС‚РµСЂСЏРЅ РёР· РїРѕР»СЏ Р·СЂРµРЅРёСЏ', sampGetPlayerNickname(gmegafid), gmegafid))
+            ftext(string.format('Игрок {9966cc}%s [%s] {ffffff}потерян из поля зрения', sampGetPlayerNickname(gmegafid), gmegafid))
             gmegafid = -1
 			gmegaflvl = nil
 			gmegaffrak = nil
@@ -5043,6 +3919,13 @@ function main()
         if valid and doesCharExist(ped) then
             local result, id = sampGetPlayerIdByCharHandle(ped)
             targetid = id
+            if result and wasKeyPressed(key.VK_Z) then
+                gmegafhandle = ped
+                gmegafid = id
+                gmegaflvl = sampGetPlayerScore(id)
+                gmegaffrak = sampGetFraktionBySkin(id)
+                submenus_show(pkmmenu(id), "{9966cc}FBI Tools {ffffff}| "..sampGetPlayerNickname(id).."["..id.."] ")
+            end
         end
         local result, button, list, input = sampHasDialogRespond(1385)
         local result16, button, list, input = sampHasDialogRespond(1401)
@@ -5063,20 +3946,20 @@ function main()
                         oopi = oopi + 1
                     end
                 end
-                ftext('РРіСЂРѕРє {9966cc}'..oopdelnick..'{ffffff} Р±С‹Р» СѓРґР°Р»РµРЅ РёР· СЃРїРёСЃРєР° РћРћРџ')
+                ftext('Игрок {9966cc}'..oopdelnick..'{ffffff} был удален из списка ООП')
             elseif button == 0 then
-                sampShowDialog(2458, '{9966cc}'..script.this.name.. '| {ffffff}РЎРїРёСЃРѕРє РћРћРџ', table.concat(ooplistt, '\n'), 'В»', "x", 2)
+                sampShowDialog(2458, '{9966cc}FBI Tools | {ffffff}Список ООП', table.concat(ooplistt, '\n'), '»', "x", 2)
             end
         end
         if ooplresult then
             if button == 1 then
                 local ltext = sampGetListboxItemText(list)
-                if ltext:match("РґРµР»Рѕ РЅР° РёРјСЏ .+ СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ") then
-                    oopdelnick = ltext:match("РґРµР»Рѕ РЅР° РёРјСЏ (.+) СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ")
-                    sampShowDialog(2459, '{9966cc}'..script.this.name..' | {ffffff}РЈРґР°Р»РµРЅРёРµ РёР· РћРћРџ', "{ffffff}Р’С‹ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ Р¶РµР»Р°РµС‚Рµ СѓРґР°Р»РёС‚СЊ {9966cc}"..oopdelnick.."\n{ffffff}РР· СЃРїРёСЃРєР° РћРћРџ?", "В»", "В«", 0)
-                elseif ltext:match("РґРµР»Рѕ .+ СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚ %- РћРћРџ.") then
-                    oopdelnick = ltext:match("РґРµР»Рѕ (.+) СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚ %- РћРћРџ.")
-                    sampShowDialog(2459, '{9966cc}'..script.this.name..' | {ffffff}РЈРґР°Р»РµРЅРёРµ РёР· РћРћРџ', "{ffffff}Р’С‹ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ Р¶РµР»Р°РµС‚Рµ СѓРґР°Р»РёС‚СЊ {9966cc}"..oopdelnick.."\n{ffffff}РР· СЃРїРёСЃРєР° РћРћРџ?", "В»", "В«", 0)
+                if ltext:match("дело на имя .+ рассмотрению не подлежит, ООП") then
+                    oopdelnick = ltext:match("дело на имя (.+) рассмотрению не подлежит, ООП")
+                    sampShowDialog(2459, '{9966cc}FBI Tools | {ffffff}Удаление из ООП', "{ffffff}Вы действительно желаете удалить {9966cc}"..oopdelnick.."\n{ffffff}Из списка ООП?", "»", "«", 0)
+                elseif ltext:match("дело .+ рассмотрению не подлежит %- ООП.") then
+                    oopdelnick = ltext:match("дело (.+) рассмотрению не подлежит %- ООП.")
+                    sampShowDialog(2459, '{9966cc}FBI Tools | {ffffff}Удаление из ООП', "{ffffff}Вы действительно желаете удалить {9966cc}"..oopdelnick.."\n{ffffff}Из списка ООП?", "»", "«", 0)
                 end
             end
         end
@@ -5091,22 +3974,22 @@ function main()
                         end
                     end
                 else
-                    ftext('Р’С‹ РЅРµ РІС‹Р±СЂР°Р»Рё РЅРѕРјРµСЂ СЃС‚Р°С‚СЊРё.')
+                    ftext('Вы не выбрали номер статьи.')
                 end
             end
         end
         if result16 then
             if input ~= '' and button == 1 then
                 if cfg.main.tarb then
-                    sampSendChat(string.format('/r [%s]: Р—Р°РїСЂР°С€РёРІР°СЋ СЌРІР°РєСѓР°С†РёСЋ РІ РєРІР°РґСЂР°С‚ %s РЅР° %s', cfg.main.tar, kvadrat(), input))
+                    sampSendChat(string.format('/r [%s]: Запрашиваю эвакуацию в квадрат %s на %s', cfg.main.tar, kvadrat(), input))
                 else
-                    sampSendChat(string.format('/r Р—Р°РїСЂР°С€РёРІР°СЋ СЌРІР°РєСѓР°С†РёСЋ РІ РєРІР°РґСЂР°С‚ %s РЅР° %s', kvadrat(), input))
+                    sampSendChat(string.format('/r Запрашиваю эвакуацию в квадрат %s на %s', kvadrat(), input))
                 end
             end
         end
         if result then
             if button == 1 then
-				sampSendChat(("/r %s РІ С„РѕСЂРјСѓ %s. РџСЂРёС‡РёРЅР°: %s"):format(cfg.main.male and 'РџРµСЂРµРѕРґРµР»СЃСЏ' or 'РџРµСЂРµРѕРґРµР»Р°СЃСЊ', mstype, input))
+				sampSendChat(("/r %s в форму %s. Причина: %s"):format(cfg.main.male and 'Переоделся' or 'Переоделась', mstype, input))
 				wait(1400)
 				sampSendChat("/rb "..myid)
 				mstype = ''
@@ -5120,23 +4003,23 @@ function oop(pam)
     if frak == 'FBI' or frak == 'LSPD' or frak == 'SFPD' or frak == 'LVPD' then
         if pID ~= nil then
             if sampIsPlayerConnected(pID) then
-                if rang == 'РљР°РґРµС‚' or rang == 'РћС„РёС†РµСЂ' or rang == 'РњР».РЎРµСЂР¶Р°РЅС‚' or  rang == 'РЎРµСЂР¶Р°РЅС‚' or  rang == 'РџСЂР°РїРѕСЂС‰РёРє' then
+                if rang == 'Кадет' or rang == 'Офицер' or rang == 'Мл.Сержант' or  rang == 'Сержант' or  rang == 'Прапорщик' then
                     if not cfg.main.tarb then
-                        sampSendChat("/r Р”РµР»Рѕ РЅР° РёРјСЏ "..sampGetPlayerNickname(pID):gsub('_', ' ').." СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ.")
+                        sampSendChat("/r Дело на имя "..sampGetPlayerNickname(pID):gsub('_', ' ').." рассмотрению не подлежит, ООП.")
                     else
-                        sampSendChat("/r ["..cfg.main.tar.."]: Р”РµР»Рѕ РЅР° РёРјСЏ "..sampGetPlayerNickname(pID):gsub('_', ' ').." СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ.")
+                        sampSendChat("/r ["..cfg.main.tar.."]: Дело на имя "..sampGetPlayerNickname(pID):gsub('_', ' ').." рассмотрению не подлежит, ООП.")
                     end
                 else
-                    sampSendChat("/d Mayor, РґРµР»Рѕ РЅР° РёРјСЏ "..sampGetPlayerNickname(pID):gsub('_', ' ').." СЂР°СЃСЃРјРѕС‚СЂРµРЅРёСЋ РЅРµ РїРѕРґР»РµР¶РёС‚, РћРћРџ.")
+                    sampSendChat("/d Mayor, дело на имя "..sampGetPlayerNickname(pID):gsub('_', ' ').." рассмотрению не подлежит, ООП.")
                 end
             else
-                ftext("РРіСЂРѕРє СЃ ID: "..pID.." РЅРµ РїРѕРґРєР»СЋС‡РµРЅ Рє СЃРµСЂРІРµСЂСѓ")
+                ftext("Игрок с ID: "..pID.." не подключен к серверу")
             end
         else
-            ftext("Р’РІРµРґРёС‚Рµ: /oop [id]")
+            ftext("Введите: /oop [id]")
         end
     else
-        ftext("Р’С‹ РЅРµ СЃРѕС‚СЂСѓРґРЅРёРє РџР”/FBI")
+        ftext("Вы не сотрудник ПД/FBI")
     end
 end
 
@@ -5144,7 +4027,7 @@ function tazer()
     lua_thread.create(function()
         sampSendChat("/tazer")
         wait(1400)
-        sampSendChat(('/me %s С‚РёРї РїР°С‚СЂРѕРЅРѕРІ'):format(cfg.main.male and 'СЃРјРµРЅРёР»' or 'СЃРјРµРЅРёР»Р°'))
+        sampSendChat(('/me %s тип патронов'):format(cfg.main.male and 'сменил' or 'сменила'))
     end)
 end
 
@@ -5153,13 +4036,13 @@ function su(pam)
     if pID ~= nil then
         if sampIsPlayerConnected(pID) then
             lua_thread.create(function()
-                submenus_show(sumenu(pID), "{9966cc}"..script.this.name.." {ffffff}| "..sampGetPlayerNickname(pID).."["..pID.."] ")
+                submenus_show(sumenu(pID), "{9966cc}FBI Tools {ffffff}| "..sampGetPlayerNickname(pID).."["..pID.."] ")
             end)
         else
-            ftext("РРіСЂРѕРє СЃ ID: "..pID.." РЅРµ РїРѕРґРєР»СЋС‡РµРЅ Рє СЃРµСЂРІРµСЂСѓ")
+            ftext("Игрок с ID: "..pID.." не подключен к серверу")
         end
     else
-        ftext("Р’РІРµРґРёС‚Рµ: /su [id]")
+        ftext("Введите: /su [id]")
     end
 end
 
@@ -5168,17 +4051,17 @@ function ssu(pam)
     if id and zv and orichina then
         sampSendChat(string.format('/su %s %s %s', id, zv, orichina))
     else
-        ftext('Р’РІРµРґРёС‚Рµ: /ssu [id] [РєРѕР»-РІРѕ Р·РІРµР·Рґ] [РїСЂРёС‡РёРЅР°]')
+        ftext('Введите: /ssu [id] [кол-во звезд] [причина]')
     end
 end
 
 function keys()
     lua_thread.create(function()
-        sampSendChat(("/me %s РєР»СЋС‡"):format(cfg.main.male and 'РІР·СЏР»' or 'РІР·СЏР»Р°'))
+        sampSendChat(("/me %s ключ"):format(cfg.main.male and 'взял' or 'взяла'))
         wait(cfg.commands.zaderjka)
-        sampSendChat("/me СЃСЂР°РІРЅРёРІР°РµС‚ РєР»СЋС‡ СЃ РєР»СЋС‡РѕРј РѕС‚ РљРџР—")
+        sampSendChat("/me сравнивает ключ с ключом от КПЗ")
         wait(cfg.commands.zaderjka)
-        sampSendChat(("/try %s, С‡С‚Рѕ РєР»СЋС‡Рё РёРґРµРЅС‚РёС‡РЅС‹"):format(cfg.main.male and 'РѕР±РЅР°СЂСѓР¶РёР»', 'РѕР±РЅР°СЂСѓР¶РёР»Р°'))
+        sampSendChat(("/try %s, что ключи идентичны"):format(cfg.main.male and 'обнаружил', 'обнаружила'))
     end)
 end
 
@@ -5190,21 +4073,21 @@ function cput(pam)
                 if sampIsPlayerConnected(id) then
                     if isCharInAnyCar(PLAYER_PED) then
                         if isCharOnAnyBike(PLAYER_PED) then
-                            sampSendChat(("/me %s %s РЅР° СЃРёРґРµРЅСЊРµ РјРѕС‚РѕС†РёРєР»Р°"):format(cfg.main.male and 'РїРѕСЃР°РґРёР»' or 'РїРѕСЃР°РґРёР»Р°', sampGetPlayerNickname(id):gsub("_", ' ')))
+                            sampSendChat(("/me %s %s на сиденье мотоцикла"):format(cfg.main.male and 'посадил' or 'посадила', sampGetPlayerNickname(id):gsub("_", ' ')))
                             wait(1400)
                             sampSendChat(("/cput %s %s"):format(id, getFreeSeat()))
                         else
-                            sampSendChat(("/me %s РґРІРµСЂСЊ Р°РІС‚РѕРјРѕР±РёР»СЏ Рё %s С‚СѓРґР° %s"):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'Р·Р°С‚РѕР»РєРЅСѓР»' or 'Р·Р°С‚РѕР»РєРЅСѓР»Р°', sampGetPlayerNickname(id):gsub("_", ' ')))
+                            sampSendChat(("/me %s дверь автомобиля и %s туда %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула', sampGetPlayerNickname(id):gsub("_", ' ')))
                             wait(1400)
                             sampSendChat(("/cput %s %s"):format(id, getFreeSeat()))
                         end
                     else
-                        sampSendChat(("/me %s РґРІРµСЂСЊ Р°РІС‚РѕРјРѕР±РёР»СЏ Рё %s С‚СѓРґР° %s"):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'Р·Р°С‚РѕР»РєРЅСѓР»' or 'Р·Р°С‚РѕР»РєРЅСѓР»Р°', sampGetPlayerNickname(id):gsub("_", ' ')))
+                        sampSendChat(("/me %s дверь автомобиля и %s туда %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула', sampGetPlayerNickname(id):gsub("_", ' ')))
                         while not isCharInAnyCar(PLAYER_PED) do wait(0) end
                         sampSendChat(("/cput %s %s"):format(id, getFreeSeat()))
                     end
                 else
-                    ftext("РРіСЂРѕРє РѕС„С„Р»Р°Р№РЅ")
+                    ftext("Игрок оффлайн")
                 end
             elseif pam:match("^(%d+) (%d+)$") then
                 local id, seat = pam:match("^(%d+) (%d+)$")
@@ -5213,27 +4096,27 @@ function cput(pam)
                     if seat >=1 and seat <=3 then
                         if isCharInAnyCar(PLAYER_PED) then
                             if isCharOnAnyBike(PLAYER_PED) then
-                                sampSendChat(("/me %s %s РЅР° СЃРёРґРµРЅСЊРµ РјРѕС‚РѕС†РёРєР»Р°"):format(cfg.main.male and 'РїРѕСЃР°РґРёР»' or 'РїРѕСЃР°РґРёР»Р°', sampGetPlayerNickname(id):gsub("_", ' ')))
+                                sampSendChat(("/me %s %s на сиденье мотоцикла"):format(cfg.main.male and 'посадил' or 'посадила', sampGetPlayerNickname(id):gsub("_", ' ')))
                                 wait(1400)
                                 sampSendChat(("/cput %s %s"):format(id, seat))
                             else
-                                sampSendChat(("/me %s РґРІРµСЂСЊ Р°РІС‚РѕРјРѕР±РёР»СЏ Рё %s С‚СѓРґР° %s"):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'Р·Р°С‚РѕР»РєРЅСѓР»' or 'Р·Р°С‚РѕР»РєРЅСѓР»Р°', sampGetPlayerNickname(id):gsub("_", ' ')))
+                                sampSendChat(("/me %s дверь автомобиля и %s туда %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула', sampGetPlayerNickname(id):gsub("_", ' ')))
                                 wait(1400)
                                 sampSendChat(("/cput %s %s"):format(id, seat))
                             end
                         else
-                            sampSendChat(("/me %s РґРІРµСЂСЊ Р°РІС‚РѕРјРѕР±РёР»СЏ Рё %s С‚СѓРґР° %s"):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'Р·Р°С‚РѕР»РєРЅСѓР»' or 'Р·Р°С‚РѕР»РєРЅСѓР»Р°', sampGetPlayerNickname(id):gsub("_", ' ')))
+                            sampSendChat(("/me %s дверь автомобиля и %s туда %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'затолкнул' or 'затолкнула', sampGetPlayerNickname(id):gsub("_", ' ')))
                             while not isCharInAnyCar(PLAYER_PED) do wait(0) end
                             sampSendChat(("/cput %s %s"):format(id, seat))
                         end
                     else
-                        ftext('Р—РЅР°С‡РµРЅРёРµ РЅРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ 1 Рё Р±РѕР»СЊС€Рµ 3!')
+                        ftext('Значение не должно быть меньше 1 и больше 3!')
                     end
                 else
-                    ftext('РРіСЂРѕРє РѕС„С„Р»Р°Р№РЅ')
+                    ftext('Игрок оффлайн')
                 end
             elseif #pam == 0 or not pam:match("^(%d+)$") or not pam:match("^(%d+) (%d+)$") then
-                ftext('Р’РІРµРґРёС‚Рµ: /cput [id] [РјРµСЃС‚Рѕ(РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ)]')
+                ftext('Введите: /cput [id] [место(не обязательно)]')
             end
         else
             sampSendChat(('/cput %s'):format(pam))
@@ -5248,19 +4131,19 @@ function ceject(pam)
             if id ~= nil then
                 if sampIsPlayerConnected(id) then
                     if isCharOnAnyBike(PLAYER_PED) then
-                        sampSendChat(("/me %s %s СЃ РјРѕС‚РѕС†РёРєР»Р°"):format(cfg.main.male and 'РІС‹СЃР°РґРёР»' or 'РІС‹СЃР°РґРёР»Р°', sampGetPlayerNickname(id):gsub('_', ' ')))
+                        sampSendChat(("/me %s %s с мотоцикла"):format(cfg.main.male and 'высадил' or 'высадила', sampGetPlayerNickname(id):gsub('_', ' ')))
                         wait(1400)
                         sampSendChat(("/ceject %s"):format(id))
                     else
-                        sampSendChat(("/me %s РґРІРµСЂСЊ Р°С‚РІРѕРјРѕР±РёР»СЏ Рё %s %s"):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'РІС‹СЃР°РґРёР»' or 'РІС‹СЃР°РґРёР»Р°', sampGetPlayerNickname(id):gsub('_', ' ')))
+                        sampSendChat(("/me %s дверь атвомобиля и %s %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'высадил' or 'высадила', sampGetPlayerNickname(id):gsub('_', ' ')))
                         wait(1400)
                         sampSendChat(("/ceject %s"):format(id))
                     end
                 else
-                    ftext('РРіСЂРѕРє РѕС„С„Р»Р°Р№РЅ')
+                    ftext('Игрок оффлайн')
                 end
             else
-                ftext('Р’РІРµРґРёС‚Рµ: /ceject [id]')
+                ftext('Введите: /ceject [id]')
             end
         else
             sampSendChat(("/ceject %s"):format(pam))
@@ -5272,22 +4155,22 @@ function st(pam)
     local id = tonumber(pam)
     local result, ped = sampGetCharHandleBySampPlayerId(id)
     if id == nil then
-        sampSendChat('/m ['..frak..'] Р’РѕРґРёС‚РµР»СЊ, СЃРЅРёР·СЊС‚Рµ СЃРєРѕСЂРѕСЃС‚СЊ Рё РїСЂРёР¶РјРёС‚РµСЃСЊ Рє РѕР±РѕС‡РёРЅРµ РёР»Рё РјС‹ РѕС‚РєСЂРѕРµРј РѕРіРѕРЅСЊ!')
+        sampSendChat('/m ['..frak..'] Водитель, снизьте скорость и прижмитесь к обочине или мы откроем огонь!')
     end
     if id ~= nil and not sampIsPlayerConnected(id) then
-        ftext(string.format('РРіСЂРѕРє СЃ ID: %s РЅРµ РїРѕРґРєР»СЋС‡РµРЅ Рє СЃРµСЂРІРµСЂСѓ', id), -1)
+        ftext(string.format('Игрок с ID: %s не подключен к серверу', id), -1)
     end
     if result and not doesCharExist(ped) then
         local stname = sampGetPlayerNickname(id)
-        ftext(string.format('РРіСЂРѕРє %s [%s] РЅРµ РґРѕСЃС‚СѓРїРµРЅ', stname, id), -1)
+        ftext(string.format('Игрок %s [%s] не доступен', stname, id), -1)
     end
     if result and doesCharExist(ped) and not isCharInAnyCar(ped) then
         local stnaame = sampGetPlayerNickname(id)
-        ftext(string.format('РРіСЂРѕРє %s [%s] РЅРµ РІ С‚СЂР°РЅСЃРїРѕСЂС‚Рµ', stnaame, id), -1)
+        ftext(string.format('Игрок %s [%s] не в транспорте', stnaame, id), -1)
     end
     if result and doesCharExist(ped) and isCharInAnyCar(ped) then
         local vehName = tCarsName[getCarModel(storeCarCharIsInNoSave(ped))-399]
-        sampSendChat("/m Р’РѕРґРёС‚РµР»СЊ Рў/C "..vehName.." СЃ РіРѕСЃ.РЅРѕРјРµСЂРѕРј [EVL"..id.."X], РїСЂРёР¶РјРёС‚РµСЃСЊ Рє РѕР±РѕС‡РёРЅРµ Рё РѕСЃС‚Р°РЅРѕРІРёС‚Рµ СЃРІРѕС‘ Рў/РЎ")
+        sampSendChat("/m Водитель Т/C "..vehName.." с гос.номером [EVL"..id.."X], прижмитесь к обочине и остановите своё Т/С")
     end
 end
 
@@ -5300,24 +4183,24 @@ function deject(pam)
                     local result, ped = sampGetCharHandleBySampPlayerId(id)
                     if result then
                         if isCharInFlyingVehicle(ped) then
-                            sampSendChat(("/me %s РґРІРµСЂСЊ РІРµСЂС‚РѕР»С‘С‚Р° Рё %s %s"):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'РІС‹С‚Р°С‰РёР»' or 'РІС‹С‚Р°С‰РёР»Р°', sampGetPlayerNickname(id):gsub('_', ' ')))
+                            sampSendChat(("/me %s дверь вертолёта и %s %s"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'вытащил' or 'вытащила', sampGetPlayerNickname(id):gsub('_', ' ')))
                         elseif isCharInModel(ped, 481) or isCharInModel(ped, 510) then
-                            sampSendChat(("/me %s %s СЃ РІРµР»РѕСЃРёРїРµРґР°"):format(cfg.main.male and 'СЃРєРёРЅСѓР»' or 'СЃРєРёРЅСѓР»Р°', sampGetPlayerNickname(id):gsub('_', ' ')))
+                            sampSendChat(("/me %s %s с велосипеда"):format(cfg.main.male and 'скинул' or 'скинула', sampGetPlayerNickname(id):gsub('_', ' ')))
                         elseif isCharInModel(ped, 462) then
-                            sampSendChat(("/me %s %s СЃРѕ СЃРєСѓС‚РµСЂР°"):format(cfg.main.male and 'СЃРєРёРЅСѓР»' or 'СЃРєРёРЅСѓР»Р°', sampGetPlayerNickname(id):gsub('_', ' ')))
+                            sampSendChat(("/me %s %s со скутера"):format(cfg.main.male and 'скинул' or 'скинула', sampGetPlayerNickname(id):gsub('_', ' ')))
                         elseif isCharOnAnyBike(ped) then
-                            sampSendChat(("/me %s %s СЃ РјРѕС‚РѕС†РёРєР»Р°"):format(cfg.main.male and 'СЃРєРёРЅСѓР»' or 'СЃРєРёРЅСѓР»Р°', sampGetPlayerNickname(id):gsub('_', ' ')))
+                            sampSendChat(("/me %s %s с мотоцикла"):format(cfg.main.male and 'скинул' or 'скинула', sampGetPlayerNickname(id):gsub('_', ' ')))
                         elseif isCharInAnyCar(ped) then
-                            sampSendChat(("/me %s РѕРєРЅРѕ Рё %s %s РёР· РјР°С€РёРЅС‹"):format(cfg.main.male and 'СЂР°Р·Р±РёР»' or 'СЂР°Р·Р±РёР»Р°', cfg.main.male and 'РІС‹С‚Р°С‰РёР»' or 'РІС‹С‚Р°С‰РёР»Р°', sampGetPlayerNickname(id):gsub('_', ' ')))
+                            sampSendChat(("/me %s окно и %s %s из машины"):format(cfg.main.male and 'разбил' or 'разбила', cfg.main.male and 'вытащил' or 'вытащила', sampGetPlayerNickname(id):gsub('_', ' ')))
                         end
                         wait(1400)
                         sampSendChat(("/deject %s"):format(id))
                     end
                 else
-                    ftext('РРіСЂРѕРє РѕС„С„Р»Р°Р№РЅ')
+                    ftext('Игрок оффлайн')
                 end
             else
-                ftext("Р’РІРµРґРёС‚Рµ: /deject [id]")
+                ftext("Введите: /deject [id]")
             end
         else
             sampSendChat(("/deject %s"):format(pam))
@@ -5328,32 +4211,32 @@ end
 function rh(id)
     local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
     if id == "" or id < "1" or id > "3" or id == nil then
-        ftext("Р’РІРµРґРёС‚Рµ: /rh Р”РµРїР°СЂС‚Р°РјРµРЅС‚", -1)
+        ftext("Введите: /rh Департамент", -1)
         ftext("1 - LSPD | 2 - SFPD | 3 - LVPD", -1)
     elseif id == "1" then
-        sampSendChat("/d LSPD, Р·Р°РїСЂР°С€РёРІР°СЋ РїР°С‚СЂСѓР»СЊРЅС‹Р№ СЌРєРёРїР°Р¶ РІ "..kvadrat()..", РєР°Рє РїСЂРёРЅСЏР»Рё? РћС‚РІРµС‚ РЅР° РїРґР¶."..myid)
+        sampSendChat("/d LSPD, запрашиваю патрульный экипаж в "..kvadrat()..", как приняли? Ответ на пдж."..myid)
     elseif id == "2" then
-        sampSendChat("/d SFPD, Р·Р°РїСЂР°С€РёРІР°СЋ РїР°С‚СЂСѓР»СЊРЅС‹Р№ СЌРєРёРїР°Р¶ РІ "..kvadrat()..", РєР°Рє РїСЂРёРЅСЏР»Рё? РћС‚РІРµС‚ РЅР° РїРґР¶."..myid)
+        sampSendChat("/d SFPD, запрашиваю патрульный экипаж в "..kvadrat()..", как приняли? Ответ на пдж."..myid)
     elseif id == "3" then
-        sampSendChat("/d LVPD, Р·Р°РїСЂР°С€РёРІР°СЋ РїР°С‚СЂСѓР»СЊРЅС‹Р№ СЌРєРёРїР°Р¶ РІ "..kvadrat()..", РєР°Рє РїСЂРёРЅСЏР»Рё? РћС‚РІРµС‚ РЅР° РїРґР¶."..myid)
+        sampSendChat("/d LVPD, запрашиваю патрульный экипаж в "..kvadrat()..", как приняли? Ответ на пдж."..myid)
     end
 end
 function gr(pam)
     local dep, reason = pam:match('(%d+)%s+(.+)')
     if dep == nil or reason == nil then
-        ftext("Р’РІРµРґРёС‚Рµ: /gr [1-3] [РџСЂРёС‡РёРЅР°]")
+        ftext("Введите: /gr [1-3] [Причина]")
         ftext("1 - LSPD | 2 - SFPD | 3 - LVPD")
     end
     if dep ~= nil then
         if dep == "" or dep < "1" or dep > "3" then
-            ftext("{9966CC}"..script.this.name.." {FFFFFF}| Р’РІРµРґРёС‚Рµ: /gr [1-3] [РџСЂРёС‡РёРЅР°]")
-            ftext("{9966CC}"..script.this.name.." {FFFFFF}| 1 - LSPD | 2 - SFPD | 3 - LVPD")
+            ftext("{9966CC}FBI Tools {FFFFFF}| Введите: /gr [1-3] [Причина]")
+            ftext("{9966CC}FBI Tools {FFFFFF}| 1 - LSPD | 2 - SFPD | 3 - LVPD")
         elseif dep == "1" then
-            sampSendChat("/d LSPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, "..reason)
+            sampSendChat("/d LSPD, пересекаю вашу юрисдикцию, "..reason)
         elseif dep == "2" then
-            sampSendChat("/d SFPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, "..reason)
+            sampSendChat("/d SFPD, пересекаю вашу юрисдикцию, "..reason)
         elseif dep == "3" then
-            sampSendChat("/d LVPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, "..reason)
+            sampSendChat("/d LVPD, пересекаю вашу юрисдикцию, "..reason)
         end
     end
 end
@@ -5361,7 +4244,7 @@ function warn(pam)
     local id = tonumber(pam)
     if frak == 'FBI' then
         if id == nil then
-            ftext('Р’РІРµРґРёС‚Рµ /warn ID')
+            ftext('Введите /warn ID')
         end
         if id ~= nil and sampIsPlayerConnected(id) then
             lua_thread.create(function()
@@ -5369,81 +4252,81 @@ function warn(pam)
                 sampSendChat('/mdc '..id)
                 wait(1400)
                 if wfrac == 'LSPD' or wfrac == 'SFPD' or wfrac == 'LVPD' then
-                    sampSendChat(string.format('/d %s, %s РїРѕР»СѓС‡Р°РµС‚ РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ Р·Р° РЅРµРїСЂР°РІРёР»СЊРЅСѓСЋ РїРѕРґР°С‡Сѓ РІ СЂРѕР·С‹СЃРє.', wfrac, sampGetPlayerNickname(id):gsub('_', ' ')))
+                    sampSendChat(string.format('/d %s, %s получает предупреждение за неправильную подачу в розыск.', wfrac, sampGetPlayerNickname(id):gsub('_', ' ')))
                 else
-                    ftext('Р§РµР»РѕРІРµРє РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃРѕС‚СЂСѓРґРЅРёРєРѕРј PD')
+                    ftext('Человек не является сотрудником PD')
                 end
                 wfrac = nil
                 warnst = false
             end)
         end
     else
-        ftext("Р’С‹ РЅРµ СЃРѕС‚СЂСѓРґРЅРёРє Р¤Р‘Р ")
+        ftext("Вы не сотрудник ФБР")
     end
 end
 function ms(pam)
 	lua_thread.create(function()
 		if frak == 'FBI' then
 			if pam == "" or pam < "0" or pam > "3" or pam == nil then
-				ftext("Р’РІРµРґРёС‚Рµ: /ms [РўРёРї]", -1)
-				ftext("0 - РЎРЅСЏС‚СЊ РјР°СЃРєРёСЂРѕРІРєСѓ | 1 - РћС„РёСЃ | 2 - Р‘Р°РіР°Р¶РЅРёРє | 3 - РЎСѓРјРєР°", -1)
+				ftext("Введите: /ms [Тип]", -1)
+				ftext("0 - Снять маскировку | 1 - Офис | 2 - Багажник | 3 - Сумка", -1)
 			elseif pam == '1' then
-				sampSendChat(("/me %s СЃ СЃРµР±СЏ РєРѕСЃС‚СЋРј Р°РіРµРЅС‚Р° Рё %s РЅР° РІРµС€Р°Р»РєСѓ"):format(cfg.main.male and 'СЃРЅСЏР»' or 'СЃРЅСЏР»Р°', cfg.main.male and 'РїРѕРІРµСЃРёР»' or 'РїРѕРІРµСЃРёР»Р°'))
+				sampSendChat(("/me %s с себя костюм агента и %s на вешалку"):format(cfg.main.male and 'снял' or 'сняла', cfg.main.male and 'повесил' or 'повесила'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s СЏС‰РёРє, РїРѕСЃР»Рµ С‡РµРіРѕ РґРѕСЃС‚Р°Р» %s РјР°СЃРєРёСЂРѕРІРєРё"):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°', cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
+				sampSendChat(("/me %s ящик, после чего достал %s маскировки"):format(cfg.main.male and 'открыл' or 'открыла', cfg.main.male and 'достал' or 'достала'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s РЅР° СЃРµР±СЏ РјР°СЃРєРёСЂРѕРІРєСѓ Рё %s СЏС‰РёРє"):format(cfg.main.male and 'РЅР°РґРµР»' or 'РЅР°РґРµР»Р°', cfg.main.male and 'Р·Р°РєСЂС‹Р»' or 'Р·Р°РєСЂС‹Р»Р°'))
+				sampSendChat(("/me %s на себя маскировку и %s ящик"):format(cfg.main.male and 'надел' or 'надела', cfg.main.male and 'закрыл' or 'закрыла'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat("/do РђРіРµРЅС‚ РІ РјР°СЃРєРёСЂРѕРІРєРµ.")
+				sampSendChat("/do Агент в маскировке.")
 				wait(100)
-				submenus_show(osnova, "{9966cc}"..script.this.name.." {ffffff}| Mask")
+				submenus_show(osnova, "{9966cc}FBI Tools {ffffff}| Mask")
 			elseif pam == '2' then
-				sampSendChat(("/me %s Р±Р°РіР°Р¶РЅРёРє Р°РІС‚РѕРјРѕР±РёР»СЏ"):format(cfg.main.male and 'РѕС‚РєСЂС‹Р»' or 'РѕС‚РєСЂС‹Р»Р°'))
+				sampSendChat(("/me %s багажник автомобиля"):format(cfg.main.male and 'открыл' or 'открыла'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s СЃ СЃРµР±СЏ РєРѕСЃС‚СЋРј Р°РіРµРЅС‚Р° Рё %s РІ Р±Р°РіР°Р¶РЅРёРє"):format(cfg.main.male and 'СЃРЅСЏР»' or 'СЃРЅСЏР»Р°', cfg.main.male and 'СѓР±СЂР°Р»' or 'СѓР±СЂР°Р»Р°'))
+				sampSendChat(("/me %s с себя костюм агента и %s в багажник"):format(cfg.main.male and 'снял' or 'сняла', cfg.main.male and 'убрал' or 'убрала'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s РёР· Р±Р°РіР°Р¶РЅРёРєР° РєРѕРјРїР»РµРєС‚ РјР°СЃРєРёСЂРѕРІРєРё Рё %s РЅР° СЃРµР±СЏ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°', cfg.main.male and 'РЅР°РґРµР»' or 'РЅР°РґРµР»Р°'))
+				sampSendChat(("/me %s из багажника комплект маскировки и %s на себя"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'надел' or 'надела'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s Р±Р°РіР°Р¶РЅРёРє"):format(cfg.main.male and 'Р·Р°РєСЂС‹Р»' or 'Р·Р°РєСЂС‹Р»Р°'))
+				sampSendChat(("/me %s багажник"):format(cfg.main.male and 'закрыл' or 'закрыла'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat("/do РђРіРµРЅС‚ РІ РјР°СЃРєРёСЂРѕРІРєРµ.")
+				sampSendChat("/do Агент в маскировке.")
 				wait(100)
-				submenus_show(osnova, "{9966cc}"..script.this.name.." {ffffff}| Mask")
+				submenus_show(osnova, "{9966cc}FBI Tools {ffffff}| Mask")
 			elseif pam == '3' then
-				sampSendChat("/do РќР° РїР»РµС‡Рµ Р°РіРµРЅС‚Р° РІРёСЃРёС‚ СЃСѓРјРєР°.")
+				sampSendChat("/do На плече агента висит сумка.")
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me РѕС‚РєСЂС‹РІ СЃСѓРјРєСѓ, %s РєРѕСЃС‚СЋРј Р°РіРµРЅС‚Р° Рё %s С‚СѓРґР°"):format(cfg.main.male and 'СЃРЅСЏР»' or 'СЃРЅСЏР»Р°', cfg.main.male and 'СѓР±СЂР°Р»' or 'СѓР±СЂР°Р»Р°'))
+				sampSendChat(("/me открыв сумку, %s костюм агента и %s туда"):format(cfg.main.male and 'снял' or 'сняла', cfg.main.male and 'убрал' or 'убрала'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s РёР· СЃСѓРјРєРё РєРѕРјРїР»РµРєС‚ РјР°СЃРєРёСЂРѕРІРєРё Рё %s РЅР° СЃРµР±СЏ"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°', cfg.main.male and 'РЅР°РґРµР»' or 'РЅР°РґРµР»Р°'))
+				sampSendChat(("/me %s из сумки комплект маскировки и %s на себя"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'надел' or 'надела'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s СЃСѓРјРєСѓ"):format(cfg.main.male and 'Р·Р°РєСЂС‹Р»' or 'Р·Р°РєСЂС‹Р»Р°'))
+				sampSendChat(("/me %s сумку"):format(cfg.main.male and 'закрыл' or 'закрыла'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat("/do РђРіРµРЅС‚ РІ РјР°СЃРєРёСЂРѕРІРєРµ.")
+				sampSendChat("/do Агент в маскировке.")
 				wait(100)
-				submenus_show(osnova, "{9966cc}"..script.this.name.." {ffffff}| Mask")
+				submenus_show(osnova, "{9966cc}FBI Tools {ffffff}| Mask")
 			elseif pam == '0' then
-				sampSendChat(("/me %s СЃ СЃРµР±СЏ РјР°СЃРєРёСЂРѕРІРєСѓ"):format(cfg.main.male and 'СЃРЅСЏР»' or 'СЃРЅСЏР»Р°'))
+				sampSendChat(("/me %s с себя маскировку"):format(cfg.main.male and 'снял' or 'сняла'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/me %s РЅР° СЃРµР±СЏ РєРѕСЃС‚СЋРј Р°РіРµРЅС‚Р°"):format(cfg.main.male and 'РЅР°РґРµР»' or 'РЅР°РґРµР»Р°'))
+				sampSendChat(("/me %s на себя костюм агента"):format(cfg.main.male and 'надел' or 'надела'))
 				wait(cfg.commands.zaderjka)
-				sampSendChat(("/r %s РІ РєРѕСЃС‚СЋРј Р°РіРµРЅС‚Р°"):format(cfg.main.male and 'РџРµСЂРµРѕРґРµР»СЃСЏ' or 'РџРµСЂРµРѕРґРµР»Р°СЃСЊ'))
+				sampSendChat(("/r %s в костюм агента"):format(cfg.main.male and 'Переоделся' or 'Переоделась'))
 				wait(cfg.commands.zaderjka)
 				sampSendChat("/rb "..select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)))
 			end
 		else
-			ftext('Р’С‹ РЅРµ СЃРѕС‚СЂСѓРґРЅРёРє FBI')
+			ftext('Вы не сотрудник FBI')
 		end
 	end)
 end
 
 function ar(id)
     if id == "" or id < "1" or id > "2" or id == nil then
-        ftext("Р’РІРµРґРёС‚Рµ: /ar [1-2]", -1)
+        ftext("Введите: /ar [1-2]", -1)
         ftext("1 - LVa | 2 - SFa", -1)
     elseif id == "1" then
-        sampSendChat("/d LVa, СЂР°Р·СЂРµС€РёС‚Рµ РІСЉРµР·Рґ РЅР° РІР°С€Сѓ С‚РµСЂСЂРёС‚РѕСЂРёСЋ, РїРѕРёРјРєР° РїСЂРµСЃС‚СѓРїРЅРёРєР°.")
+        sampSendChat("/d LVa, разрешите въезд на вашу территорию, поимка преступника.")
     elseif id == "2" then
-        sampSendChat("/d SFa, СЂР°Р·СЂРµС€РёС‚Рµ РІСЉРµР·Рґ РЅР° РІР°С€Сѓ С‚РµСЂСЂРёС‚РѕСЂРёСЋ, РїРѕРёРјРєР° РїСЂРµСЃС‚СѓРїРЅРёРєР°.")
+        sampSendChat("/d SFa, разрешите въезд на вашу территорию, поимка преступника.")
     end
 end
 
@@ -5455,7 +4338,7 @@ function r(pam)
             sampSendChat(string.format('/r %s', pam))
         end
     else
-        ftext('Р’РІРµРґРёС‚Рµ /r [С‚РµРєСЃС‚]')
+        ftext('Введите /r [текст]')
     end
 end
 
@@ -5467,7 +4350,7 @@ function f(pam)
             sampSendChat(string.format('/f %s', pam))
         end
     else
-        ftext('Р’РІРµРґРёС‚Рµ /f [С‚РµРєСЃС‚]')
+        ftext('Введите /f [текст]')
     end
 end
 
@@ -5478,10 +4361,10 @@ function fst(param)
         patch_samp_time_set(true)
         if time then
             setTimeOfDay(time, 0)
-            ftext('Р’СЂРµРјСЏ РёР·РјРµРЅРµРЅРѕ РЅР°: {9966cc}'..time, -1)
+            ftext('Время изменено на: {9966cc}'..time, -1)
         end
     else
-        ftext('Р—РЅР°С‡РµРЅРёРµ РІСЂРµРјРµРЅРё РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РІ РґРёР°РїР°Р·РѕРЅРµ РѕС‚ 0 РґРѕ 23.', -1)
+        ftext('Значение времени должно быть в диапазоне от 0 до 23.', -1)
         patch_samp_time_set(false)
         time = nil
     end
@@ -5491,9 +4374,9 @@ function fsw(param)
     local weather = tonumber(param)
     if weather ~= nil and weather >= 0 and weather <= 45 then
         forceWeatherNow(weather)
-        ftext('РџРѕРіРѕРґР° РёР·РјРµРЅРµРЅР° РЅР°: {9966cc}'..weather, -1)
+        ftext('Погода изменена на: {9966cc}'..weather, -1)
     else
-        ftext('Р—РЅР°С‡РµРЅРёРµ РїРѕРіРѕРґС‹ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РІ РґРёР°РїР°Р·РѕРЅРµ РѕС‚ 0 РґРѕ 45.', -1)
+        ftext('Значение погоды должно быть в диапазоне от 0 до 45.', -1)
     end
 end
 
@@ -5517,7 +4400,7 @@ function fshp(pam)
         end
         f:close()
     else
-        ftext('Р’РІРµРґРёС‚Рµ /fshp [С‚РµРєСЃС‚]')
+        ftext('Введите /fshp [текст]')
     end
 end
 function fyk(pam)
@@ -5530,7 +4413,7 @@ function fyk(pam)
         end
         f:close()
     else
-        ftext('Р’РІРµРґРёС‚Рµ /fyk [С‚РµРєСЃС‚]')
+        ftext('Введите /fyk [текст]')
     end
 end
 
@@ -5544,7 +4427,7 @@ function ffp(pam)
         end
         f:close()
     else
-        ftext('Р’РІРµРґРёС‚Рµ /ffp [С‚РµРєСЃС‚]')
+        ftext('Введите /ffp [текст]')
     end
 end
 
@@ -5558,62 +4441,50 @@ function fak(pam)
         end
         f:close()
     else
-        ftext('Р’РІРµРґРёС‚Рµ /fak [С‚РµРєСЃС‚]')
+        ftext('Введите /fak [текст]')
     end
 end
 
 function dmb()
-    lua_thread.create(function()
-        if sampIsDialogActive() then
-            if sampIsDialogClientside() then
-                tMembers = {}
-                status = true
-                sampSendChat('/members')
-                while not gotovo do wait(0) end
-                memw.v = true
-                gosmb = false
-                krimemb = false
-                gotovo = false
-                status = false
-                gcount = nil
-            end
-        else
-            tMembers = {}
-            status = true
-            sampSendChat('/members')
-            while not gotovo do wait(0) end
-            memw.v = true
-            gosmb = false
-            krimemb = false
-            gotovo = false
-            status = false
-            gcount = nil
-        end
+	lua_thread.create(function()
+		status = true
+		sampSendChat('/members')
+		while not gotovo do wait(0) end
+		if gosmb then
+			sampShowDialog(716, "{ffffff}В сети: "..gcount.." | {ae433d}Организация", table.concat(players2, "\n"), "x", _, 5)
+		elseif krimemb then
+			sampShowDialog(716, "{ffffff}В сети: "..gcount.." | {ae433d}Организация", table.concat(players1, "\n"), "x", _, 5)
+		end
+		gosmb = false
+		krimemb = false
+		gotovo = false
+		status = false
+		players2 = {'{ffffff}Ник\t{ffffff}Ранг\t{ffffff}Статус'}
+		players1 = {'{ffffff}Ник\t{ffffff}Ранг'}
+		gcount = nil
 	end)
 end
 
 function megaf()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
-        lua_thread.create(function()
-            if isCharInAnyCar(PLAYER_PED) then
-                incar = {}
-                local stream = sampGetStreamedPlayers()
-                local _, myvodil = sampGetPlayerIdByCharHandle(getDriverOfCar(storeCarCharIsInNoSave(PLAYER_PED)))
-                for k, v in pairs(stream) do
-                    local result, ped = sampGetCharHandleBySampPlayerId(v)
-                    if result then
-                        if isCharInAnyCar(ped) then
-                            local car = storeCarCharIsInNoSave(ped)
-                            local myposx, myposy, myposz = getCharCoordinates(PLAYER_PED)
-                            local pposx, pposy, pposz = getCharCoordinates(ped)
-                            local dist = getDistanceBetweenCoords3d(myposx, myposy, myposz, pposx, pposy, pposz)
-                            if dist <=65 then
-                                if getDriverOfCar(car) == ped then
-                                    if sampGetFraktionBySkin(v) ~= 'РџРѕР»РёС†РёСЏ' then
-                                        if storeCarCharIsInNoSave(ped) ~= storeCarCharIsInNoSave(PLAYER_PED) then
-                                            if v ~= myvodil then
-                                                table.insert(incar, v)
-                                            end
+    lua_thread.create(function()
+        if isCharInAnyCar(PLAYER_PED) then
+            incar = {}
+            local stream = sampGetStreamedPlayers()
+            local _, myvodil = sampGetPlayerIdByCharHandle(getDriverOfCar(storeCarCharIsInNoSave(PLAYER_PED)))
+            for k, v in pairs(stream) do
+                local result, ped = sampGetCharHandleBySampPlayerId(v)
+                if result then
+                    if isCharInAnyCar(ped) then
+                        local car = storeCarCharIsInNoSave(ped)
+                        local myposx, myposy, myposz = getCharCoordinates(PLAYER_PED)
+                        local pposx, pposy, pposz = getCharCoordinates(ped)
+                        local dist = getDistanceBetweenCoords3d(myposx, myposy, myposz, pposx, pposy, pposz)
+                        if dist <=65 then
+                            if getDriverOfCar(car) == ped then
+                                if sampGetFraktionBySkin(v) ~= 'Полиция' then
+                                    if storeCarCharIsInNoSave(ped) ~= storeCarCharIsInNoSave(PLAYER_PED) then
+                                        if v ~= myvodil then
+                                            table.insert(incar, v)
                                         end
                                     end
                                 end
@@ -5621,235 +4492,208 @@ function megaf()
                         end
                     end
                 end
-                if #incar ~= 0 then
-                    if #incar == 1 then
-                        local result, ped = sampGetCharHandleBySampPlayerId(incar[1])
-                        if doesCharExist(ped) then
-                            if isCharInAnyCar(ped) then
+            end
+            if #incar ~= 0 then
+                if #incar == 1 then
+                    local result, ped = sampGetCharHandleBySampPlayerId(incar[1])
+                    if doesCharExist(ped) then
+                        if isCharInAnyCar(ped) then
+                            local carh = storeCarCharIsInNoSave(ped)
+                            local carhm = getCarModel(carh)
+                            sampSendChat(("/m Водитель а/м %s [EVL%sX]"):format(tCarsName[carhm-399], incar[1]))
+                            wait(1400)
+                            sampSendChat("/m Прижмитесь к обочине или мы откроем огонь!")
+                            wait(300)
+                            sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
+                            sampAddChatMessage('', 0x9966cc)
+                            sampAddChatMessage(' {ffffff}Ник: {9966cc}'..sampGetPlayerNickname(incar[1])..' ['..incar[1]..']', 0x9966cc)
+                            sampAddChatMessage(' {ffffff}Уровень: {9966cc}'..sampGetPlayerScore(incar[1]), 0x9966cc)
+                            sampAddChatMessage(' {ffffff}Фракция: {9966cc}'..sampGetFraktionBySkin(incar[1]), 0x9966cc)
+                            sampAddChatMessage('', 0x9966cc)
+                            sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
+                            gmegafid = v
+                            gmegaflvl = sampGetPlayerScore(incar[1])
+                            gmegaffrak = sampGetFraktionBySkin(incar[1])
+                            gmegafcar = tCarsName[carhm-399]
+                        end
+                    end
+                else
+                    if cfg.main.megaf then
+                        if not imegaf.v then imegaf.v = true end
+                    else
+                        for k, v in pairs(incar) do
+                            local result, ped = sampGetCharHandleBySampPlayerId(v)
+                            if doesCharExist(ped) then
                                 local carh = storeCarCharIsInNoSave(ped)
                                 local carhm = getCarModel(carh)
-                                sampSendChat(("/m Р’РѕРґРёС‚РµР»СЊ Р°/Рј %s [EVL%sX]"):format(tCarsName[carhm-399], incar[1]))
+                                sampSendChat(("/m Водитель а/м %s [EVL%sX]"):format(tCarsName[carhm-399], v))
                                 wait(1400)
-                                sampSendChat("/m РџСЂРёР¶РјРёС‚РµСЃСЊ Рє РѕР±РѕС‡РёРЅРµ РёР»Рё РјС‹ РѕС‚РєСЂРѕРµРј РѕРіРѕРЅСЊ!")
+                                sampSendChat("/m Прижмитесь к обочине или мы откроем огонь!")
                                 wait(300)
                                 sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
                                 sampAddChatMessage('', 0x9966cc)
-                                sampAddChatMessage(' {ffffff}РќРёРє: {9966cc}'..sampGetPlayerNickname(incar[1])..' ['..incar[1]..']', 0x9966cc)
-                                sampAddChatMessage(' {ffffff}РЈСЂРѕРІРµРЅСЊ: {9966cc}'..sampGetPlayerScore(incar[1]), 0x9966cc)
-                                sampAddChatMessage(' {ffffff}Р¤СЂР°РєС†РёСЏ: {9966cc}'..sampGetFraktionBySkin(incar[1]), 0x9966cc)
+                                sampAddChatMessage(' {ffffff}Ник: {9966cc}'..sampGetPlayerNickname(v)..' ['..v..']', 0x9966cc)
+                                sampAddChatMessage(' {ffffff}Уровень: {9966cc}'..sampGetPlayerScore(v), 0x9966cc)
+                                sampAddChatMessage(' {ffffff}Фракция: {9966cc}'..sampGetFraktionBySkin(v), 0x9966cc)
                                 sampAddChatMessage('', 0x9966cc)
                                 sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
-                                gmegafid = incar[1]
-                                gmegaflvl = sampGetPlayerScore(incar[1])
-                                gmegaffrak = sampGetFraktionBySkin(incar[1])
+                                gmegafid = v
+                                gmegaflvl = sampGetPlayerScore(v)
+                                gmegaffrak = sampGetFraktionBySkin(v)
                                 gmegafcar = tCarsName[carhm-399]
-                            end
-                        end
-                    else
-                        if cfg.main.megaf then
-                            if not imegaf.v then imegaf.v = true end
-                        else
-                            for k, v in pairs(incar) do
-                                local result, ped = sampGetCharHandleBySampPlayerId(v)
-                                if doesCharExist(ped) then
-                                    local carh = storeCarCharIsInNoSave(ped)
-                                    local carhm = getCarModel(carh)
-                                    sampSendChat(("/m Р’РѕРґРёС‚РµР»СЊ Р°/Рј %s [EVL%sX]"):format(tCarsName[carhm-399], v))
-                                    wait(1400)
-                                    sampSendChat("/m РџСЂРёР¶РјРёС‚РµСЃСЊ Рє РѕР±РѕС‡РёРЅРµ РёР»Рё РјС‹ РѕС‚РєСЂРѕРµРј РѕРіРѕРЅСЊ!")
-                                    wait(300)
-                                    sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
-                                    sampAddChatMessage('', 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}РќРёРє: {9966cc}'..sampGetPlayerNickname(v)..' ['..v..']', 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}РЈСЂРѕРІРµРЅСЊ: {9966cc}'..sampGetPlayerScore(v), 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}Р¤СЂР°РєС†РёСЏ: {9966cc}'..sampGetFraktionBySkin(v), 0x9966cc)
-                                    sampAddChatMessage('', 0x9966cc)
-                                    sampAddChatMessage(' {ffffff}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~', 0x9966cc)
-                                    gmegafid = v
-                                    gmegaflvl = sampGetPlayerScore(v)
-                                    gmegaffrak = sampGetFraktionBySkin(v)
-                                    gmegafcar = tCarsName[carhm-399]
-                                    break
-                                end
+                                break
                             end
                         end
                     end
                 end
-            else
-                ftext("Р’Р°Рј РЅРµРѕР±С…РѕРґРёРјРѕ СЃРёРґРµС‚СЊ РІ С‚СЂР°РЅСЃРїРѕСЂС‚Рµ")
             end
-        end)
-    end
+        else
+            ftext("Вам необходимо сидеть в транспорте")
+        end
+    end)
 end
 
 function dkld()
-    if cfg.main.group == 'РџР”/Р¤Р‘Р ' then
-        if isCharInAnyCar(PLAYER_PED) then
-            if post ~= 7 and post ~= 12 and post ~= 13 and post ~= 14 and post ~= 18 and post ~= 21 and post ~= 22 and post ~= 23 and post ~= 24 and post ~= 25 and post ~= 26 and post ~= 27 and post ~= 28 and post ~= 29 and post ~= 30 and post ~= 31 then
-                if getCarSpeed(storeCarCharIsInNoSave(PLAYER_PED)) > 0 then
-                    if frak == 'LSPD' then
-                        if not cfg.main.tarb  then
-                            sampSendChat('/r РџР°С‚СЂСѓР»СЊ Рі. Р›РѕСЃ-РЎР°РЅС‚РѕСЃ. '..naparnik())
-                        else
-                            sampSendChat('/r ['..cfg.main.tar..']: РџР°С‚СЂСѓР»СЊ Рі. Р›РѕСЃ-РЎР°РЅС‚РѕСЃ. '..naparnik())
-                        end
-                    elseif frak == 'SFPD' then
-                        if not cfg.main.tarb then
-                            sampSendChat('/r РџР°С‚СЂСѓР»СЊ Рі. РЎР°РЅ-Р¤РёРµСЂСЂРѕ. '..naparnik())
-                        else
-                            sampSendChat('/r ['..cfg.main.tar..']: РџР°С‚СЂСѓР»СЊ Рі. РЎР°РЅ-Р¤РёРµСЂСЂРѕ. '..naparnik())
-                        end
-                    elseif frak == 'LVPD' then
-                        if not cfg.main.tarb then
-                            sampSendChat('/r РџР°С‚СЂСѓР»СЊ Рі. Р›Р°СЃ-Р’РµРЅС‚СѓСЂР°СЃ. '..naparnik())
-                        else
-                            sampSendChat('/r ['..cfg.main.tar..']: РџР°С‚СЂСѓР»СЊ Рі. Р›Р°СЃ-Р’РµРЅС‚СѓСЂР°СЃ. '..naparnik())
-                        end
-                    end
+    if isCharInAnyCar(PLAYER_PED) then
+        if post ~= 7 and post ~= 12 and post ~= 13 and post ~= 14 and post ~= 18 and post ~= 21 and post ~= 22 and post ~= 23 and post ~= 24 and post ~= 25 and post ~= 26 and post ~= 27 and post ~= 28 and post ~= 29 and post ~= 30 and post ~= 31 then
+            if frak == 'LSPD' then
+                if not cfg.main.tarb  then
+                    sampSendChat('/r Патруль г. Лос-Сантос. '..naparnik())
                 else
-                    if post ~= nil then
-                        if getNameSphere(post) ~= nil then
-                            if not cfg.main.tarb then
-                                sampSendChat('/r РџРѕСЃС‚: '..getNameSphere(post)..'. '..naparnik())
-                            else
-                                sampSendChat('/r ['..cfg.main.tar..']: РџРѕСЃС‚: '..getNameSphere(post)..'. '..naparnik())
-                            end
-                        end
-                    else
-                        if frak == 'LSPD' then
-                            if not cfg.main.tarb  then
-                                sampSendChat('/r РџР°С‚СЂСѓР»СЊ Рі. Р›РѕСЃ-РЎР°РЅС‚РѕСЃ. '..naparnik())
-                            else
-                                sampSendChat('/r ['..cfg.main.tar..']: РџР°С‚СЂСѓР»СЊ Рі. Р›РѕСЃ-РЎР°РЅС‚РѕСЃ. '..naparnik())
-                            end
-                        elseif frak == 'SFPD' then
-                            if not cfg.main.tarb then
-                                sampSendChat('/r РџР°С‚СЂСѓР»СЊ Рі. РЎР°РЅ-Р¤РёРµСЂСЂРѕ. '..naparnik())
-                            else
-                                sampSendChat('/r ['..cfg.main.tar..']: РџР°С‚СЂСѓР»СЊ Рі. РЎР°РЅ-Р¤РёРµСЂСЂРѕ. '..naparnik())
-                            end
-                        elseif frak == 'LVPD' then
-                            if not cfg.main.tarb then
-                                sampSendChat('/r РџР°С‚СЂСѓР»СЊ Рі. Р›Р°СЃ-Р’РµРЅС‚СѓСЂР°СЃ. '..naparnik())
-                            else
-                                sampSendChat('/r ['..cfg.main.tar..']: РџР°С‚СЂСѓР»СЊ Рі. Р›Р°СЃ-Р’РµРЅС‚СѓСЂР°СЃ. '..naparnik())
-                            end
-                        end
-                    end
+                    sampSendChat('/r ['..cfg.main.tar..']: Патруль г. Лос-Сантос. '..naparnik())
                 end
-            end
-            if post == 7 or post == 12 or post == 13 or post == 14 or post == 18 then
+            elseif frak == 'SFPD' then
                 if not cfg.main.tarb then
-                    sampSendChat('/r РџРѕСЃС‚: '..getNameSphere(post)..'. '..naparnik())
+                    sampSendChat('/r Патруль г. Сан-Фиерро. '..naparnik())
                 else
-                    sampSendChat('/r ['..cfg.main.tar..']: РџРѕСЃС‚: '..getNameSphere(post)..'. '..naparnik())
+                    sampSendChat('/r ['..cfg.main.tar..']: Патруль г. Сан-Фиерро. '..naparnik())
                 end
-            end
-            if post == 21 then
+            elseif frak == 'LVPD' then
                 if not cfg.main.tarb then
-                    sampSendChat('/r РџР°С‚СЂСѓР»СЊ РѕРїР°СЃРЅРѕРіРѕ СЂР°Р№РѕРЅР°. '..naparnik())
+                    sampSendChat('/r Патруль г. Лас-Вентурас. '..naparnik())
                 else
-                    sampSendChat('/r ['..cfg.main.tar..']: РџР°С‚СЂСѓР»СЊ РѕРїР°СЃРЅРѕРіРѕ СЂР°Р№РѕРЅР°. '..naparnik())
+                    sampSendChat('/r ['..cfg.main.tar..']: Патруль г. Лас-Вентурас. '..naparnik())
                 end
             end
-            if post == 22 then
-                if cfg.main.tar == nil then
-                    sampSendChat('/r РџР°С‚СЂСѓР»СЊ Р›Р’Р°. '..naparnik())
-                else
-                    sampSendChat('/r ['..cfg.main.tar..']: РџР°С‚СЂСѓР»СЊ Р›Р’Р°. '..naparnik())
-                end
-            end
-            lua_thread.create(function()
-                if post == 23 then
-                    if frak == 'LSPD' then
-                        sampSendChat('/d SFPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'SFPD' then
-                        sampSendChat('/d LSPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'LVPD' then
-                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | РџРµСЂРµСЃРµС‡РµРЅРёРµ СЋСЂРёСЃРґРёРєС†РёРё')
-                    end
-                end
-                if post == 24 then
-                    if frak == 'LSPD' then
-                        sampSendChat('/d LVPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'LVPD' then
-                        sampSendChat('/d LSPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'SFPD' then
-                        submenus_show(yrisdkld1405, '{9966CC}'..script.this.name..'{ffffff} | РџРµСЂРµСЃРµС‡РµРЅРёРµ СЋСЂРёСЃРґРёРєС†РёРё')
-                    end
-                end
-                if post == 25 then
-                    if frak == 'LSPD' then
-                        sampSendChat('/d LVPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'LVPD' then
-                        sampSendChat('/d LSPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'SFPD' then
-                        submenus_show(yrisdkld1405, '{9966CC}'..script.this.name..'{ffffff} | РџРµСЂРµСЃРµС‡РµРЅРёРµ СЋСЂРёСЃРґРёРєС†РёРё')
-                    end
-                end
-                if post == 26 then
-                    if frak == 'LSPD' then
-                        sampSendChat('/d LVPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'LVPD' then
-                        sampSendChat('/d LSPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'SFPD' then
-                        submenus_show(yrisdkld1405, '{9966CC}'..script.this.name..'{ffffff} | РџРµСЂРµСЃРµС‡РµРЅРёРµ СЋСЂРёСЃРґРёРєС†РёРё')
-                    end
-                end
-                if post == 27 then
-                    if frak == 'LVPD' then
-                        sampSendChat('/d SFPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'SFPD' then
-                        sampSendChat('/d LVPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'LSPD' then
-                        submenus_show(yrisdkld1406, '{9966CC}'..script.this.name..'{ffffff} | РџРµСЂРµСЃРµС‡РµРЅРёРµ СЋСЂРёСЃРґРёРєС†РёРё')
-                    end
-                end
-                if post == 28 then
-                    if frak == 'LVPD' then
-                        sampSendChat('/d SFPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'SFPD' then
-                        sampSendChat('/d LVPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'LSPD' then
-                        submenus_show(yrisdkld1406, '{9966CC}'..script.this.name..'{ffffff} | РџРµСЂРµСЃРµС‡РµРЅРёРµ СЋСЂРёСЃРґРёРєС†РёРё')
-                    end
-                end
-                if post == 29 then
-                    if frak == 'LSPD' then
-                        sampSendChat('/d SFPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'SFPD' then
-                        sampSendChat('/d LSPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'LVPD' then
-                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | РџРµСЂРµСЃРµС‡РµРЅРёРµ СЋСЂРёСЃРґРёРєС†РёРё')
-                    end
-                end
-                if post == 30 then
-                    if frak == 'LSPD' then
-                        sampSendChat('/d SFPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'SFPD' then
-                        sampSendChat('/d LSPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'LVPD' then
-                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | РџРµСЂРµСЃРµС‡РµРЅРёРµ СЋСЂРёСЃРґРёРєС†РёРё')
-                    end
-                end
-                if post == 31 then
-                    if frak == 'LSPD' then
-                        sampSendChat('/d SFPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'SFPD' then
-                        sampSendChat('/d LSPD, РїРµСЂРµСЃРµРєР°СЋ РІР°С€Сѓ СЋСЂРёСЃРґРёРєС†РёСЋ, РїРѕРіРѕРЅСЏ.')
-                    elseif frak == 'LVPD' then
-                        submenus_show(yrisdkld1404, '{9966CC}'..script.this.name..'{ffffff} | РџРµСЂРµСЃРµС‡РµРЅРёРµ СЋСЂРёСЃРґРёРєС†РёРё')
-                    end
-                end
-            end)
         end
-        if not isCharInAnyCar(PLAYER_PED) then
-            if post ~= nil then
-                if getNameSphere(post) ~= nil then
+        if post == 7 or post == 12 or post == 13 or post == 14 or post == 18 then
+            if not cfg.main.tarb then
+                sampSendChat('/r Пост: '..getNameSphere(post)..'. '..naparnik())
+            else
+                sampSendChat('/r ['..cfg.main.tar..']: Пост: '..getNameSphere(post)..'. '..naparnik())
+            end
+        end
+        if post == 21 then
+            if not cfg.main.tarb then
+                sampSendChat('/r Патруль опасного района. '..naparnik())
+            else
+                sampSendChat('/r ['..cfg.main.tar..']: Патруль опасного района. '..naparnik())
+            end
+        end
+        if post == 22 then
+            if cfg.main.tar == nil then
+                sampSendChat('/r Патруль ЛВа. '..naparnik())
+            else
+                sampSendChat('/r ['..cfg.main.tar..']: Патруль ЛВа. '..naparnik())
+            end
+        end
+        lua_thread.create(function()
+            if post == 23 then
+                if frak == 'LSPD' then
+                    sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'SFPD' then
+                    sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'LVPD' then
+                    submenus_show(yrisdkld1404, '{9966CC}FBI Tools{ffffff} | Пересечение юрисдикции')
+                end
+            end
+            if post == 24 then
+                if frak == 'LSPD' then
+                    sampSendChat('/d LVPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'LVPD' then
+                    sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'SFPD' then
+                    submenus_show(yrisdkld1405, '{9966CC}FBI Tools{ffffff} | Пересечение юрисдикции')
+                end
+            end
+            if post == 25 then
+                if frak == 'LSPD' then
+                    sampSendChat('/d LVPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'LVPD' then
+                    sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'SFPD' then
+                    submenus_show(yrisdkld1405, '{9966CC}FBI Tools{ffffff} | Пересечение юрисдикции')
+                end
+            end
+            if post == 26 then
+                if frak == 'LSPD' then
+                    sampSendChat('/d LVPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'LVPD' then
+                    sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'SFPD' then
+                    submenus_show(yrisdkld1405, '{9966CC}FBI Tools{ffffff} | Пересечение юрисдикции')
+                end
+            end
+            if post == 27 then
+                if frak == 'LVPD' then
+                    sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'SFPD' then
+                    sampSendChat('/d LVPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'LSPD' then
+                    submenus_show(yrisdkld1406, '{9966CC}FBI Tools{ffffff} | Пересечение юрисдикции')
+                end
+            end
+            if post == 28 then
+                if frak == 'LVPD' then
+                    sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'SFPD' then
+                    sampSendChat('/d LVPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'LSPD' then
+                    submenus_show(yrisdkld1406, '{9966CC}FBI Tools{ffffff} | Пересечение юрисдикции')
+                end
+            end
+            if post == 29 then
+                if frak == 'LSPD' then
+                    sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'SFPD' then
+                    sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'LVPD' then
+                    submenus_show(yrisdkld1404, '{9966CC}FBI Tools{ffffff} | Пересечение юрисдикции')
+                end
+            end
+            if post == 30 then
+                if frak == 'LSPD' then
+                    sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'SFPD' then
+                    sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'LVPD' then
+                    submenus_show(yrisdkld1404, '{9966CC}FBI Tools{ffffff} | Пересечение юрисдикции')
+                end
+            end
+            if post == 31 then
+                if frak == 'LSPD' then
+                    sampSendChat('/d SFPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'SFPD' then
+                    sampSendChat('/d LSPD, пересекаю вашу юрисдикцию, погоня.')
+                elseif frak == 'LVPD' then
+                    submenus_show(yrisdkld1404, '{9966CC}FBI Tools{ffffff} | Пересечение юрисдикции')
+                end
+            end
+        end)
+    end
+    if not isCharInAnyCar(PLAYER_PED) then
+        if post ~= nil and post ~= 8 then
+            if getNameSphere(post) ~= nil then
+                if not cfg.main.tarb then
+                    sampSendChat('/r Пост: '..getNameSphere(post)..'. '..naparnik())
+                else
+                    sampSendChat('/r ['..cfg.main.tar..']: Пост: '..getNameSphere(post)..'. '..naparnik())
+                end
+                if post == 8 then
                     if not cfg.main.tarb then
-                        sampSendChat('/r РџРѕСЃС‚: '..getNameSphere(post)..'. '..naparnik())
+                        sampSendChat('/r Пост: '..getNameSphere(post)..'. '..naparnik())
                     else
-                        sampSendChat('/r ['..cfg.main.tar..']: РџРѕСЃС‚: '..getNameSphere(post)..'. '..naparnik())
+                        sampSendChat('/r ['..cfg.main.tar..']: Пост: '..getNameSphere(post)..'. '..naparnik())
                     end
                 end
             end
@@ -5862,9 +4706,9 @@ function kmdc(pam)
         local id = tonumber(pam)
         if id ~= nil then
             if sampIsPlayerConnected(id) then
-                sampSendChat(("/me %s РљРџРљ Рё %s С„РѕС‚РѕРіСЂР°С„РёСЋ С‡РµР»РѕРІРµРєР°"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°', cfg.main.male and 'СЃРґРµР»Р°Р»' or 'СЃРґРµР»Р°Р»Р°'))
+                sampSendChat(("/me %s КПК и %s фотографию человека"):format(cfg.main.male and 'достал' or 'достала', cfg.main.male and 'сделал' or 'сделала'))
                 wait(cfg.commands.zaderjka)
-                sampSendChat(("/do РљРџРљ РґР°Р» РёРЅС„РѕСЂРјР°С†РёСЋ: РРјСЏ: %s."):format(sampGetPlayerNickname(id):gsub('_', ' ')))
+                sampSendChat(("/do КПК дал информацию: Имя: %s."):format(sampGetPlayerNickname(id):gsub('_', ' ')))
                 wait(cfg.commands.zaderjka)
                 sampSendChat(("/mdc %s"):format(id))
                 if cfg.commands.kmdctime then
@@ -5876,10 +4720,10 @@ function kmdc(pam)
                     setVirtualKeyDown(key.VK_F8, false)
                 end
             else
-                ftext("РРіСЂРѕРє РѕС„С„Р»Р°Р№РЅ")
+                ftext("Игрок оффлайн")
             end
         else
-            ftext("Р’РІРµРґРёС‚Рµ: /kmdc [id]")
+            ftext("Введите: /kmdc [id]")
         end
     end)
 end
@@ -5889,7 +4733,7 @@ function fvz(pam)
     local _, myid = sampGetPlayerIdByCharHandle(playerPed)
     if frak == 'FBI' then
         if id == nil then
-            ftext("Р’РІРµРґРёС‚Рµ: /fvz [id]")
+            ftext("Введите: /fvz [id]")
         end
         if id ~= nil and sampIsPlayerConnected(id) then
             lua_thread.create(function()
@@ -5897,16 +4741,16 @@ function fvz(pam)
                 sampSendChat('/mdc '..id)
                 wait(1400)
                 if wfrac == 'LSPD' or wfrac == 'SFPD' or wfrac == 'LVPD' or wfrac == 'LVa' or wfrac == 'SFa' then
-                    sampSendChat(string.format('/d %s, %s, СЏРІРёС‚РµСЃСЊ РІ РѕС„РёСЃ Р¤Р‘Р  СЃРѕ СЃС‚Р°СЂС€РёРјРё. РљР°Рє РїСЂРёРЅСЏР»Рё? РћС‚РІРµС‚ РЅР° РїРґР¶.%s', wfrac, sampGetPlayerNickname(id):gsub('_', ' '), myid))
+                    sampSendChat(string.format('/d %s, %s, явитесь в офис ФБР со старшими. Как приняли? Ответ на пдж.%s', wfrac, sampGetPlayerNickname(id):gsub('_', ' '), myid))
                 else
-                    ftext('Р§РµР»РѕРІРµРє РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃРѕС‚СЂСѓРґРЅРёРєРѕРј PD/Army')
+                    ftext('Человек не является сотрудником PD/Army')
                 end
                 warnst = false
                 wfrac = nil
             end)
         end
     else
-        ftext("Р’С‹ РЅРµ СЃРѕС‚СЂСѓРґРЅРёРє Р¤Р‘Р ")
+        ftext("Вы не сотрудник ФБР")
     end
 end
 
@@ -5916,18 +4760,18 @@ function ftazer(pam)
         if cfg.commands.ftazer then
             if id ~= nil then
                 if id >=1 and id <=3 then
-                    sampSendChat(("/me %s РёР· РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ РєР°СЂРјР°РЅР° Р±РµСЂСѓС€Рё"):format(cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
+                    sampSendChat(("/me %s из внутреннего кармана беруши"):format(cfg.main.male and 'достал' or 'достала'))
                     wait(1400)
-                    sampSendChat(("/me %s Р±РµСЂСѓС€Рё Рё %s"):format(cfg.main.male and 'РЅР°РґРµР»' or 'РЅР°РґРµР»Р°', cfg.main.male and 'Р·Р°Р¶РјСѓСЂРёР»СЃСЏ' or 'Р·Р°Р¶РјСѓСЂРёР»Р°СЃСЊ'))
+                    sampSendChat(("/me %s беруши и %s"):format(cfg.main.male and 'надел' or 'надела', cfg.main.male and 'зажмурился' or 'зажмурилась'))
                     wait(1400)
-                    sampSendChat(("/me %s СЃРІРµС‚РѕС€СѓРјРѕРІСѓСЋ РіСЂР°РЅР°С‚Сѓ"):format(cfg.main.male and 'Р±СЂРѕСЃРёР»' or 'Р±СЂРѕСЃРёР»Р°'))
+                    sampSendChat(("/me %s светошумовую гранату"):format(cfg.main.male and 'бросил' or 'бросила'))
                     wait(1400)
                     sampSendChat(("/ftazer %s"):format(id))
                 else
-                    ftext("Р—РЅР°С‡РµРЅРёРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РјРµРЅС‚С€Рµ 1 Рё Р±РѕР»СЊС€Рµ 3!")
+                    ftext("Значение не может быть ментше 1 и больше 3!")
                 end
             else
-                ftext("Р’РІРµРґРёС‚Рµ: /ftazer [С‚РёРї]")
+                ftext("Введите: /ftazer [тип]")
             end
         else
             sampSendChat(("/ftazer %s"):format(pam))
@@ -5937,7 +4781,7 @@ end
 
 function df()
     lua_thread.create(function()
-        submenus_show(dfmenu, "{9966cc}"..script.this.name.." {ffffff}| Bomb Menu")
+        submenus_show(dfmenu, "{9966cc}FBI Tools {ffffff}| Bomb Menu")
     end)
 end
 
@@ -5945,7 +4789,7 @@ function fbd(pam)
     local id = tonumber(pam)
     if frak == 'FBI' then
         if id == nil then
-            ftext("Р’РІРµРґРёС‚Рµ: /fbd [id]")
+            ftext("Введите: /fbd [id]")
         end
         if id ~= nil and sampIsPlayerConnected(id) then
             lua_thread.create(function()
@@ -5954,20 +4798,21 @@ function fbd(pam)
                 sampSendChat('/mdc '..id)
                 wait(1400)
                 if wfrac == 'LSPD' or wfrac == 'SFPD' or wfrac == 'LVPD' then
-                    sampSendChat(string.format('/d %s, %s, РџСЂРёС‡РёРЅР° РёР·РјРµРЅРµРЅРёСЏ Р‘Р” РЅР° Рї.%s', wfrac, sampGetPlayerNickname(id):gsub('_', ' '), myid))
+                    sampSendChat(string.format('/d %s, %s, Причина изменения БД на п.%s', wfrac, sampGetPlayerNickname(id):gsub('_', ' '), myid))
                 else
-                    ftext('Р§РµР»РѕРІРµРє РЅРµ СЏРІР»СЏРµС‚СЃСЏ СЃРѕС‚СЂСѓРґРЅРёРєРѕРј PD')
+                    ftext('Человек не является сотрудником PD')
                 end
                 warnst = false
                 wfrac = nil
             end)
         end
     else
-        ftext("Р’С‹ РЅРµ СЃРѕС‚СЂСѓРґРЅРёРє Р¤Р‘Р ")
+        ftext("Вы не сотрудник ФБР")
     end
 end
 
 function cc()
+    local memory = require "memory"
     memory.fill(sampGetChatInfoPtr() + 306, 0x0, 25200)
     memory.write(sampGetChatInfoPtr() + 306, 25562, 4, 0x0)
     memory.write(sampGetChatInfoPtr() + 0x63DA, 1, 1)
@@ -5978,9 +4823,9 @@ function blg(pam)
     if id and frack and pric and sampIsPlayerConnected(id) then
         name = sampGetPlayerNickname(id)
         rpname = name:gsub('_', ' ')
-        sampSendChat(string.format("/d %s, Р±Р»Р°РіРѕРґР°СЂСЋ %s Р·Р° %s. Р¦РµРЅРёС‚Рµ", frack, rpname, pric))
+        sampSendChat(string.format("/d %s, благодарю %s за %s. Цените", frack, rpname, pric))
     else
-        ftext("Р’РІРµРґРёС‚Рµ: /blg [id] [Р¤СЂР°РєС†РёСЏ] [РџСЂРёС‡РёРЅР°]", -1)
+        ftext("Введите: /blg [id] [Фракция] [Причина]", -1)
     end
 end
 
@@ -6013,19 +4858,19 @@ function mcheck()
 end
 
 function dlog()
-    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Р›РѕРі СЃРѕРѕР±С‰РµРЅРёР№ РґРµРїР°СЂС‚Р°РјРµРЅС‚Р°', table.concat(departament, '\n'), 'В»', 'x', 0)
+    sampShowDialog(97987, '{9966cc}FBI Tools {ffffff} | Лог сообщений департамента', table.concat(departament, '\n'), '»', 'x', 0)
 end
 
 function rlog()
-    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Р›РѕРі СЃРѕРѕР±С‰РµРЅРёР№ СЂР°С†РёРё', table.concat(radio, '\n'), 'В»', 'x', 0)
+    sampShowDialog(97987, '{9966cc}FBI Tools {ffffff} | Лог сообщений рации', table.concat(radio, '\n'), '»', 'x', 0)
 end
 
 function sulog()
-    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Р›РѕРі РІС‹РґР°С‡Рё СЂРѕР·С‹СЃРєР°', table.concat(wanted, '\n'), 'В»', 'x', 0)
+    sampShowDialog(97987, '{9966cc}FBI Tools {ffffff} | Лог выдачи розыска', table.concat(wanted, '\n'), '»', 'x', 0)
 end
 
 function smslog()
-    sampShowDialog(97987, '{9966cc}'..script.this.name..' {ffffff} | Р›РѕРі SMS', table.concat(sms, '\n'), 'В»', 'x', 0)
+    sampShowDialog(97987, '{9966cc}FBI Tools {ffffff} | Лог SMS', table.concat(sms, '\n'), '»', 'x', 0)
 end
 
 function ticket(pam)
@@ -6033,20 +4878,20 @@ function ticket(pam)
         local id, summa, reason = pam:match('(%d+) (%d+) (.+)')
         if id and summa and reason then
             if cfg.commands.ticket then
-                sampSendChat(string.format("/me %s Р±Р»Р°РЅРє Рё СЂСѓС‡РєСѓ", cfg.main.male and 'РґРѕСЃС‚Р°Р»' or 'РґРѕСЃС‚Р°Р»Р°'))
+                sampSendChat(string.format("/me %s бланк и ручку", cfg.main.male and 'достал' or 'достала'))
                 wait(cfg.commands.zaderjka)
-                sampSendChat("/do Р‘Р»Р°РЅРє Рё СЂСѓС‡РєР° РІ СЂСѓРєР°С….")
+                sampSendChat("/do Бланк и ручка в руках.")
                 wait(cfg.commands.zaderjka)
-                sampSendChat("/me РЅР°С‡РёРЅР°РµС‚ Р·Р°РїРѕР»РЅСЏС‚СЊ Р±Р»Р°РЅРє")
+                sampSendChat("/me начинает заполнять бланк")
                 wait(cfg.commands.zaderjka)
-                sampSendChat("/do Р‘Р»Р°РЅРє Р·Р°РїРѕР»РЅРµРЅ.")
+                sampSendChat("/do Бланк заполнен.")
                 wait(cfg.commands.zaderjka)
-                sampSendChat(string.format("/me %s Р±Р»Р°РЅРє РЅР°СЂСѓС€РёС‚РµР»СЋ", cfg.main.male and 'РїРµСЂРµРґР°Р»' or 'РїРµСЂРµРґР°Р»Р°'))
+                sampSendChat(string.format("/me %s бланк нарушителю", cfg.main.male and 'передал' or 'передала'))
                 wait(1400)
             end
             sampSendChat(string.format('/ticket %s %s %s', id, summa, reason))
         else
-            ftext('Р’РІРµРґРёС‚Рµ: /ticket [id] [СЃСѓРјРјР°] [РїСЂРёС‡РёРЅР°]')
+            ftext('Введите: /ticket [id] [сумма] [причина]')
         end
     end)
 end
@@ -6074,16 +4919,16 @@ function ssuz(pam)
     elseif pam:match('(%d+)') then
         zid = pam:match('(%d+)')
         if sampIsPlayerConnected(tonumber(zid)) then
-            sampShowDialog(1765, '{9966cc}'..script.this.name..' {ffffff}| Р’С‹РґР°С‡Р° СЂРѕР·С‹СЃРєР° РёРіСЂРѕРєСѓ {9966cc}'..sampGetPlayerNickname(tonumber(zid)).. '[' ..zid.. ']', table.concat(dsuz, '\n').. '\n\n{ffffff}Р’С‹Р±РµСЂРёС‚Рµ РЅРѕРјРµСЂ РґР»СЏ РѕР±СЉСЏРІР»РµРЅРёСЏ РІ СЂРѕР·С‹СЃРє. РџСЂРёРјРµСЂ: 15', 'В»', 'x', 1)
+            sampShowDialog(1765, '{9966cc}FBI Tools {ffffff}| Выдача розыска игроку {9966cc}'..sampGetPlayerNickname(tonumber(zid)).. '[' ..zid.. ']', table.concat(dsuz, '\n').. '\n\n{ffffff}Выберите номер для объявления в розыск. Пример: 15', '»', 'x', 1)
         end
     elseif #pam == 0 then
-        ftext('Р’РІРµРґРёС‚Рµ: /z [id] [РїР°СЂР°РјРµС‚СЂ(РЅРµ РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ)]')
+        ftext('Введите: /z [id] [параметр(не опционально)]')
     end
 end
 
 function rt(pam)
     if #pam == 0 then
-        ftext("Р’РІРµРґРёС‚Рµ /rt [С‚РµРєСЃС‚]")
+        ftext("Введите /rt [текст]")
     else
         sampSendChat('/r '..pam)
     end
@@ -6098,8 +4943,8 @@ function ooplist(pam)
                 wait(1400)
             end
         else
-            sampShowDialog(2458, '{9966cc}'..script.this.name..' | {ffffff}РЎРїРёСЃРѕРє РћРћРџ', table.concat(ooplistt, '\n'), 'В»', "x", 2)
-            ftext('Р”Р»СЏ РѕС‚РїСЂР°РІРєРё СЃРїРёСЃРєР° РћРћРџ Р°РґРІРѕРєР°С‚Сѓ РІРІРµРґРёС‚Рµ /ooplist [id]')
+            sampShowDialog(2458, '{9966cc}FBI Tools | {ffffff}Список ООП', table.concat(ooplistt, '\n'), '»', "x", 2)
+            ftext('Для отправки списка ООП адвокату введите /ooplist [id]')
         end
     end)
 end
@@ -6113,24 +4958,27 @@ function fkv(pam)
             coordY = (kvadrat1(kvadY) * 250 - 3125) * - 1
         end
     else
-        ftext('Р’РІРµРґРёС‚Рµ: /fkv [РєРІР°РґСЂР°С‚]')
-        ftext('РџСЂРёРјРµСЂ: /fkv Р›-6')
+        ftext('Введите: /fkv [квадрат]')
+        ftext('Пример: /fkv Л-6')
     end
 end
 
 function fnr()
     lua_thread.create(function()
         vixodid = {}
-		fnrstatus = true
+		status = true
 		sampSendChat('/members')
         while not gotovo do wait(0) end
         wait(1400)
         for k, v in pairs(vixodid) do
-            sampSendChat('/sms '..v..' РќР° СЂР°Р±РѕС‚Сѓ')
+            sampSendChat('/sms '..v..' На работу')
             wait(1400)
         end
+        players2 = {'{ffffff}Ник\t{ffffff}Ранг\t{ffffff}Статус'}
+		players1 = {'{ffffff}Ник\t{ffffff}Ранг'}
 		gotovo = false
         status = false
+        vixodid = {}
 	end)
 end
 
@@ -6158,183 +5006,3 @@ function strobes()
 	end
 end
 function screen() local memory = require 'memory' memory.setuint8(sampGetBase() + 0x119CBC, 1) end
-
-function Player:new(id, sRang, iRang, status, invite, afk, sec, nick)
-	local obj = {
-		id = id,
-		nickname = nick,
-		iRang = tonumber(iRang),
-		sRang = u8(sRang),
-		status = u8(status),
-		invite = invite,
-		afk = afk,
-		sec = tonumber(sec)
-	}
-
-	setmetatable(obj, self)
-	self.__index = self
-
-	return obj
-end
-function getColorForSeconds(sec)
-	if sec > 0 and sec <= 50 then
-		return imgui.ImVec4(1, 1, 0, 1)
-	elseif sec > 50 and sec <= 100 then
-		return imgui.ImVec4(1, 159/255, 32/255, 1)
-	elseif sec > 100 and sec <= 200 then
-		return imgui.ImVec4(1, 93/255, 24/255, 1)
-	elseif sec > 200 and sec <= 300 then
-		return imgui.ImVec4(1, 43/255, 43/255, 1)
-	elseif sec > 300 then
-		return imgui.ImVec4(1, 0, 0, 1)
-	end
-end
-function getColor(ID)
-	PlayerColor = sampGetPlayerColor(ID)
-	a, r, g, b = explode_argb(PlayerColor)
-	return r/255, g/255, b/255, 1
-end
-function explode_argb(argb)
-    local a = bit.band(bit.rshift(argb, 24), 0xFF)
-    local r = bit.band(bit.rshift(argb, 16), 0xFF)
-    local g = bit.band(bit.rshift(argb, 8), 0xFF)
-    local b = bit.band(argb, 0xFF)
-    return a, r, g, b
-end
-
-function pr()
-    lua_thread.create(function()
-        sampSendChat("Р’С‹ Р°СЂРµСЃС‚РѕРІР°РЅС‹, Сѓ РІР°СЃ РµСЃС‚СЊ РїСЂР°РІРѕ С…СЂР°РЅРёС‚СЊ РјРѕР»С‡Р°РЅРёРµ. Р’СЃС‘, С‡С‚Рѕ РІС‹ СЃРєР°Р¶РµС‚Рµ, РјРѕР¶РµС‚ Рё Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ РїСЂРѕС‚РёРІ РІР°СЃ РІ СЃСѓРґРµ.")
-        wait(cfg.commands.zaderjka)
-        sampSendChat("РЈ РІР°СЃ РµСЃС‚СЊ РїСЂР°РІРѕ РЅР° Р°РґРІРѕРєР°С‚Р° Рё РЅР° РѕРґРёРЅ С‚РµР»РµС„РѕРЅРЅС‹Р№ Р·РІРѕРЅРѕРє. Р’Р°Рј РїРѕРЅСЏС‚РЅС‹ РІР°С€Рё РїСЂР°РІР°?")
-    end)
-end
-
-function getCompl()
-    local t = {}
-    if cfg.autobp.armour then table.insert(t, 5) end
-    if cfg.autobp.spec then table.insert(t, 6) end
-    if cfg.autobp.deagle then 
-        table.insert(t, 0)
-        if cfg.autobp.dvadeagle then table.insert(t, 0) end
-    end
-    if cfg.autobp.shot then 
-        table.insert(t, 1)
-        if cfg.autobp.dvashot then table.insert(t, 1) end
-    end
-    if cfg.autobp.smg then 
-        table.insert(t, 2)
-        if cfg.autobp.dvasmg then table.insert(t, 2) end
-    end
-    if cfg.autobp.m4 then 
-        table.insert(t, 3)
-        if cfg.autobp.dvam4 then table.insert(t, 3) end
-    end
-    if cfg.autobp.rifle then 
-        table.insert(t, 4)
-        if cfg.autobp.dvarifle then table.insert(t, 4) end
-    end
-    return t
-end
-
-function getAmmoInClip()
-	local struct = getCharPointer(PLAYER_PED)
-	local prisv = struct + 0x0718
-	local prisv = memory.getint8(prisv, false)
-	local prisv = prisv * 0x1C
-	local prisv2 = struct + 0x5A0
-	local prisv2 = prisv2 + prisv
-	local prisv2 = prisv2 + 0x8
-	local ammo = memory.getint32(prisv2, false)
-	return ammo
-end
-
-function getFreeCost(lvl)
-	if lvl >= 1 and lvl <= 2 then cost = 1000 end
-	if lvl >= 3 and lvl <= 6 then cost = 3000 end
-	if lvl >= 7 and lvl <= 13 then cost = 6000 end
-	if lvl >= 14 and lvl <= 23 then cost = 9000 end
-	if lvl >= 24 and lvl <= 35 then cost = 14000 end
-	if lvl >= 36 then cost = 15000 end
-	return cost
-end
-
-function string.split(inputstr, sep, limit)
-    if limit == nil then limit = 0 end
-    if sep == nil then sep = "%s" end
-    local t={} ; i=1
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-        if i >= limit and limit > 0 then
-            if t[i] == nil then
-                t[i] = ""..str
-            else
-                t[i] = t[i]..sep..str
-            end
-        else
-            t[i] = str
-            i = i + 1
-        end
-    end
-    return t
-end
-
-function registerCommandsBinder()
-    for k, v in pairs(commands) do
-        if sampIsChatCommandDefined(v.cmd) then sampUnregisterChatCommand(v.cmd) end
-        sampRegisterChatCommand(v.cmd, function(pam)
-            lua_thread.create(function()
-                local params = string.split(pam, " ", v.params)
-                local cmdtext = v.text
-                if #params < v.params then
-                    local paramtext = ""
-                    for i = 1, v.params do
-                        paramtext = paramtext .. "[РїР°СЂР°РјРµС‚СЂ"..i.."] "
-                    end
-                    ftext("Р’РІРµРґРёС‚Рµ: /"..v.cmd.." "..paramtext, -1)
-                else
-                    for line in cmdtext:gmatch('[^\r\n]+') do
-
-                        if line:match("^{wait%:%d+}$") then
-                            wait(line:match("^%{wait%:(%d+)}$"))
-                        elseif line:match("^{screen}$") then
-                            screen()
-                        else
-                            local bIsEnter = string.match(line, "^{noe}(.+)") ~= nil
-                            local bIsF6 = string.match(line, "^{f6}(.+)") ~= nil
-                            local keys = {
-                                ["{f6}"] = "",
-                                ["{noe}"] = "",
-                                ["{myid}"] = select(2, sampGetPlayerIdByCharHandle(PLAYER_PED)),
-                                ["{kv}"] = kvadrat(),
-                                ["{targetid}"] = targetid,
-                                ["{targetrpnick}"] = sampGetPlayerNicknameForBinder(targetid):gsub('_', ' '),
-                                ["{naparnik}"] = naparnik(),
-                                ["{myrpnick}"] = sampGetPlayerNickname(select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))):gsub("_", " "),
-                                ["{smsid}"] = smsid,
-                                ["{smstoid}"] = smstoid,
-                                ["{rang}"] = rang,
-                                ["{frak}"] = frak,
-                                ["{megafid}"] = gmegafid,
-                                ["{dl}"] = mcid
-                            }
-                            for k1, v1 in pairs(keys) do
-                                line = line:gsub(k1, v1)
-                            end
-
-                            if not bIsEnter then
-                                if bIsF6 then
-                                    sampProcessChatInput(line)
-                                else
-                                    sampSendChat(line)
-                                end
-                            else
-                                sampSetChatInputText(line)
-                                sampSetChatInputEnabled(true)
-                            end
-                        end
-                    end
-                end
-            end)
-        end)
-    end
-end
