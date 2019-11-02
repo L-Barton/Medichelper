@@ -1,4 +1,4 @@
-﻿script_name("FBI Tools")
+script_name("FBI Tools")
 script_authors("Thomas Lawson, Sesh Jefferson")
 script_version(3.31)
 
