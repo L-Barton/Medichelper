@@ -1,6 +1,6 @@
-script_name("FBI Tools")
+﻿script_name("FBI Tools")
 script_authors("Thomas Lawson, Sesh Jefferson")
-script_version(3.32)
+script_version(3.31)
 
 require 'lib.moonloader'
 require 'lib.sampfuncs'
@@ -2133,7 +2133,7 @@ local tCarsType = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1
 
 function update()
     local fpath = os.getenv('TEMP') .. '\\ftulsupd.json' 
-    downloadUrlToFile('https://raw.githubusercontent.com/WhackerH/kirya/master/ftulsupd.json', fpath, function(id, status, p1, p2)
+    downloadUrlToFile('https://raw.githubusercontent.com/L-Barton/Medichelper/master/ftulsupd.json', fpath, function(id, status, p1, p2)
         if status == dlstatus.STATUS_ENDDOWNLOADDATA then
             local f = io.open(fpath, 'r')
             if f then
