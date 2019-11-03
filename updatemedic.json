@@ -1,5 +1,6 @@
 { 
 "latest": "1.2", 
 "updateurl": "https://raw.githubusercontent.com/L-Barton/Medichelper/master/MOH.lua", 
-"updlist": ""
+"updlist": "
+  -Добавлено автообновление"
 }
