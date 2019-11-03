@@ -1,6 +1,6 @@
 script_name("FBI Tools")
-script_authors("Thomas Lawson, Sesh Jefferson")
-script_version(3.31)
+script_authors("Luis Barton")
+script_version(3.33)
 
 require 'lib.moonloader'
 require 'lib.sampfuncs'
