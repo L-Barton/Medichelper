@@ -1,6 +1,6 @@
 {
   "latest": 3.32,
-  "updateurl": "https://sourceforge.net/p/medichelper/code/ci/master/tree/fbitools.lua?format=raw",
+  "updateurl": "https://raw.githubusercontent.com/L-Barton/Medichelper/master/fbitools.lua",
   "updlist": "-
-  -Test 4444444"
+  -Test 5"
 }
